@@ -66,7 +66,7 @@ var hmac = SHA512(combinedString, merchantKey);
 var authKey = Base64(hmac);
 ```
 
-Samples in specific server-side languages are available in the samples folder of this repository.
+Samples in specific server-side languages are available in the `samples` folder of this repository; look for a file named `Hmac` in the `shared` folder of your preferred language's folder.
 
 #### <a name="respHash"></a>Response Hash
 
