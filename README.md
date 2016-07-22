@@ -30,6 +30,7 @@ Then, in a separate `<script>` tag, initialize the library:
 PayJS(['PayJS/UI'], // the name of the module we want to use
 function($UI) { // assigning the module to a variable
     $UI.Initialize({ // configuring the UI
+        apiKey: "GvVtRUT9hIchmOO3j2ak4JgdGpIPYPG4", // your developer ID
         merchantId: "417227771521", // your 12-digit account identifier
         authKey: "H1x4ECB6TkeTSfkABNQXHNs5=", // covered in the next section!
         requestType: "payment", // use can use "vault" to tokenize a card without charging it
@@ -187,6 +188,8 @@ The configuration object can contain:
 Name | Description | Values | Length | Required | Default
 ---- | ----------- | ------ | ------ | -------- | -------
 debug | toggles verbose logging to browser console | boolean | N/A | no | false
+environment | chooses between the certification and production environments | "cert" or "prod" | 4 | no | cert
+apiKey | your developer id | alphanumeric string | 32 | yes | N/A
 merchantId | identifies your gateway account | numeric string | 12 | yes | N/A
 authKey | verifies request integrity | base-64 string | 88 | yes | N/A
 requestId | an identifier of your choosing | string | 1+ | yes | N/A

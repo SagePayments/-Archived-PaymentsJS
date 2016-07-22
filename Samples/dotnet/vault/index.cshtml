@@ -34,6 +34,7 @@
     PayJS(['PayJS/Request', 'PayJS/Response', 'PayJS/Core', 'PayJS/UI', 'jquery'],
     function($REQ, $RESP, $CORE, $UI, $) {
         $UI.Initialize({
+            apiKey: "GvVtRUT9hIchmOO3j2ak4JgdGpIPYPG4",
             merchantId: "@MerchantId",
             authKey: "@AuthKey",
             requestType: "@RequestType",
@@ -58,6 +59,7 @@
                 $("#paymentButton").click(function() {
                     $("#sps-holder").remove(); // remove initializations from previous samples
                     $CORE.Initialize({
+                        apiKey: "GvVtRUT9hIchmOO3j2ak4JgdGpIPYPG4",
                         merchantId: "@MerchantId",
                         authKey: "@AuthKey2",
                         requestType: "@RequestType2",
