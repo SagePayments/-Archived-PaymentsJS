@@ -1,4 +1,5 @@
-![SageLogoGreen](https://raw.githubusercontent.com/SagePayments/PaymentsJS/master/Samples/dotnet/shared/img/logo-sage-paymentsjs-@2x.png)
+![SagePaymentsJSLogoGreen](https://raw.githubusercontent.com/SagePayments/PaymentsJS/master/Samples/dotnet/shared/img/logo-sage-paymentsjs-@2x.png)
+![SagePaymentsJSUI](https://developer.sagepayments.com/sites/default/files/payjs_v1.png)
 ---
 
 PaymentsJS is a JavaScript library that enables developers to quickly start processing credit cards on their website. The library includes a pre-built user interface, while also exposing the underlying methods for use in applications with more strict UI/UX requirements. And whichever route you go, the credit card data never touches your server.
