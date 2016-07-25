@@ -105,7 +105,7 @@ If you're already using RequireJS on your page, add a path to PaymentsJS --
 ```
 requirejs.config({
     paths: {
-        "PayJS": 'https://dev.sagepayments.net/pay/js/build'
+        "PayJS": 'https://www.sagepayments.net/pay/js/build'
     },
 });
 ```
