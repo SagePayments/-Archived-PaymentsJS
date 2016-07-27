@@ -83,7 +83,7 @@ The following modules contain methods that you may want to use in your project:
 
 Name | Description
 ---- | -----------
-"jquery" | Version 2.0 of [the common jQuery library](https://jquery.com/).
+"jquery" | Version 2.0 of [the common JavaScript library](https://jquery.com/).
 "PayJS/Core" | Manages configuration settings when _not_ using the UI.
 "PayJS/UI" | Manages configuration settings when using the UI.
 "PayJS/Request" | Sends transaction and vault requests to the gateway. 
