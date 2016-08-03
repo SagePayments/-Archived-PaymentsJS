@@ -607,7 +607,7 @@ Returns a string array containing an expiration date as `["MM", "YY"]`.
 This method takes a single argument:
 
 ```javascript
-// with a slashe
+// with a slash
 VALIDATION.getExpArray("01/18"); // MM/YY
 // => ["01", "18"];
 VALIDATION.getExpArray("1/18"); // M/YY
