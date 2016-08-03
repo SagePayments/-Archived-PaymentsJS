@@ -199,6 +199,7 @@ nonce | any unique value; duplicates will be rejected | string | any | yes | N/A
 amount | the amount to charge the card | 1, "1", 1.00, "1.00", etc. | 1-4 | when requestType = "payment" | N/A
 preAuth | toggles between authorization-only and authorization & capture | boolean | N/A | no | false (auth & cap)
 postbackUrl | a URL that will receive a copy of the gateway response | valid URI with https scheme | any | no | ""
+billing | add billing information (address/etc.) to the transaction request | see [`CORE.setBilling()`](#ref.Core.setBilling) | N/A | no | none/empty
 
 
 #### <a name="ref.Core.isInitialized"></a>isInitialized
@@ -213,6 +214,26 @@ CORE.Initialize(validSettings)
 CORE.isInitialized();
 // => true
 ```
+
+#### <a name="ref.Core.setBilling"></a>setBilling
+Adds billing information to a transaction request.
+
+This takes a single argument:
+
+```javascript
+CORE.setBilling({
+    name: "John Smith",
+    street: "123 Address St",
+    city: "Denver",
+    state: "CO",
+    postalCode: "12345",
+    country: "USA"
+});
+```
+Notes:
+
+- Billing information can also be set during initialization.
+
 
 #### <a name="ref.Core.getters"></a>getters
 These methods return information about the current configuration:
@@ -236,6 +257,8 @@ CORE.getNonce();
 // => "NoncesAreCool"
 CORE.getPhonenumber();
 // => "800-555-1234"
+CORE.getBilling();
+// => Object {name: "John Smith", street: "123 Address St", state: "CO", postalCode: "12345", country: "USA"}
 ```
 ---
 ### <a name="ref.UI"></a>PayJS/UI
