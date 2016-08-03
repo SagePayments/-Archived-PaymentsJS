@@ -6,14 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayJS_.NET", "PayJS_.NET.csproj", "{B3A19987-4E7A-4343-8812-3696BA29A631}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 2
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = http://vaavmtfs01:8080/tfs/iaas
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = PayJS_.NET.csproj
-		SccLocalPath1 = .
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		QA|Any CPU = QA|Any CPU
