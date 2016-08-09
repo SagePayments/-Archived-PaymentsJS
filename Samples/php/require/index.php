@@ -48,8 +48,7 @@
         baseUrl: "require/my/other/js",
         paths: {
             "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min",
-            //"PayJS": 'https://www.sagepayments.net/pay/js/build',
-            "PayJS": 'http://localhost:50966/js/build'
+            "PayJS": 'https://www.sagepayments.net/pay/js/build',
         },
     });
 
