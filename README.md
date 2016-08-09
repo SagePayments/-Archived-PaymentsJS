@@ -72,7 +72,7 @@ Samples in specific server-side languages are available in the `samples` folder 
 
 #### <a name="respHash"></a>Response Hash
 
-Similarly, when we send the response back to the client, it will includes a hash of the response using your Merchant Key as the private key. *Always calculate & compare this server-side before updating any orders, databases, etc.*
+Similarly, when we send the response back to the client, it will include a hash of the response using your Merchant Key as the private key. *Always calculate & compare this server-side before updating any orders, databases, etc.*
 
 ---
 ## <a name="Modules"></a>Modules
