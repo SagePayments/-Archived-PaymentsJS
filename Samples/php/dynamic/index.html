@@ -36,13 +36,13 @@
             amt = amt.toFixed(2);
 
             $.get(
-                "dynamic/auth.cshtml",
+                "dynamic/auth.php",
                 {
                     amount: amt,
                 },
                 function(authResp) {
                     $UI.Initialize({
-                        apiKey: "GvVtRUT9hIchmOO3j2ak4JgdGpIPYPG4",
+                        apiKey: authResp.apiKey,
                         merchantId: authResp.merch,
                         authKey: authResp.authKey,
                         requestType: "payment",
@@ -50,11 +50,9 @@
                         amount: amt,
                         elementId: "paymentDiv",
                         debug: true,
-                        postbackUrl: "https://www.example.com",
+                        postbackUrl: authResp.postback,
                         phoneNumber: "1-800-555-1234",
                         nonce: authResp.nonce,
-                        //modalTitle: "Potatoes",
-                        //suppressResultPage: true
                     });
                     $UI.setCallback(function(resp) {
                         console.log(resp.getResponse());

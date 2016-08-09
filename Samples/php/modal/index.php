@@ -1,5 +1,4 @@
 <?php
-    //mb_internal_encoding("UTF-8");
     require('../shared/shared.php');
     
     $requestType = "payment";
@@ -12,7 +11,6 @@
     
     $combinedString = $requestType . $requestId . $merchantCredentials['MID'] . $postbackUrl . $nonce . $amount;
     $authKey = createHmac($combinedString, $merchantCredentials["MKEY"]);
-
 ?>
 <div class="wrapper text-center">
     <h1>Modal Dialog</h1>

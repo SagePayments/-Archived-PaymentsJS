@@ -1,21 +1,22 @@
-﻿@using PayJS_Samples.Misc
-@{
-    string MerchantId = "417227771521";
-    string MerchantKey = "I5T2R2K6V1Q3";
-    string RequestId = "Invoice" + (new Random()).Next(100).ToString();
-    string Nonce = Guid.NewGuid().ToString();
-    string PostbackUrl = "https://www.example.com";
-
-    string RequestType = "payment";
-    string Amount = HttpContext.Current.Request.QueryString["amount"];
-
-    string CombinedString = RequestType + RequestId + MerchantId + PostbackUrl + Nonce + Amount;
-    string AuthKey = Hmac.GetHmac(CombinedString, MerchantKey);
-    HttpContext.Current.Response.ContentType = "text/json";
-}
+<?php
+    require('../shared/shared.php');
+    
+    $requestType = "payment";
+    $amount = $_GET["amount"];
+    
+    // some arbitrary values for this demo
+    $requestId = "Invoice" . rand(0, 1000);
+    $nonce = uniqid();
+    $postbackUrl = "https://www.example.com/";
+    
+    $combinedString = $requestType . $requestId . $merchantCredentials['MID'] . $postbackUrl . $nonce . $amount;
+    $authKey = createHmac($combinedString, $merchantCredentials["MKEY"]);
+?>
 {
-    "authKey": "@AuthKey",
-    "invoice": "@RequestId",
-    "nonce": "@Nonce",
-    "merch": "@MerchantId"
+    "authKey": "<?php echo $authKey; ?>",
+    "invoice": "<?php echo $requestId; ?>",
+    "nonce": "<?php echo $nonce; ?>",
+    "merch": "<?php echo $merchantCredentials['MID']; ?>",
+    "apiKey": "<?php echo $developerId; ?>",
+    "postback": "<?php echo $postbackUrl; ?>"
 }

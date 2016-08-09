@@ -1,19 +1,17 @@
-﻿@using PayJS_Samples.Misc
-@{
-    string MerchantId = "417227771521";
-    string MerchantKey = "I5T2R2K6V1Q3";
-    string RequestId = "Invoice" + (new Random()).Next(100).ToString();
-    string Nonce = Guid.NewGuid().ToString();
-    string PostbackUrl = "https://www.example.com/";
-
-    string RequestType = "payment";
-    string Amount = "1.00";
-    //string RequestType = "vault";
-    //string Amount = String.Empty;
-
-    string CombinedString = RequestType + RequestId + MerchantId + PostbackUrl + Nonce + Amount;
-    string AuthKey = Hmac.GetHmac(CombinedString, MerchantKey);
-}
+<?php
+    require('../shared/shared.php');
+    
+    $requestType = "payment";
+    $amount = "1.00";
+    
+    // some arbitrary values for this demo
+    $requestId = "Invoice" . rand(0, 1000);
+    $nonce = uniqid();
+    $postbackUrl = "https://www.example.com/";
+    
+    $combinedString = $requestType . $requestId . $merchantCredentials['MID'] . $postbackUrl . $nonce . $amount;
+    $authKey = createHmac($combinedString, $merchantCredentials["MKEY"]);
+?>
 <style>
     .resizeable {
         resize:horizontal;
@@ -42,18 +40,17 @@
     PayJS(['PayJS/UI', 'jquery'],
     function($UI, $) {
         $UI.Initialize({
-            apiKey: "GvVtRUT9hIchmOO3j2ak4JgdGpIPYPG4",
-            merchantId: "@MerchantId",
-            authKey: "@AuthKey",
-            requestType: "@RequestType",
-            requestId: "@RequestId",
-            amount: "@Amount",
+            apiKey: "<?php echo $developerId; ?>",
+            merchantId: "<?php echo $merchantCredentials['MID']; ?>",
+            authKey: "<?php echo $authKey; ?>",
+            requestType: "<?php echo $requestType; ?>",
+            requestId: "<?php echo $requestId; ?>",
+            amount: "<?php echo $amount; ?>",
             elementId: "paymentDiv",
             debug: true,
-            postbackUrl: "@PostbackUrl",
+            postbackUrl: "<?php echo $postbackUrl; ?>",
             phoneNumber: "1-800-555-1234",
-            nonce: "@Nonce",
-            //modalTitle: "Potatoes",
+            nonce: "<?php echo $nonce; ?>",
             //suppressResultPage: true
         });
         $UI.setCallback(function(resp) {
