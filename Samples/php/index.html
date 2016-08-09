@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>PayJS .NET Samples</title>
+    <!-- Libraries -->
+    <link href="shared/css/bootstrap.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular-route.js"></script>
+    <!-- PayJS -->
+    <!--<script type="text/javascript" src="https://www.sagepayments.net/pay/js/pay.min.js"></script>-->
+    <script type="text/javascript" src="http://localhost:50966/js/pay.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-global">
+        </div>
+        <div class="header-secondary">
+            <div class="wrapper">
+                <a href="/" class="logo-product-rev"><img src="shared/img/logo_sage.png" alt="Sage" width="57" height="22"></a>
+                <a href="/" class="logo-product"><img src="shared/img/logo-sage-paymentsjs-white-@1x.png" alt="Sage" ></a>
+                <nav class="nav-secondary">
+                    <ul>
+                        <li><a href="#/" class="menu-item">Home</a></li>
+                        <li><a href="#/modal" class="menu-item">Modal</a></li>
+                        <li><a href="#/inline" class="menu-item">Inline</a></li>
+                        <li><a href="#/require" class="menu-item">RequireJS</a></li>
+                        <li><a href="#/dynamic" class="menu-item">Dynamic</a></li>
+                        <li><a href="#/non-ui" class="menu-item">Non-UI</a></li>
+                        <li><a href="#/adaptive" class="menu-item">Adaptive</a></li>
+                        <li><a href="#/vault" class="menu-item">Tokens</a></li>
+                        <li><a href="https://github.com/SagePayments/PaymentsJS" class="menu-item">Documentation</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-body" style="height:100%;" ng-app="PayJS_SamplesApp">
+        <div class="wrapper" ng-view></div>
+    </main>
+
+    <footer class="footer">
+        <div class="wrapper">
+            <a href="http://www.sage.com" class="logo-sage"><img src="shared/img/logo_sage_rev.png" alt="Sage" width="50" height="20"></a>
+            <ul>
+                <li>Copyright &copy; 2016</li>
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Contact Us</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <!-- Misc. -->
+    <script>
+        angular.module('PayJS_SamplesApp', ['ngRoute'])
+        .config(['$routeProvider', function($routeProvider) {
+            $routeProvider
+            .when('/', { templateUrl: 'home/index.html' })
+            .when('/modal', { templateUrl: 'modal/index.php' })
+            .when('/inline', { templateUrl: 'inline/index.php' })
+            .when('/non-ui', { templateUrl: 'non-ui/index.php' })
+            .when('/require', { templateUrl: 'require/index.php' })
+            .when('/dynamic', { templateUrl: 'dynamic/index.html' })
+            .when('/adaptive', { templateUrl: 'adaptive/index.php' })
+            .when('/vault', { templateUrl: 'vault/index.php' })
+            .otherwise({ redirectTo: '/' });
+        }]);
+    </script>
+    <script type="text/javascript">
+        $(".menu-item").click(function() {
+            $(".menu-item").removeClass("active");
+            $(this).addClass("active");
+        })
+    </script>
+    <script type="text/javascript">
+        (function() {
+            affixFooter(); // initialize footer fix if no scrollbar
+            $(window).resize(affixFooter);
+
+            function affixFooter() {
+                $('.footer').removeClass('affix-bottom').addClass(function() {
+                    if (window.innerHeight >= $('body').outerHeight(true)) return 'affix-bottom';
+                });
+            }
+        }).call(this);
+    </script>
+</body>
+</html>
