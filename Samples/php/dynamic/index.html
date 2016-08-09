@@ -1,0 +1,72 @@
+﻿<style>
+    #paymentDiv {
+        width: 60%;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 15px;
+    }
+</style>
+
+<div class="wrapper text-center">
+    <h1>Dynamic</h1>
+    <p>It's not always possible to know all the initialization data up front &mdash; for instance, a non-profit might want to offer users several different donation amounts. Since the authentication hash needs to be done server-side, these cases require an extra step:</p>
+    <br />
+    <div>
+        <form class="form">
+            <div class="form-group">
+                <label class="control-label">Amount</label>
+                <input type="text" class="form-control currency" id="exampleInputDollar" value="$1.00">
+            </div>
+            <button class="btn btn-primary" id="paymentButton">Pay Now</button>
+        </form>
+        <div id="paymentDiv" hidden></div>
+        <br /><br />
+        <h5>Results:</h5>
+        <p style="width:100%"><pre><code id="paymentResponse">The response will appear here as JSON, and in your browser console as a JavaScript object.</code></pre></p>
+    </div>
+</div>
+
+<script type="text/javascript">
+    PayJS(['PayJS/UI', 'jquery'],
+    function($UI, $) {
+        $("#paymentButton").click(function() {
+            $(this).prop('disabled', true);
+
+            var amt = parseFloat($("#exampleInputDollar").val().replace('$', ''));
+            amt = amt.toFixed(2);
+
+            $.get(
+                "dynamic/auth.cshtml",
+                {
+                    amount: amt,
+                },
+                function(authResp) {
+                    $UI.Initialize({
+                        apiKey: "GvVtRUT9hIchmOO3j2ak4JgdGpIPYPG4",
+                        merchantId: authResp.merch,
+                        authKey: authResp.authKey,
+                        requestType: "payment",
+                        requestId: authResp.invoice,
+                        amount: amt,
+                        elementId: "paymentDiv",
+                        debug: true,
+                        postbackUrl: "https://www.example.com",
+                        phoneNumber: "1-800-555-1234",
+                        nonce: authResp.nonce,
+                        //modalTitle: "Potatoes",
+                        //suppressResultPage: true
+                    });
+                    $UI.setCallback(function(resp) {
+                        console.log(resp.getResponse());
+                        $("#paymentResponse").text(
+                            resp.getResponse({ "json": true })
+                        );
+                        $("#paymentButton").prop('disabled', false);
+                    });
+                    $("#paymentDiv").show('slow');
+                },
+                "json"
+            );
+        });
+    });
+</script>

@@ -1,0 +1,35 @@
+﻿<style>
+    .alert {
+        color: white;
+    }
+</style>
+
+<h1>PayJS .NET Samples</h1>
+<h3>Overview</h3>
+<p>These samples show several different ways of using PayJS:</p>
+<ul>
+    <li><a href="#/modal">Modal</a> &mdash; display the UI over the page content when a <code>button</code> or <code>&lt;a&gt; is clicked</code></li>
+    <li><a href="#/inline">Inline</a> &mdash; display the UI inside a <code>&lt;div&gt;</code> or other similar element</li>
+    <li><a href="#/require">RequireJS</a> &mdash; load the PayJS library on a page that uses RequireJS</li>
+    <li><a href="#/dynamic">Dynamic</a> &mdash; use a simple ajax helper to facilitate lazy initialization</li>
+    <li><a href="#/non-ui">Non-UI</a> &mdash; use the PayJS library to power your own payment forms</li>
+    <li><a href="#/adaptive">Adaptive</a> &mdash; see the UI adapt to various container sizes</li>
+    <li><a href="#/vault">Tokens</a> &mdash; tokenize payment data for later use</li>
+</ul>
+<p>These samples, including HMAC-generation in multiple languages, are available on <a href="https://github.com/SagePayments/PaymentsJS">GitHub</a>.</p>
+<h3>Testing</h3>
+<div class="alert alert-warning" role="alert"><strong>Caution: </strong>production credentials + real credit card = actual charges!</div>
+<p>By default, these samples use fake merchant credentials that only accept certain credit card numbers. <em>Please be very careful if changing these values; using production credentials with real credit card data will result in actual charges.</em></p>
+<p>The following credit card numbers can be safely used:</p>
+<ul>
+    <li>4111-1111-1111-1111 &mdash; Visa</li>
+    <li>5454-5454-5454-5454 &mdash; MasterCard</li>
+    <li>6011-0009-9302-6909 &mdash; Discover</li>
+    <li>3714-496353-92376 &mdash; American Express</li>
+</ul>
+<p>Additionally, the following dollar amounts will produce specific results:</p>
+<ul>
+    <li>$1.xx &mdash; Approved</li>
+    <li>$2.xx &mdash; Declined</li>
+    <li>$16.xx &mdash; Error</li>
+</ul>
