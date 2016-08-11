@@ -4,7 +4,7 @@
     $nonce = getNonce();
     
     $requestType = "payment";
-    $amount = "1.00";
+    $amount = "28.00";
     
     // some arbitrary values for this demo
     $requestId = "Invoice" . rand(0, 1000);
