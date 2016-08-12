@@ -10,7 +10,7 @@
     $requestId = "Invoice" . rand(0, 1000);
     $postbackUrl = "https://www.example.com/";
     
-    $environment = "cert";
+    $environment = "dev";
     $preAuth = "false";
     
     $req = [
@@ -43,6 +43,7 @@
         $UI.Initialize({
             apiKey: "<?php echo $developerCredentials['ID']; ?>",
             merchantId: "<?php echo $merchantCredentials['ID']; ?>",
+            environment: "<?php echo $environment; ?>",
             authKey: "<?php echo $authKey; ?>",
             requestType: "<?php echo $requestType; ?>",
             requestId: "<?php echo $requestId; ?>",

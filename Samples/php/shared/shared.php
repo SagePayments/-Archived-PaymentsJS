@@ -6,8 +6,8 @@
     ];
     
     $developerCredentials = [
-        "ID" => "GvVtRUT9hIchmOO3j2ak4JgdGpIPYPG4",
-        "KEY" => "ABCDABCDABCDABCD"
+        "ID" => "GTq2h4mXxLIBtzbOWLO2GwqZfOgK8BbT",
+        "KEY" => "ICkrA2n6HIleJ663"
     ];
 
     function createHmac($toBeHashed, $privateKey, $iv){
