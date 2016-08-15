@@ -15,7 +15,7 @@
         <form class="form">
             <div class="form-group">
                 <label class="control-label">Amount</label>
-                <input type="text" class="form-control currency" id="exampleInputDollar" value="$1.00">
+                <input type="text" class="form-control currency" id="exampleInputDollar" value="$28.00">
             </div>
             <button class="btn btn-primary" id="paymentButton">Pay Now</button>
         </form>
@@ -42,15 +42,16 @@
                 },
                 function(authResp) {
                     $UI.Initialize({
-                        apiKey: "GvVtRUT9hIchmOO3j2ak4JgdGpIPYPG4",
+                        apiKey: "GTq2h4mXxLIBtzbOWLO2GwqZfOgK8BbT",
                         merchantId: authResp.merch,
+                        environment: "dev",
                         authKey: authResp.authKey,
                         requestType: "payment",
                         requestId: authResp.invoice,
                         amount: amt,
                         elementId: "paymentDiv",
                         debug: true,
-                        postbackUrl: "https://www.example.com",
+                        postbackUrl: authResp.postback,
                         phoneNumber: "1-800-555-1234",
                         nonce: authResp.nonce,
                         //modalTitle: "Potatoes",
