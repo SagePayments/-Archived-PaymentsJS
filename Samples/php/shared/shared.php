@@ -10,10 +10,10 @@
         "KEY" => "ICkrA2n6HIleJ663"
     ];
 
-    function createHmac($toBeHashed, $privateKey, $iv){
-        $encryptHash = hash_pbkdf2("sha256", "0000", $privateKey, 1000, 32, true);
+    function createHmac($toBeHashed, $password, $salt, $iv){
+        $encryptHash = hash_pbkdf2("sha1", $password, $salt, 1500, 32, true);
         $encrypted = openssl_encrypt($toBeHashed, "aes-256-cbc", $encryptHash, 0, $iv);
-        return base64_encode($encrypted);
+        return $encrypted;
     }
     
     function getNonce(){

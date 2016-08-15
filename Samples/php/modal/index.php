@@ -8,7 +8,8 @@
     
     // some arbitrary values for this demo
     $requestId = "Invoice" . rand(0, 1000);
-    $postbackUrl = "https://www.example.com/";
+    
+    $postbackUrl = "http://requestb.in/1dm175e1";
     
     $environment = "dev";
     $preAuth = "false";
@@ -24,7 +25,9 @@
         "environment" => "$environment",
         "preAuth" => $preAuth
     ]; 
-    $authKey = createHmac(json_encode($req), $developerCredentials["KEY"], $nonce[0]);
+    
+    $authKey = createHmac(json_encode($req), $developerCredentials["KEY"], $nonce[1], $nonce[0]);
+    //$authKey = createHmac(json_encode($req), $developerCredentials["KEY"], "");
 ?>
 <div class="wrapper text-center">
     <h1>Modal Dialog</h1>
@@ -48,6 +51,7 @@
             requestType: "<?php echo $requestType; ?>",
             requestId: "<?php echo $requestId; ?>",
             amount: "<?php echo $amount; ?>",
+            //amount: "27.50",
             elementId: "paymentButton",
             debug: true,
             postbackUrl: "<?php echo $postbackUrl; ?>",
