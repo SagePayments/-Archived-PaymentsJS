@@ -355,7 +355,7 @@ Tokenizes a credit card without charging it. The token can be used later to char
 This method takes three arguments (CVVs can not be stored):
 
 ```javascript
-REQUEST.doPayment(cardNumber, expirationDate, callbackFunction);
+REQUEST.doVault(cardNumber, expirationDate, callbackFunction);
 ```
 
 Notes:
@@ -370,7 +370,7 @@ Charges a credit card using a vault token.
 This method takes three arguments:
 
 ```javascript
-REQUEST.doPayment(vaultToken, cvv, callbackFunction);
+REQUEST.doTokenPayment(vaultToken, cvv, callbackFunction);
 ```
 
 Notes:
