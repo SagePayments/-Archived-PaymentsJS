@@ -288,6 +288,8 @@ suppressResultPage | hide the approved/declined pages that show after a gateway 
 restrictInput | limits user entry to acceptable characters | boolean | N/A | no | true
 formatting | after the user enters their credit card number, the form will remove invalid characters and add dashes | boolean | N/A | no | true
 phoneNumber | displayed as a support number for declined transactions | string | any | no | none
+show | automatically show the modal UI when ready | boolean | N/A | no | false
+addFakeData | adds fake credit card data to the form, for testing | boolean | N/A | no | false
 
 Notes:
 
