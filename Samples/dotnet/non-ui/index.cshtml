@@ -1,8 +1,8 @@
 ﻿@using PayJS_Samples.Misc
 @using Newtonsoft.Json
 @{
-    string MerchantId = "417227771521";
-    string MerchantKey = "I5T2R2K6V1Q3";
+    string MerchantId = Shared.MerchantID;
+    string MerchantKey = Shared.MerchantKEY;
     string RequestId = "Invoice" + (new Random()).Next(100).ToString();
     string Amount = "28";
     var NonceTuple = Shared.GetNonce();
@@ -42,7 +42,7 @@
     }
 </style>
 <div class="wrapper text-center">
-    <h1>Non-UI</h1>
+    <h1>JS-Only</h1>
     <p>If you need more flexibility than the PayJS UI offers, use the other modules to power your own payment form:</p>
 </div>
 <pre><code>    PayJS(['jquery', 'PayJS/Core', 'PayJS/Request', 'PayJS/Response'],
@@ -164,10 +164,10 @@
         function toggleClasses(bool, obj) {
             if (bool) {
                 obj.addClass("has-success").removeClass("has-error");
-                obj.children(".help-block").text("woot!");
+                obj.children(".help-block").text("valid!");
             } else {
                 obj.removeClass("has-success").addClass("has-error");
-                obj.children(".help-block").text("d'oh!");
+                obj.children(".help-block").text("invalid!");
             }
         }
 

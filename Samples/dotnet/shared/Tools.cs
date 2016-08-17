@@ -12,7 +12,9 @@ namespace PayJS_Samples.Misc
     {
         public static string DeveloperID = "GTq2h4mXxLIBtzbOWLO2GwqZfOgK8BbT";
         public static string DeveloperKEY = "ICkrA2n6HIleJ663";
-        public static string Environment = "dev";
+        public static string Environment = "qa";
+        public static string MerchantID = "999999999997";
+        public static string MerchantKEY = "K3QD6YWyhfD";
 
         public static string GetAuthKey(string toHash, string privateKey, Tuple<byte[], string> nonce)
         {

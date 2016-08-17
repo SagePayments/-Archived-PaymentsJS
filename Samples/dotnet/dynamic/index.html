@@ -31,7 +31,7 @@
     function($UI, $) {
         $("#paymentButton").click(function() {
             $(this).prop('disabled', true);
-
+            $("#paymentResponse").text("Processing...");
             var amt = parseFloat($("#exampleInputDollar").val().replace('$', ''));
             amt = amt.toFixed(2);
 
@@ -44,7 +44,7 @@
                     $UI.Initialize({
                         apiKey: "GTq2h4mXxLIBtzbOWLO2GwqZfOgK8BbT",
                         merchantId: authResp.merch,
-                        environment: "dev",
+                        environment: "qa",
                         authKey: authResp.authKey,
                         requestType: "payment",
                         requestId: authResp.invoice,

@@ -1,8 +1,8 @@
 ﻿@using PayJS_Samples.Misc
 @using Newtonsoft.Json;
 @{
-    string MerchantId = "417227771521";
-    string MerchantKey = "I5T2R2K6V1Q3";
+    string MerchantId = Shared.MerchantID;
+    string MerchantKey = Shared.MerchantKEY;
     string RequestId = "Invoice" + (new Random()).Next(100).ToString();
     string Amount = HttpContext.Current.Request.QueryString["amount"];
     var NonceTuple = Shared.GetNonce();

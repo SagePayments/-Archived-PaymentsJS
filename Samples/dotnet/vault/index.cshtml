@@ -1,8 +1,8 @@
 ﻿@using PayJS_Samples.Misc
 @using Newtonsoft.Json;
 @{
-    string MerchantId = "417227771521";
-    string MerchantKey = "I5T2R2K6V1Q3";
+    string MerchantId = Shared.MerchantID;
+    string MerchantKey = Shared.MerchantKEY;
     string PostbackUrl = "http://www.example.com";
     string Environment = Shared.Environment;
     
@@ -86,6 +86,7 @@
                 $("#vaultButton").prop('disabled', true);
                 $("#paymentButton").prop('disabled', false);
                 $("#paymentButton").click(function() {
+                    $("#paymentResponse").text("Processing...");
                     $(this).attr("disabled", true);
                     $("#sps-holder").remove(); // remove initializations from previous samples
                     $CORE.Initialize({
