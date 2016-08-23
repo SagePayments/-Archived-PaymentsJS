@@ -63,7 +63,7 @@ The `authKey` is an encrypted version of the configuration settings that you pas
 
 The follow code snippets show the encryption in PHP; check out the `samples` folder of this repository for other languages.
 
-First, we need a [salt](https://en.wikipedia.org/wiki/Salt_(cryptography) and an [initialization vector](https://en.wikipedia.org/wiki/Initialization_vector):
+First, we need a [salt](https://en.wikipedia.org/wiki/Salt_(cryptography)) and an [initialization vector](https://en.wikipedia.org/wiki/Initialization_vector):
 
 ```php
 $iv = openssl_random_pseudo_bytes(16);
@@ -82,7 +82,6 @@ $req = [
    "postbackUrl" => "https://www.example.com/",
    "amount" => "1.00",
    "nonce" => $salt,
-   "environment" => "cert",
    "preAuth" => false
 ];
 
@@ -109,12 +108,12 @@ function($UI) {
     $UI.Initialize({
         apiKey: "myDeveloperId",
         merchantId: "999999999997",
-        authKey: "<?php $authKey ?>",
+        authKey: "<?php echo $authKey ?>",
         requestType: "payment",
         requestId: "Invoice12345",
         amount: "1.00",
         elementId: "paymentButton",
-        nonce: "<?php $salt ?>",
+        nonce: "<?php echo $salt ?>",
         preAuth: false,
         environment: "cert"
     });
