@@ -16,7 +16,7 @@ PaymentsJS is a JavaScript library that enables developers to quickly start proc
 Add the script to your page:
 
 ```html
-<script type="text/javascript" src="https://www.sagepayments.net/pay/js/pay.min.js"></script>
+<script type="text/javascript" src="https://www.sagepayments.net/pay/1.0.0/js/pay.min.js"></script>
 ```
 
 And, just for the sake of this sample, add a button:
