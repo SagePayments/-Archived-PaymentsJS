@@ -1,18 +1,32 @@
 ﻿@using PayJS_Samples.Misc
+@using Newtonsoft.Json
 @{
-    string MerchantId = "417227771521";
-    string MerchantKey = "I5T2R2K6V1Q3";
+    string MerchantId = Shared.MerchantID;
+    string MerchantKey = Shared.MerchantKEY;
     string RequestId = "Invoice" + (new Random()).Next(100).ToString();
-    string Nonce = Guid.NewGuid().ToString();
-    string PostbackUrl = "https://www.example.com/";
-
+    string Amount = "28";
+    var NonceTuple = Shared.GetNonce();
+    string Nonce = NonceTuple.Item2;
+    string PostbackUrl = "http://www.example.com";
     string RequestType = "payment";
-    string Amount = "1.00";
-    //string RequestType = "vault";
-    //string Amount = String.Empty;
+    string Environment = Shared.Environment;
 
-    string CombinedString = RequestType + RequestId + MerchantId + PostbackUrl + Nonce + Amount;
-    string AuthKey = Hmac.GetHmac(CombinedString, MerchantKey);
+    var request = new
+    {
+        merchantId = MerchantId,
+        merchantKey = MerchantKey,
+        requestType = RequestType,
+        requestId = RequestId,
+        postbackUrl = PostbackUrl,
+        nonce = Nonce,
+        amount = Amount,
+        environment = Environment,
+        preAuth = false
+    };
+
+    string jsonReq = JsonConvert.SerializeObject(request);
+
+    string AuthKey = Shared.GetAuthKey(jsonReq, Shared.DeveloperKEY, NonceTuple);
 }
 <style>
     .form-control{
@@ -28,7 +42,7 @@
     }
 </style>
 <div class="wrapper text-center">
-    <h1>Non-UI</h1>
+    <h1>JS-Only</h1>
     <p>If you need more flexibility than the PayJS UI offers, use the other modules to power your own payment form:</p>
 </div>
 <pre><code>    PayJS(['jquery', 'PayJS/Core', 'PayJS/Request', 'PayJS/Response'],
@@ -90,7 +104,8 @@
             isValidCVV = false;
 
         $CORE.Initialize({
-            apiKey: "GvVtRUT9hIchmOO3j2ak4JgdGpIPYPG4",
+            apiKey: "@Shared.DeveloperID",
+            environment: "@Environment",
             merchantId: "@MerchantId",
             authKey: "@AuthKey",
             requestType: "@RequestType",
@@ -149,10 +164,10 @@
         function toggleClasses(bool, obj) {
             if (bool) {
                 obj.addClass("has-success").removeClass("has-error");
-                obj.children(".help-block").text("woot!");
+                obj.children(".help-block").text("valid!");
             } else {
                 obj.removeClass("has-success").addClass("has-error");
-                obj.children(".help-block").text("d'oh!");
+                obj.children(".help-block").text("invalid!");
             }
         }
 

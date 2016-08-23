@@ -1,18 +1,32 @@
 ﻿@using PayJS_Samples.Misc
+@using Newtonsoft.Json
 @{
-    string MerchantId = "417227771521";
-    string MerchantKey = "I5T2R2K6V1Q3";
+    string MerchantId = Shared.MerchantID;
+    string MerchantKey = Shared.MerchantKEY;
     string RequestId = "Invoice" + (new Random()).Next(100).ToString();
-    string Nonce = Guid.NewGuid().ToString();
-    string PostbackUrl = "https://www.example.com/";
-
+    string Amount = "28";
+    var NonceTuple = Shared.GetNonce();
+    string Nonce = NonceTuple.Item2;
+    string PostbackUrl = "http://www.example.com";
     string RequestType = "payment";
-    string Amount = "1.00";
-    //string RequestType = "vault";
-    //string Amount = String.Empty;
+    string Environment = Shared.Environment;
 
-    string CombinedString = RequestType + RequestId + MerchantId + PostbackUrl + Nonce + Amount;
-    string AuthKey = Hmac.GetHmac(CombinedString, MerchantKey);
+    var request = new
+    {
+        merchantId = MerchantId,
+        merchantKey = MerchantKey,
+        requestType = RequestType,
+        requestId = RequestId,
+        postbackUrl = PostbackUrl,
+        nonce = Nonce,
+        amount = Amount,
+        environment = Environment,
+        preAuth = false
+    };
+
+    string jsonReq = JsonConvert.SerializeObject(request);
+
+    string AuthKey = Shared.GetAuthKey(jsonReq, Shared.DeveloperKEY, NonceTuple);
 }
 <div class="wrapper text-center">
     <h1>RequireJS</h1>
@@ -49,7 +63,7 @@
         baseUrl: "require/my/other/js",
         paths: {
             "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min",
-            "PayJS": 'https://www.sagepayments.net/pay/js/build'
+            "PayJS": 'https://dev.sagepayments.net/pay/js/build'
         },
     });
 
@@ -57,8 +71,9 @@
     function($, $MAC, $UI) {
         $MAC.doBusiness();
         $UI.Initialize({
-            apiKey: "GvVtRUT9hIchmOO3j2ak4JgdGpIPYPG4",
+            apiKey: "@Shared.DeveloperID",
             merchantId: "@MerchantId",
+            environment: "@Environment",
             authKey: "@AuthKey",
             requestType: "@RequestType",
             requestId: "@RequestId",
@@ -68,7 +83,6 @@
             postbackUrl: "@PostbackUrl",
             phoneNumber: "1-800-555-1234",
             nonce: "@Nonce",
-            //modalTitle: "Potatoes",
             //suppressResultPage: true
         });
         $UI.setCallback(function(resp) {

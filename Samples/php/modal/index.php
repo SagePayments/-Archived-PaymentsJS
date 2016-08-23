@@ -1,16 +1,33 @@
 <?php
     require('../shared/shared.php');
     
+    $nonce = getNonce();
+    
     $requestType = "payment";
-    $amount = "1.00";
+    $amount = "28.00";
     
     // some arbitrary values for this demo
     $requestId = "Invoice" . rand(0, 1000);
-    $nonce = uniqid();
-    $postbackUrl = "https://www.example.com/";
     
-    $combinedString = $requestType . $requestId . $merchantCredentials['MID'] . $postbackUrl . $nonce . $amount;
-    $authKey = createHmac($combinedString, $merchantCredentials["MKEY"]);
+    $postbackUrl = "http://requestb.in/1dm175e1";
+    
+    $environment = "dev";
+    $preAuth = "false";
+    
+    $req = [
+        "merchantId" => $merchantCredentials['ID'],
+        "merchantKey" => $merchantCredentials['KEY'],
+        "requestType" => $requestType,
+        "requestId" => $requestId,
+        "postbackUrl" => $postbackUrl,
+        "amount" => $amount,
+        "nonce" => $nonce[1],
+        "environment" => "$environment",
+        "preAuth" => $preAuth
+    ]; 
+    
+    $authKey = createHmac(json_encode($req), $developerCredentials["KEY"], $nonce[1], $nonce[0]);
+    //$authKey = createHmac(json_encode($req), $developerCredentials["KEY"], "");
 ?>
 <div class="wrapper text-center">
     <h1>Modal Dialog</h1>
@@ -27,17 +44,19 @@
     PayJS(['PayJS/UI', 'jquery'],
     function($UI, $) {
         $UI.Initialize({
-            apiKey: "<?php echo $developerId; ?>",
-            merchantId: "<?php echo $merchantCredentials['MID']; ?>",
+            apiKey: "<?php echo $developerCredentials['ID']; ?>",
+            merchantId: "<?php echo $merchantCredentials['ID']; ?>",
+            environment: "<?php echo $environment; ?>",
             authKey: "<?php echo $authKey; ?>",
             requestType: "<?php echo $requestType; ?>",
             requestId: "<?php echo $requestId; ?>",
             amount: "<?php echo $amount; ?>",
+            //amount: "27.50",
             elementId: "paymentButton",
             debug: true,
             postbackUrl: "<?php echo $postbackUrl; ?>",
             phoneNumber: "1-800-555-1234",
-            nonce: "<?php echo $nonce; ?>",
+            nonce: "<?php echo $nonce[1]; ?>",
             //suppressResultPage: true
         });
         $UI.setCallback(function(resp) {

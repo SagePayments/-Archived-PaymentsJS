@@ -31,15 +31,17 @@ Then, in a separate `<script>` tag, initialize the library:
 PayJS(['PayJS/UI'], // the name of the module we want to use
 function($UI) { // assigning the module to a variable
     $UI.Initialize({ // configuring the UI
-        apiKey: "GvVtRUT9hIchmOO3j2ak4JgdGpIPYPG4", // your developer ID
-        merchantId: "417227771521", // your 12-digit account identifier
-        authKey: "H1x4ECB6TkeTSfkABNQXHNs5=", // covered in the next section!
+        apiKey: "myDeveloperId", // your developer ID
+        merchantId: "999999999997", // your 12-digit account identifier
+        authKey: "ABCD==", // covered in the next section!
         requestType: "payment", // use can use "vault" to tokenize a card without charging it
-        requestId: "Invoice12345", // an order number, customer ID, etc.
+        requestId: "Invoice12345", // an order number, customer or account identifier, etc.
         amount: "1.00", // the amount to charge the card. in test mode, different amounts produce different results.
         elementId: "paymentButton", // the page element that will trigger the UI
-        nonce: "ThisIsTotallyUnique", // a unique value; duplicates will be rejected
-        debug: true // enables verbose console logging
+        nonce: "ThisIsTotallyUnique", // a unique identifier, used as salt
+        debug: true, // enables verbose console logging
+        preAuth: false, // run a Sale, rather than a PreAuth
+        environment: "cert" // hit the certification environment
     });
     $UI.setCallback(function(result) { // custom code that will execute when the UI receives a response
         console.log(result.getResponse()); // log the result to the console
@@ -47,7 +49,6 @@ function($UI) { // assigning the module to a variable
         alert(wasApproved ? "ka-ching!" : "bummer");
     });
 });
-
 ```
 At this point, clicking on `paymentButton` will make the payment form pop up! You can attempt a transaction, but it will be rejected... so our next step is to calculate the `authKey`.
 
@@ -58,21 +59,71 @@ At this point, clicking on `paymentButton` will make the payment form pop up! Yo
 
 Credit card data moves directly between the user's browser and Sage Payment Solutions' secure payment gateway. This is great news for your server, which doesn't have to touch any sensitive data! But, as with any client-side code, it means we have to take seriously the possibility of malicious users making changes to the request.
 
-The `authKey` protects your request from tampering by using your secret Merchant Key to create a hash of the configuration settings. We'll calculate one on our end; if it doesn't match the one we received in the request, we'll slam the door.
+The `authKey` is an encrypted version of the configuration settings that you pass into the [`UI.Initialize()`](#ref.UI.Initialize) (or [`CORE.Initialize()`](#ref.Core.Initialize)) method. When we receive the request, we'll decrypt the `authKey` and make sure that everything matches up. This is also how you send us your `merchantKey`, **which should never be exposed to the client browser**.
 
-Here's how to do the calculation, in pseudocode:
+The follow code snippets show the encryption in PHP; check out the `samples` folder of this repository for other languages.
 
-```javascript
-var combinedString = requestType + requestId + merchantId + postbackUrl + nonce + amount;
-var hmac = SHA512(combinedString, merchantKey);
-var authKey = Base64(hmac);
+First, we need a [salt](https://en.wikipedia.org/wiki/Salt_(cryptography)) and an [initialization vector](https://en.wikipedia.org/wiki/Initialization_vector):
+
+```php
+$iv = openssl_random_pseudo_bytes(16);
+$salt = base64_encode(bin2hex($iv));
 ```
 
-Samples in specific server-side languages are available in the `samples` folder of this repository; look for a file named `Hmac` in the `shared` folder of your preferred language's folder.
+Next, we're going to create an array (any serializable entity works) that contains our configuration settings, plus our `merchantKey`:
+
+```php
+$req = [
+   "apiKey" => "myDeveloperId",
+   "merchantId" => "999999999997",
+   "merchantKey" => "K3QD6YWyhfD",
+   "requestType" => "payment",
+   "requestId" => "Invoice12345",
+   "postbackUrl" => "https://www.example.com/",
+   "amount" => "1.00",
+   "nonce" => $salt,
+   "preAuth" => false
+];
+
+```
+
+We convert it to JSON...
+
+```php
+$jsonReq = json_encode($req)
+```
+
+... and then use it as the subject of our encryption:
+
+```php
+$passwordHash = hash_pbkdf2("sha1", $clientKey, $salt, 1500, 32, true);
+$authKey = openssl_encrypt($jsonReq, "aes-256-cbc", $passwordHash, 0, $iv);
+```
+
+Now that we have our `authKey`, all that's left is to initialize the JavaScript library with the same values!
+
+```javascript
+PayJS(['PayJS/UI'],
+function($UI) {
+    $UI.Initialize({
+        apiKey: "myDeveloperId",
+        merchantId: "999999999997",
+        authKey: "<?php echo $authKey ?>",
+        requestType: "payment",
+        requestId: "Invoice12345",
+        amount: "1.00",
+        elementId: "paymentButton",
+        nonce: "<?php echo $salt ?>",
+        preAuth: false,
+        environment: "cert"
+    });
+});
+```
+
 
 #### <a name="respHash"></a>Response Hash
 
-Similarly, when we send the response back to the client, it will include a hash of the response using your Merchant Key as the private key. *Always calculate & compare this server-side before updating any orders, databases, etc.*
+Similarly, when we send the response back to the client, it will include a SHA-512 HMAC of the response (using your Developer Key to hash). **Always calculate & compare this server-side before updating any orders, databases, etc.**
 
 ---
 ## <a name="Modules"></a>Modules
@@ -132,6 +183,7 @@ Please keep in mind that you'll also need to [provide your own jQuery dependency
 - [PayJS/Response](#ref.Response)
   - [tryParse()](#ref.Response.tryParse)
   - [getResponse()](#ref.Response.getResponse)
+  - [getRawResponse()](#ref.Response.getRawResponse)
   - [getters](#ref.Response.getters)
 - [PayJS/Formatting](#ref.Formatting)
   - [formatCardNumberInput()](#ref.Formatting.formatCardNumberInput)
@@ -192,11 +244,11 @@ debug | toggles verbose logging to browser console | boolean | N/A | no | false
 environment | chooses between the certification and production environments | "cert" or "prod" | 4 | no | cert
 apiKey | your developer id | alphanumeric string | 32 | yes | N/A
 merchantId | identifies your gateway account | numeric string | 12 | yes | N/A
-authKey | verifies request integrity | base-64 string | 88 | yes | N/A
+authKey | see [Authentication & Verification](#Authentication) | string | varies | yes | N/A
 requestId | an identifier of your choosing | string | 1+ | yes | N/A
 requestType | chooses between charging or tokenizing a card | "payment" or "vault" | N/A | yes | N/A
-nonce | any unique value; duplicates will be rejected | string | any | yes | N/A
-amount | the amount to charge the card | 1, "1", 1.00, "1.00", etc. | 1-4 | when requestType = "payment" | N/A
+nonce | the encryption salt; see [Authentication & Verification](#Authentication) | string | varies | yes | N/A
+amount | the amount to charge the card | "1.00", etc. | varies | when requestType = "payment" | N/A
 preAuth | toggles between authorization-only and authorization & capture | boolean | N/A | no | false (auth & cap)
 postbackUrl | a URL that will receive a copy of the gateway response | valid URI with https scheme | any | no | ""
 billing | add billing information (address/etc.) to the transaction request | see [`CORE.setBilling()`](#ref.Core.setBilling) | N/A | no | none/empty
@@ -255,7 +307,7 @@ CORE.getPostbackUrl();
 // => "https://www.example.com/myHandler.php"
 CORE.getNonce();
 // => "NoncesAreCool"
-CORE.getPhonenumber();
+CORE.getPhoneNumber();
 // => "800-555-1234"
 CORE.getBilling();
 // => Object {name: "John Smith", street: "123 Address St", state: "CO", postalCode: "12345", country: "USA"}
@@ -288,6 +340,8 @@ suppressResultPage | hide the approved/declined pages that show after a gateway 
 restrictInput | limits user entry to acceptable characters | boolean | N/A | no | true
 formatting | after the user enters their credit card number, the form will remove invalid characters and add dashes | boolean | N/A | no | true
 phoneNumber | displayed as a support number for declined transactions | string | any | no | none
+show | automatically show the modal UI when ready | boolean | N/A | no | false
+addFakeData | adds fake credit card data to the form, for testing | boolean | N/A | no | false
 
 Notes:
 
@@ -355,7 +409,7 @@ Tokenizes a credit card without charging it. The token can be used later to char
 This method takes three arguments (CVVs can not be stored):
 
 ```javascript
-REQUEST.doPayment(cardNumber, expirationDate, callbackFunction);
+REQUEST.doVault(cardNumber, expirationDate, callbackFunction);
 ```
 
 Notes:
@@ -370,7 +424,7 @@ Charges a credit card using a vault token.
 This method takes three arguments:
 
 ```javascript
-REQUEST.doPayment(vaultToken, cvv, callbackFunction);
+REQUEST.doTokenPayment(vaultToken, cvv, callbackFunction);
 ```
 
 Notes:
@@ -408,17 +462,29 @@ This method takes a single *optional* argument:
 
 ```javascript
 RESPONSE.getResponse(); // without an argment, the method returns an object
-// => Object {Response: Object, Hash: undefined}
+// => Object {Response: Object, Hash: "ABCD=="}
 
 RESPONSE.getResponse({ json: true }); // pass a configuration object to retrieve a json string instead 
-// => "{ "Response": {"status":"Approved", ... }, "Hash": "eJ5QcIL3nOE9exJnns9WPGso8xQEMoho4335jCteDdjL2NJfROMxmbbxAg87yW9dAI20QXi7s3jDDllJEF/mJA==" }"
+// => "{ "Response": {"status":"Approved", ... }, "Hash": "ABCD==" }"
 ```
 
 Notes:
 
 - When using the [`PayJS/Request`](#ref.Request) module's methods, you must call [`RESPONSE.tryParse()`](#ref.Response.tryParse) before this method is available. The [`PayJS/UI`](#ref.UI) module does this for you.
-  - If [`RESPONSE.tryParse()`](#ref.Response.tryParse) succeeded, the module's [getters](#ref.Response.getters) will be available.
-  - If [`RESPONSE.tryParse()`](#ref.Response.tryParse) failed, this method returns a [jqXHR](https://api.jquery.com/jQuery.ajax/#jqXHR) object. Use the base [XMLHttpRequest properties](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) to check the `status`, `responseText`, etc.
+- Always check [the response hash](#respHash) server-side to verify the integrity of the response.
+
+#### <a name="ref.Response.getRawResponse"></a>getRawResponse
+Returns the result of the gateway request *before* any attempted parsing. Useful in (rare) situations where [`RESPONSE.tryParse()`](#ref.Response.tryParse) fails to interpret a response message. 
+
+This method does not take any arguments:
+
+```javascript
+RESPONSE.getRawResponse(); // without an argment, the method returns an object
+// => Object {Response: Object, Hash: "ABCD=="}
+```
+
+Notes:
+
 - Always check [the response hash](#respHash) server-side to verify the integrity of the response.
 
 #### <a name="ref.Response.getters"></a>getters
