@@ -1,13 +1,13 @@
 <?php
 
     $merchantCredentials = [
-        "ID" => "417227771521",
-        "KEY" => "I5T2R2K6V1Q3"
+        "ID" => "999999999997",
+        "KEY" => "K3QD6YWyhfD"
     ];
     
     $developerCredentials = [
-        "ID" => "GTq2h4mXxLIBtzbOWLO2GwqZfOgK8BbT",
-        "KEY" => "ICkrA2n6HIleJ663"
+        "ID" => "7SMmEF02WyC7H5TSdG1KssOQlwOOCagb",
+        "KEY" => "wtC5Ns0jbtiNA8sP"
     ];
 
     function createHmac($toBeHashed, $password, $salt, $iv){

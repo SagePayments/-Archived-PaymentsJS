@@ -11,7 +11,7 @@
     
     $postbackUrl = "http://requestb.in/1dm175e1";
     
-    $environment = "dev";
+    $environment = "cert";
     $preAuth = "false";
     
     $req = [
@@ -51,13 +51,18 @@
             requestType: "<?php echo $requestType; ?>",
             requestId: "<?php echo $requestId; ?>",
             amount: "<?php echo $amount; ?>",
-            //amount: "27.50",
             elementId: "paymentButton",
             debug: true,
             postbackUrl: "<?php echo $postbackUrl; ?>",
             phoneNumber: "1-800-555-1234",
             nonce: "<?php echo $nonce[1]; ?>",
-            //suppressResultPage: true
+            billing: {
+                name: "PaymentsJS Sample",
+                street: "123 Address Street",
+                city: "Denver",
+                state: "CO",
+                zip: "80205"
+            }
         });
         $UI.setCallback(function(resp) {
             console.log(resp.getResponse());

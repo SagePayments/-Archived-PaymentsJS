@@ -29,8 +29,8 @@
     <h1>Non-UI</h1>
     <p>If you need more flexibility than the PayJS UI offers, use the other modules to power your own payment form:</p>
 </div>
-<pre><code>    PayJS(['jquery', 'PayJS/Core', 'PayJS/Request', 'PayJS/Response'],
-    function($, $CORE, $REQUEST, $RESPONSE) {
+<pre><code>    PayJS(['jquery', 'PayJS/Core', 'PayJS/Request', 'PayJS/Response', 'PayJS/Formatting'],
+    function($, $CORE, $REQUEST, $RESPONSE, $FORMATTING) {
         $CORE.Initialize({
             <i>(...)</i>
         });
@@ -147,10 +147,10 @@
         function toggleClasses(bool, obj) {
             if (bool) {
                 obj.addClass("has-success").removeClass("has-error");
-                obj.children(".help-block").text("woot!");
+                obj.children(".help-block").text("valid entry");
             } else {
                 obj.removeClass("has-success").addClass("has-error");
-                obj.children(".help-block").text("d'oh!");
+                obj.children(".help-block").text("invalid entry");
             }
         }
 
