@@ -258,7 +258,7 @@
             var cvv = $("#cc_cvv").val();
             cvv = cvv.replace(/\D/g,'');
             $("#cc_cvv").val(cvv);
-            isValidCVV = $VALIDATION.isValidCvv(cvv, cvv[0]);
+            isValidCVV = $VALIDATION.isValidCvv(cvv, $("#cc_number").val()[0]);
             toggleClasses(isValidCVV, $("#cvv-group"));
             checkForCompleteAndValidForm();
         })
