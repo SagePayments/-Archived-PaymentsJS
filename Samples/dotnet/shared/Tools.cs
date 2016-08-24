@@ -10,8 +10,8 @@ namespace PayJS_Samples.Misc
 {
     public static class Shared
     {
-        public static string DeveloperID = "GTq2h4mXxLIBtzbOWLO2GwqZfOgK8BbT";
-        public static string DeveloperKEY = "ICkrA2n6HIleJ663";
+        public static string DeveloperID = "7SMmEF02WyC7H5TSdG1KssOQlwOOCagb";
+        public static string DeveloperKEY = "wtC5Ns0jbtiNA8sP";
         public static string Environment = "qa";
         public static string MerchantID = "999999999997";
         public static string MerchantKEY = "K3QD6YWyhfD";

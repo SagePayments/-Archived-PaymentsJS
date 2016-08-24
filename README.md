@@ -278,7 +278,7 @@ CORE.setBilling({
     street: "123 Address St",
     city: "Denver",
     state: "CO",
-    postalCode: "12345",
+    zip: "12345",
     country: "USA"
 });
 ```
@@ -335,7 +335,7 @@ In addition to the information outlined in [`CORE.Initialize()`](#ref.Core.Initi
 
 Name | Description | Values | Length | Required | Default
 ---- | ----------- | ------ | ------ | -------- | -------
-targetElement | the id of the html element to which the UI will attach | string | any | yes | N/A
+elementId | the id of the html element to which the UI will attach | string | any | yes | N/A
 suppressResultPage | hide the approved/declined pages that show after a gateway request | boolean | N/A | no | false
 restrictInput | limits user entry to acceptable characters | boolean | N/A | no | true
 formatting | after the user enters their credit card number, the form will remove invalid characters and add dashes | boolean | N/A | no | true
