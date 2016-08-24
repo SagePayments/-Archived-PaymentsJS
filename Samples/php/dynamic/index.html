@@ -9,7 +9,7 @@
 
 <div class="wrapper text-center">
     <h1>Dynamic</h1>
-    <p>It's not always possible to know all the initialization data up front &mdash; for instance, a non-profit might want to offer users several different donation amounts. Since the authentication hash needs to be done server-side, these cases require an extra step:</p>
+    <p>It's not always possible to know all the initialization data up front &mdash; for instance, a non-profit might want to offer users several different donation amounts. Since the authKey encryption needs to be done server-side, and include the amount, these cases require an extra step:</p>
     <br />
     <div>
         <form class="form">
@@ -27,11 +27,16 @@
 </div>
 
 <script type="text/javascript">
+
+    // this time, when the user submits, we'll send the amount to a server-side
+    // script that returns the data we'll need for initialization.
+    
     PayJS(['PayJS/UI', 'jquery'],
     function($UI, $) {
         $("#paymentButton").click(function() {
             $(this).prop('disabled', true);
-
+            $("#paymentResponse").text("The response will appear here as JSON, and in your browser console as a JavaScript object.");
+            
             var amt = parseFloat($("#exampleInputDollar").val().replace('$', ''));
             amt = amt.toFixed(2);
 
@@ -49,10 +54,15 @@
                         requestId: authResp.invoice,
                         amount: amt,
                         elementId: "paymentDiv",
-                        debug: true,
                         postbackUrl: authResp.postback,
-                        phoneNumber: "1-800-555-1234",
                         nonce: authResp.nonce,
+                        billing: {
+                            name: "PaymentsJS Sample",
+                            street: "123 Address St",
+                            city: "Denver",
+                            state: "CO",
+                            zip: "80205"
+                        }
                     });
                     $UI.setCallback(function(resp) {
                         console.log(resp.getResponse());
