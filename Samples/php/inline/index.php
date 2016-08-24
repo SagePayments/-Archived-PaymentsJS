@@ -33,6 +33,7 @@
         border-color: #3c424f;
     }
 </style>
+
 <div class="wrapper text-center">
     <h1>Modal Dialog</h1>
     <p>When PayJS is initialized with a <code>&lt;div&gt;</code>, the UI appears within that element:</p>
@@ -44,6 +45,7 @@
         <p style="width:100%"><pre><code id="paymentResponse">The response will appear here as JSON, and in your browser console as a JavaScript object.</code></pre></p>
     </div>
 </div>
+
 <script type="text/javascript">
     // full api reference is available at https://github.com/SagePayments/PaymentsJS
     

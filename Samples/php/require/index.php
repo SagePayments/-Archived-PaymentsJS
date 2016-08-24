@@ -51,6 +51,7 @@
         <p style="width:100%"><pre><code id="paymentResponse">The response will appear here as JSON, and in your browser console as a JavaScript object.</code></pre></p>
     </div>
 </div>
+
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js"></script>
 <script type="text/javascript">
     requirejs.config({
@@ -61,6 +62,7 @@
         },
     });
 </script>
+
 <script type="text/javascript">
     // you guessed it -- PayJS() is just an alias of requirejs()
     requirejs(['myAwesomeCode', 'PayJS/UI', 'jquery'],

@@ -33,6 +33,7 @@
         <p style="width:100%"><pre><code id="paymentResponse">The response will appear here as JSON, and in your browser console as a JavaScript object.</code></pre></p>
     </div>
 </div>
+
 <script type="text/javascript">
     // full api reference is available at https://github.com/SagePayments/PaymentsJS
     
