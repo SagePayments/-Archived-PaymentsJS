@@ -278,7 +278,7 @@ CORE.setBilling({
     street: "123 Address St",
     city: "Denver",
     state: "CO",
-    postalCode: "12345",
+    zip: "12345",
     country: "USA"
 });
 ```
