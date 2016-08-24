@@ -179,7 +179,8 @@
         var isValidCC = false,
             isValidExp = false,
             isValidCVV = false;
-
+        
+        // when using REQUEST library, initialize via CORE instead of UI
         $CORE.Initialize({
             apiKey: "<?php echo $developer['ID']; ?>",
             environment: "<?php echo $request['environment']; ?>",
@@ -199,6 +200,7 @@
             $("#customFormWrapper").addClass("animated").removeClass("static");
             $("#customFormWrapper").fadeTo(2000, 0.1);
             
+            // we'll add on the billing data that we collected
             $CORE.setBilling({
                 name: $("#billing_name").val(),
                 street: $("#billing_street").val(),
@@ -210,9 +212,12 @@
             var cc = $("#cc_number").val();
             var exp = $("#cc_expiration").val();
             var cvv = $("#cc_cvv").val();
-
+            
+            // run the payment
             $REQUEST.doPayment(cc, exp, cvv, function(resp) {
+                // if you want to use the RESPONSE module with REQUEST, run the ajax response through tryParse...
                 $RESPONSE.tryParse(resp);
+                // ... which will initialize the RESPONSE module's getters
                 console.log($RESPONSE.getResponse());
                 $("#paymentResponse").text(
                     $RESPONSE.getTransactionSuccess() ? "APPROVED" : "DECLINED"
@@ -230,9 +235,11 @@
 
         $("#cc_number").blur(function() {
             var cc = $("#cc_number").val();
+            // we'll format the credit card number with dashes
             cc = $FORMATTING.formatCardNumberInput(cc, '-');
             $("#cc_number").val(cc);
-            isValidCC = $VALIDATION.isValidCreditCard(cc, cc[0]);
+            // and then check it for validity
+            isValidCC = $VALIDATION.isValidCreditCard(cc);
             toggleClasses(isValidCC, $("#cc-group"));
             checkForCompleteAndValidForm();
         })
