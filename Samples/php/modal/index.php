@@ -72,9 +72,9 @@
             phoneNumber: "1-800-555-1234", // to provide users a support number
             
             // dev QoL:
-            //debug: true, // verbose logging
-            //show: true, // show the modal immediately, instead of waiting for a click
-            //addFakeData: true // pre-fill the form with test values
+            // debug: true, // verbose logging
+            // show: true, // show the modal immediately, instead of waiting for a click
+            // addFakeData: true // pre-fill the form with test values
         });
         
         // and then we'll set a callback function to execute after the user
