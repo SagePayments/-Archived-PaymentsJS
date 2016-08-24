@@ -1,21 +1,40 @@
 <?php
     require('../shared/shared.php');
     
-    $v_requestType = "vault";
-    $v_amount = "";
-    $v_requestId = "Invoice" . rand(0, 1000);
-    $v_nonce = uniqid();
-    $v_postbackUrl = "https://www.example.com/";
-    $v_combinedString = $v_requestType . $v_requestId . $merchantCredentials['MID'] . $v_postbackUrl . $v_nonce . $v_amount;
-    $v_authKey = createHmac($v_combinedString, $merchantCredentials["MKEY"]);
+    $vault_nonces = getNonces();
+    $vault_requestType = "vault";
+    $vault_requestId = "Invoice" . rand(0, 1000);
+    $vault_req = [
+        "merchantId" => $merchant['ID'],
+        "merchantKey" => $merchant['KEY'], // don't include the Merchant Key in the JavaScript initialization!
+        "requestType" => $vault_requestType,
+        "requestId" => $vault_requestId,
+        "nonce" => $vault_nonces['salt'],
+        // on the other hand, include these here even if you leave them out of the JS init
+        "postbackUrl" => $request['postbackUrl'], // if not specified in the JS init, defaults to the empty string
+        "environment" => $request['environment'], // defaults to "cert"
+    ]; 
+    $vault_authKey = getAuthKey(json_encode($vault_req), $developer['KEY'], $vault_nonces['salt'], $vault_nonces['iv']);
     
-    $p_requestType = "payment";
-    $p_amount = "1.00";
-    $p_requestId = "Invoice" . rand(0, 1000);
-    $p_nonce = uniqid();
-    $p_postbackUrl = "https://www.example.com/";
-    $p_combinedString = $p_requestType . $p_requestId . $merchantCredentials['MID'] . $p_postbackUrl . $p_nonce . $p_amount;
-    $p_authKey = createHmac($p_combinedString, $merchantCredentials["MKEY"]);
+    $payment_nonces = getNonces();
+    
+    $payment_requestType = "payment";
+    $payment_requestId = "Invoice" . rand(0, 1000); // this'll be used as the order number
+    
+    $payment_req = [
+        "merchantId" => $merchant['ID'],
+        "merchantKey" => $merchant['KEY'], // don't include the Merchant Key in the JavaScript initialization!
+        "requestType" => $payment_requestType,
+        "requestId" => $payment_requestId,
+        "amount" => $request['amount'],
+        "nonce" => $payment_nonces['salt'],
+        // on the other hand, include these here even if you leave them out of the JS init
+        "postbackUrl" => $request['postbackUrl'], // if not specified in the JS init, defaults to the empty string
+        "environment" => $request['environment'], // defaults to "cert"
+        "preAuth" => $request['preAuth'] // defaults to false
+    ]; 
+    
+    $payment_authKey = getAuthKey(json_encode($payment_req), $developer['KEY'], $payment_nonces['salt'], $payment_nonces['iv']);
 ?>
 <div class="wrapper text-center">
     <h1>Tokenization</h1>
@@ -33,18 +52,15 @@
     PayJS(['PayJS/Request', 'PayJS/Response', 'PayJS/Core', 'PayJS/UI', 'jquery'],
     function($REQ, $RESP, $CORE, $UI, $) {
         $UI.Initialize({
-            apiKey: "<?php echo $developerId; ?>",
-            merchantId: "<?php echo $merchantCredentials['MID']; ?>",
-            authKey: "<?php echo $v_authKey; ?>",
-            requestType: "<?php echo $v_requestType; ?>",
-            requestId: "<?php echo $v_requestId; ?>",
-            amount: "<?php echo $v_amount; ?>",
-            elementId: "vaultButton",
-            debug: true,
-            postbackUrl: "<?php echo $v_postbackUrl; ?>",
-            phoneNumber: "1-800-555-1234",
-            nonce: "<?php echo $v_nonce; ?>",
-            //suppressResultPage: true
+            apiKey: "<?php echo $developer['ID']; ?>",
+            environment: "<?php echo $request['environment']; ?>",
+            postbackUrl: "<?php echo $request['postbackUrl']; ?>",
+            merchantId: "<?php echo $merchant['ID']; ?>",
+            authKey: "<?php echo $vault_authKey; ?>",
+            nonce: "<?php echo $vault_nonces['salt']; ?>",
+            requestType: "<?php echo $vault_requestType; ?>",
+            requestId: "<?php echo $vault_requestId; ?>",
+            elementId: "vaultButton"
         });
         $UI.setCallback(function(vaultResponse) {
             console.log(vaultResponse.getResponse());
@@ -55,22 +71,24 @@
                 $("#vaultButton").prop('disabled', true);
                 $("#paymentButton").prop('disabled', false);
                 $("#paymentButton").click(function() {
-                    //$("#sps-holder").remove(); // remove initializations from previous samples
+                    $("#paymentButton").prop('disabled', true);
+                    $("#paymentResponse").text("The response will appear here as JSON, and in your browser console as a JavaScript object.");
                     $CORE.Initialize({
-                        apiKey: "<?php echo $developerId; ?>",
-                        merchantId: "<?php echo $merchantCredentials['MID']; ?>",
-                        authKey: "<?php echo $p_authKey; ?>",
-                        requestType: "<?php echo $p_requestType; ?>",
-                        requestId: "<?php echo $p_requestId; ?>",
-                        amount: "<?php echo $p_amount; ?>",
-                        debug: true,
-                        postbackUrl: "<?php echo $p_postbackUrl; ?>",
-                        nonce: "<?php echo $p_nonce; ?>",
+                        apiKey: "<?php echo $developer['ID']; ?>",
+                        environment: "<?php echo $request['environment']; ?>",
+                        postbackUrl: "<?php echo $request['postbackUrl']; ?>",
+                        merchantId: "<?php echo $merchant['ID']; ?>",
+                        authKey: "<?php echo $payment_authKey; ?>",
+                        nonce: "<?php echo $payment_nonces['salt']; ?>",
+                        requestType: "<?php echo $payment_requestType; ?>",
+                        requestId: "<?php echo $payment_requestId; ?>",
+                        amount: "<?php echo $request['amount']; ?>",
                     });
                     $REQ.doTokenPayment(vaultResponse.getVaultToken(), "123", function(paymentResponse) {
                         console.log(paymentResponse);
+                        $RESP.tryParse(paymentResponse);
                         $("#paymentResponse").text(
-                            paymentResponse.Response.toString()
+                            $RESP.getResponse({"json": true})
                         );
                     });
                 })
