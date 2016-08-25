@@ -56,13 +56,13 @@
         .config(['$routeProvider', function($routeProvider) {
             $routeProvider
             .when('/', { templateUrl: 'home/index.html' })
-            .when('/modal', { templateUrl: 'modal/index.php' })
-            .when('/inline', { templateUrl: 'inline/index.php' })
-            .when('/js-only', { templateUrl: 'js-only/index.php' })
-            .when('/require', { templateUrl: 'require/index.php' })
+            .when('/modal', { templateUrl: 'modal/index.cshtml' })
+            .when('/inline', { templateUrl: 'inline/index.cshtml' })
+            .when('/js-only', { templateUrl: 'js-only/index.cshtml' })
+            .when('/require', { templateUrl: 'require/index.cshtml' })
             .when('/dynamic', { templateUrl: 'dynamic/index.html' })
-            .when('/adaptive', { templateUrl: 'adaptive/index.php' })
-            .when('/vault', { templateUrl: 'vault/index.php' })
+            .when('/adaptive', { templateUrl: 'adaptive/index.cshtml' })
+            .when('/vault', { templateUrl: 'vault/index.cshtml' })
             .otherwise({ redirectTo: '/' });
         }]);
     </script>
