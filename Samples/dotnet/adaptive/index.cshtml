@@ -1,36 +1,31 @@
 ﻿@using PayJS_Samples.Misc
 @using Newtonsoft.Json;
 @{
-    string MerchantId = Shared.MerchantID;
-    string MerchantKey = Shared.MerchantKEY;
-    string RequestId = "Invoice" + (new Random()).Next(100).ToString();
-    string Amount = "28";
-    var NonceTuple = Shared.GetNonce();
-    string Nonce = NonceTuple.Item2;
-    string PostbackUrl = "http://www.example.com";
     string RequestType = "payment";
-    string Environment = Shared.Environment;
+    string RequestId = "Invoice" + (new Random()).Next(100).ToString(); // this'll be used as the order number
+
+    Nonces Nonces = Shared.GetNonces();
 
     var request = new
     {
-        merchantId = MerchantId,
-        merchantKey = MerchantKey,
+        merchantId = Shared.MerchantID,
+        merchantKey = Shared.MerchantKEY, // don't include the Merchant Key in the JavaScript initialization!
         requestType = RequestType,
         requestId = RequestId,
-        postbackUrl = PostbackUrl,
-        nonce = Nonce,
-        amount = Amount,
-        environment = Environment,
-        preAuth = false
+        amount = Shared.Amount,
+        nonce = Nonces.Salt,
+        // on the other hand, include these here even if you leave them out of the JS init
+        postbackUrl = Shared.PostbackUrl, // if not specified in the JS init, defaults to the empty string
+        environment = Shared.Environment, // defaults to "cert"
+        preAuth = Shared.PreAuth // defaults to false
     };
 
     string jsonReq = JsonConvert.SerializeObject(request);
-
-    string AuthKey = Shared.GetAuthKey(jsonReq, Shared.DeveloperKEY, NonceTuple);
+    string AuthKey = Shared.GetAuthKey(jsonReq, Shared.DeveloperKEY, Nonces.IV, Nonces.Salt);
 }
 <style>
     .resizeable {
-        resize:horizontal;
+        resize: horizontal;
         overflow: auto;
         margin-left: auto;
         margin-right: auto;
@@ -40,43 +35,72 @@
         border-color: #3c424f;
     }
 </style>
-
 <div class="wrapper text-center">
     <h1>Adaptive</h1>
-    <p>The PayJS UI will adjust itself to the size of its container. Try stretching out this <code>&lt;div&gt;</code>:</p>
+    <p>The PayJS UI will adjust itself to the width of its container. Try stretching out this <code>&lt;div&gt;</code>:</p>
     <br />
     <div>
         <div class="resizeable" id="paymentDiv" style="width:35%"></div>
-        @*<iframe class="resizeable" src="adaptive/iframe.cshtml" style="width:60%"></iframe>*@
         <br /><br />
         <h5>Results:</h5>
         <p style="width:100%"><pre><code id="paymentResponse">The response will appear here as JSON, and in your browser console as a JavaScript object.</code></pre></p>
     </div>
 </div>
 <script type="text/javascript">
-    PayJS(['PayJS/UI', 'jquery'],
-    function($UI, $) {
+    // full api reference is available at https://github.com/SagePayments/PaymentsJS
+
+    // the entire library is accessed through the PayJS() function:
+
+    PayJS(['PayJS/UI', 'jquery'], // name the modules you want to use...
+    function($UI, $) { // ... and then assign them to variables.
+
+        // we'll start by initializing the UI:
         $UI.Initialize({
+            // developer:
             apiKey: "@Shared.DeveloperID",
-            merchantId: "@MerchantId",
-            environment: "@Environment",
+            environment: "@Shared.Environment",
+            postbackUrl: "@Shared.PostbackUrl", // you get a copy of the response here
+
+            // merchant:
+            merchantId: "@Shared.MerchantID",
+
+            // security:
             authKey: "@AuthKey",
+            nonce: "@Nonces.Salt",
+
+            // request:
             requestType: "@RequestType",
             requestId: "@RequestId",
-            amount: "@Amount",
-            elementId: "paymentDiv",
-            debug: true,
-            postbackUrl: "@PostbackUrl",
-            phoneNumber: "1-800-555-1234",
-            nonce: "@Nonce",
-            //suppressResultPage: true
+            amount: "@Shared.Amount",
+            billing: {
+                name: "PaymentsJS Sample",
+                street: "123 Address St",
+                city: "Denver",
+                state: "CO",
+                zip: "80205"
+            },
+
+            // ui:
+            elementId: "paymentDiv", // the DOM that $UI should attach itself to,
+            phoneNumber: "1-800-555-1234", // to provide users a support number
+
+            // dev QoL:
+            // debug: true, // verbose logging
+            // show: true, // show the modal immediately, instead of waiting for a click
+            // addFakeData: true // pre-fill the form with test values
         });
-        $UI.setCallback(function(resp) {
-            console.log(resp.getResponse());
+
+        // and then we'll set a callback function to execute after the user
+        // has submitted their card data and received a respnonse back
+        $UI.setCallback(function($RESP) { // the callback function receives an instance of the RESPONSE module
+            console.log($RESP.getResponse());
             $("#paymentResponse").text(
-                resp.getResponse({ "json": true })
+                $RESP.getResponse({ "json": true })
             );
+            // the response includes the gateway response, plus a SHA512 HMAC of the gateway response
+            // the HMAC uses your developer key to sign the response payload
+            // it's always a good idea to verify the hash, server-side, to ensure that the response is legitimate
+            // this is especially important if you're changing an account balance, shipping a product, etc.
         });
     });
 </script>
-

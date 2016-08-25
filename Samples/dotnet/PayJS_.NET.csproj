@@ -127,7 +127,6 @@
     <Content Include="dynamic\index.html" />
     <Content Include="dynamic\auth.cshtml" />
     <Content Include="adaptive\index.cshtml" />
-    <Content Include="adaptive\iframe.cshtml" />
     <None Include="Properties\PublishProfiles\QA.pubxml" />
     <None Include="require\index.cshtml" />
     <Content Include="vault\index.cshtml" />
