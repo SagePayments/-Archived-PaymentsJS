@@ -1,53 +1,46 @@
 ﻿@using PayJS_Samples.Misc
 @using Newtonsoft.Json;
 @{
-    string MerchantId = Shared.MerchantID;
-    string MerchantKey = Shared.MerchantKEY;
-    string PostbackUrl = "http://www.example.com";
-    string Environment = Shared.Environment;
-    
-    string RequestId = "Invoice" + (new Random()).Next(100).ToString();
-    var NonceTuple = Shared.GetNonce();
-    string Nonce = NonceTuple.Item2;
-    string RequestType = "vault";
 
-    var request = new
+    string vault_RequestId = "Invoice" + (new Random()).Next(100).ToString();
+    Nonces vault_Nonces = Shared.GetNonces();
+    string vault_RequestType = "vault";
+
+    var vault_request = new
     {
-        merchantId = MerchantId,
-        merchantKey = MerchantKey,
-        requestType = RequestType,
-        requestId = RequestId,
-        postbackUrl = PostbackUrl,
-        nonce = Nonce,
-        environment = Environment,
-        preAuth = false
+        merchantId = Shared.MerchantID,
+        merchantKey = Shared.MerchantKEY,
+        requestType = vault_RequestType,
+        requestId = vault_RequestId,
+        nonce = vault_Nonces.Salt,
+        postbackUrl = Shared.PostbackUrl,
+        environment = Shared.Environment,
     };
 
-    string jsonReq = JsonConvert.SerializeObject(request);
-    string AuthKey = Shared.GetAuthKey(jsonReq, Shared.DeveloperKEY, NonceTuple);
+    string vault_jsonReq = JsonConvert.SerializeObject(vault_request);
+    string vault_AuthKey = Shared.GetAuthKey(vault_jsonReq, Shared.DeveloperKEY, vault_Nonces.IV, vault_Nonces.Salt);
 
-    string RequestId2 = "Invoice" + (new Random()).Next(100).ToString();
-    string Amount = "28";
-    var NonceTuple2 = Shared.GetNonce();
-    string Nonce2 = NonceTuple2.Item2;
-    string RequestType2 = "payment";
+    string payment_RequestId = "Invoice" + (new Random()).Next(100).ToString();
+    Nonces payment_Nonces = Shared.GetNonces();
+    string payment_RequestType = "payment";
 
-    var request2 = new
+    var payment_request = new
     {
-        merchantId = MerchantId,
-        merchantKey = MerchantKey,
-        requestType = RequestType2,
-        requestId = RequestId2,
-        postbackUrl = PostbackUrl,
-        nonce = Nonce2,
-        amount = Amount,
-        environment = Environment,
-        preAuth = false
+        merchantId = Shared.MerchantID,
+        merchantKey = Shared.MerchantKEY,
+        requestType = payment_RequestType,
+        requestId = payment_RequestId,
+        nonce = payment_Nonces.Salt,
+        postbackUrl = Shared.PostbackUrl,
+        environment = Shared.Environment,
+        amount = Shared.Amount,
+        preAuth = Shared.PreAuth
     };
 
-    string jsonReq2 = JsonConvert.SerializeObject(request2);
-    string AuthKey2 = Shared.GetAuthKey(jsonReq2, Shared.DeveloperKEY, NonceTuple2);
+    string payment_jsonReq = JsonConvert.SerializeObject(payment_request);
+    string payment_AuthKey = Shared.GetAuthKey(payment_jsonReq, Shared.DeveloperKEY, payment_Nonces.IV, payment_Nonces.Salt);
 }
+
 <div class="wrapper text-center">
     <h1>Tokenization</h1>
     <p>Not ready to charge a card, or expecting to charge it multiple times? Run a vault-only request to store the card, then charge it when you're ready.</p>
@@ -60,22 +53,20 @@
         <p style="width:100%"><pre><code id="paymentResponse">The response will appear here as JSON, and in your browser console as a JavaScript object.</code></pre></p>
     </div>
 </div>
+
 <script type="text/javascript">
     PayJS(['PayJS/Request', 'PayJS/Response', 'PayJS/Core', 'PayJS/UI', 'jquery'],
     function($REQ, $RESP, $CORE, $UI, $) {
         $UI.Initialize({
             apiKey: "@Shared.DeveloperID",
-            merchantId: "@MerchantId",
-            environment: "@Environment",
-            authKey: "@AuthKey",
-            requestType: "@RequestType",
-            requestId: "@RequestId",
-            elementId: "vaultButton",
-            debug: true,
-            postbackUrl: "@PostbackUrl",
-            phoneNumber: "1-800-555-1234",
-            nonce: "@Nonce",
-            //suppressResultPage: true
+            environment: "@Shared.Environment",
+            postbackUrl: "@Shared.PostbackUrl",
+            merchantId: "@Shared.MerchantID",
+            authKey: "@vault_AuthKey",
+            nonce: "@vault_Nonces.Salt",
+            requestType: "@vault_RequestType",
+            requestId: "@vault_RequestId",
+            elementId: "vaultButton"
         });
         $UI.setCallback(function(vaultResponse) {
             console.log(vaultResponse.getResponse());
@@ -86,25 +77,24 @@
                 $("#vaultButton").prop('disabled', true);
                 $("#paymentButton").prop('disabled', false);
                 $("#paymentButton").click(function() {
-                    $("#paymentResponse").text("Processing...");
-                    $(this).attr("disabled", true);
-                    $("#sps-holder").remove(); // remove initializations from previous samples
+                    $("#paymentButton").prop('disabled', true);
+                    $("#paymentResponse").text("The response will appear here as JSON, and in your browser console as a JavaScript object.");
                     $CORE.Initialize({
+                        amount: "@Shared.Amount",
                         apiKey: "@Shared.DeveloperID",
-                        merchantId: "@MerchantId",
-                        authKey: "@AuthKey2",
-                        requestType: "@RequestType2",
-                        requestId: "@RequestId2",
-                        amount: "@Amount",
-                        debug: true,
-                        postbackUrl: "@PostbackUrl",
-                        nonce: "@Nonce2",
-                        environment: "@Environment"
+                        environment: "@Shared.Environment",
+                        postbackUrl: "@Shared.PostbackUrl",
+                        merchantId: "@Shared.MerchantID",
+                        authKey: "@payment_AuthKey",
+                        nonce: "@payment_Nonces.Salt",
+                        requestType: "@payment_RequestType",
+                        requestId: "@payment_RequestId"
                     });
                     $REQ.doTokenPayment(vaultResponse.getVaultToken(), "123", function(paymentResponse) {
+                        console.log(paymentResponse);
                         $RESP.tryParse(paymentResponse);
                         $("#paymentResponse").text(
-                            $RESP.getResponse({ "json": true })
+                            $RESP.getResponse({"json": true})
                         );
                     });
                 })
@@ -114,4 +104,3 @@
         });
     });
 </script>
-

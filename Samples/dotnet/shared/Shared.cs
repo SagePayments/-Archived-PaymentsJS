@@ -1,27 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Web;
 
 namespace PayJS_Samples.Misc
 {
     public static class Shared
     {
+        // sign up at https://developer.sagepayments.com/ to get your own dev creds
         public static string DeveloperID = "7SMmEF02WyC7H5TSdG1KssOQlwOOCagb";
         public static string DeveloperKEY = "wtC5Ns0jbtiNA8sP";
-        public static string Environment = "qa";
+
+        // this is a shared test account; don't hesitate to ask us for one of your own!
         public static string MerchantID = "999999999997";
         public static string MerchantKEY = "K3QD6YWyhfD";
 
-        public static string GetAuthKey(string toHash, string privateKey, Tuple<byte[], string> nonce)
+        public static string Environment = "cert";
+        public static string PostbackUrl = "https://www.example.com/myHandler.php"; // https://requestb.in is great for playing with this
+        public static string Amount = "1.00"; // use 5.00 to simulate a decline
+        public static string PreAuth = "false";
+
+        public static string GetAuthKey(string toHash, string privateKey, byte[] iv, string salt)
         {
             toHash = UTF8Encoding.UTF8.GetString(UTF8Encoding.UTF8.GetBytes(toHash));
             string passphrase = privateKey;
-            string salt = nonce.Item2;
-            byte[] iv = nonce.Item1;
 
             byte[] encryptedResult;
             using (Aes aesAlg = Aes.Create())
@@ -51,11 +53,17 @@ namespace PayJS_Samples.Misc
             return Convert.ToBase64String(encryptedResult);
         }
 
-        public static Tuple<byte[], string> GetNonce()
+        public static Nonces GetNonces()
         {
-            string nonce = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
-            byte[] nonceBytes = UTF8Encoding.UTF8.GetBytes(nonce);
-            return new Tuple<byte[], string>(nonceBytes, Convert.ToBase64String(UTF8Encoding.UTF8.GetBytes(BytesToHex(nonceBytes))));
+            byte[] nonceBytes = new byte[16];
+            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+            {
+                rng.GetBytes(nonceBytes);
+            }
+            var result = new Nonces();
+            result.IV = nonceBytes;
+            result.Salt = Convert.ToBase64String(UTF8Encoding.UTF8.GetBytes(BytesToHex(nonceBytes)));
+            return result;
         }
 
         private static string BytesToHex(byte[] ba)
@@ -65,5 +73,11 @@ namespace PayJS_Samples.Misc
                 hex.AppendFormat("{0:x2}", b);
             return hex.ToString();
         }
+    }
+
+    public class Nonces
+    {
+        public byte[] IV;
+        public string Salt;
     }
 }

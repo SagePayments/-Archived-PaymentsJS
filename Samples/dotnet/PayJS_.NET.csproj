@@ -23,6 +23,7 @@
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
     <SccProvider>SAK</SccProvider>
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -116,17 +117,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="shared\Tools.cs" />
+    <Compile Include="shared\Shared.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="modal\index.cshtml" />
     <Content Include="packages.config" />
     <Content Include="inline\index.cshtml" />
-    <Content Include="non-ui\index.cshtml" />
+    <Content Include="js-only\index.cshtml" />
     <Content Include="dynamic\index.html" />
     <Content Include="dynamic\auth.cshtml" />
     <Content Include="adaptive\index.cshtml" />
-    <Content Include="adaptive\iframe.cshtml" />
     <None Include="Properties\PublishProfiles\QA.pubxml" />
     <None Include="require\index.cshtml" />
     <Content Include="vault\index.cshtml" />
