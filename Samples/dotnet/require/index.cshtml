@@ -1,33 +1,29 @@
 ﻿@using PayJS_Samples.Misc
-@using Newtonsoft.Json
+@using Newtonsoft.Json;
 @{
-    string MerchantId = Shared.MerchantID;
-    string MerchantKey = Shared.MerchantKEY;
-    string RequestId = "Invoice" + (new Random()).Next(100).ToString();
-    string Amount = "28";
-    var NonceTuple = Shared.GetNonce();
-    string Nonce = NonceTuple.Item2;
-    string PostbackUrl = "http://www.example.com";
     string RequestType = "payment";
-    string Environment = Shared.Environment;
+    string RequestId = "Invoice" + (new Random()).Next(100).ToString(); // this'll be used as the order number
+
+    Nonces Nonces = Shared.GetNonces();
 
     var request = new
     {
-        merchantId = MerchantId,
-        merchantKey = MerchantKey,
+        merchantId = Shared.MerchantID,
+        merchantKey = Shared.MerchantKEY, // don't include the Merchant Key in the JavaScript initialization!
         requestType = RequestType,
         requestId = RequestId,
-        postbackUrl = PostbackUrl,
-        nonce = Nonce,
-        amount = Amount,
-        environment = Environment,
-        preAuth = false
+        amount = Shared.Amount,
+        nonce = Nonces.Salt,
+        // on the other hand, include these here even if you leave them out of the JS init
+        postbackUrl = Shared.PostbackUrl, // if not specified in the JS init, defaults to the empty string
+        environment = Shared.Environment, // defaults to "cert"
+        preAuth = Shared.PreAuth // defaults to false
     };
 
     string jsonReq = JsonConvert.SerializeObject(request);
-
-    string AuthKey = Shared.GetAuthKey(jsonReq, Shared.DeveloperKEY, NonceTuple);
+    string AuthKey = Shared.GetAuthKey(jsonReq, Shared.DeveloperKEY, Nonces.IV, Nonces.Salt);
 }
+
 <div class="wrapper text-center">
     <h1>RequireJS</h1>
     <p>The <code>pay.js</code> and <code>pay.min.js</code> files use a bundled version of <a href="http://requirejs.org/">RequireJS</a> to manage module dependencies. If you already use RequireJS on your site, reference PayJS directly via <code>config.paths</code>:</p>
@@ -35,11 +31,11 @@
 <pre><code>        requirejs.config({
             paths: {
                 "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min",
-                <span style="background-color: yellow">"PayJS": 'https://www.sagepayments.net/pay/js/build'</span>
+                <span style="background-color: yellow">"PayJS": 'https://www.sagepayments.net/pay/1.0.0/js/build'</span>
             },
         });</code></pre>
 <div class="wrapper text-center">
-    <p>And then use it as you normally would:</p>
+    <p>And then use it just like you would use any other module:</p>
 </div>
 <pre><code>        requirejs(['jquery', 'myAwesomeCode', <span style="background-color: yellow">'PayJS/UI'</span>],
         function($, $MAC, $UI) {
@@ -63,32 +59,39 @@
         baseUrl: "require/my/other/js",
         paths: {
             "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min",
-            "PayJS": 'https://dev.sagepayments.net/pay/js/build'
+            "PayJS": 'https://www.sagepayments.net/pay/1.0.0/js/build',
         },
     });
-
-    requirejs(['jquery', 'myAwesomeCode', 'PayJS/UI'],
-    function($, $MAC, $UI) {
+</script>
+<script type="text/javascript">
+    // you guessed it -- PayJS() is just an alias of requirejs()
+    requirejs(['myAwesomeCode', 'PayJS/UI', 'jquery'],
+    function($MAC, $UI, $) {
         $MAC.doBusiness();
         $UI.Initialize({
             apiKey: "@Shared.DeveloperID",
-            merchantId: "@MerchantId",
-            environment: "@Environment",
+            environment: "@Shared.Environment",
+            postbackUrl: "@Shared.PostbackUrl",
+            merchantId: "@Shared.MerchantID",
             authKey: "@AuthKey",
+            nonce: "@Nonces.Salt",
             requestType: "@RequestType",
             requestId: "@RequestId",
-            amount: "@Amount",
+            amount: "@Shared.Amount",
+            billing: {
+                name: "PaymentsJS Sample",
+                street: "123 Address St",
+                city: "Denver",
+                state: "CO",
+                zip: "80205"
+            },
             elementId: "paymentButton",
-            debug: true,
-            postbackUrl: "@PostbackUrl",
             phoneNumber: "1-800-555-1234",
-            nonce: "@Nonce",
-            //suppressResultPage: true
         });
-        $UI.setCallback(function(resp) {
-            console.log(resp.getResponse());
+        $UI.setCallback(function($RESP) {
+            console.log($RESP.getResponse());
             $("#paymentResponse").text(
-                resp.getResponse({ "json": true })
+                $RESP.getResponse({ "json": true })
             );
         });
     });
