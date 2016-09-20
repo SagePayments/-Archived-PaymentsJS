@@ -292,10 +292,10 @@ This takes a single argument:
 ```javascript
 CORE.setBilling({
     name: "John Smith",
-    street: "123 Address St",
+    address: "123 Address St",
     city: "Denver",
     state: "CO",
-    zip: "12345",
+    postalCode: "12345",
     country: "USA"
 });
 ```
@@ -327,7 +327,7 @@ CORE.getNonce();
 CORE.getPhoneNumber();
 // => "800-555-1234"
 CORE.getBilling();
-// => Object {name: "John Smith", street: "123 Address St", state: "CO", postalCode: "12345", country: "USA"}
+// => Object {name: "John Smith", address: "123 Address St", state: "CO", postalCode: "12345", country: "USA"}
 ```
 ---
 ### <a name="ref.UI"></a>PayJS/UI
