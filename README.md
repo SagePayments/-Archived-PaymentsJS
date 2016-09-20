@@ -188,6 +188,7 @@ Please keep in mind that you'll also need to [provide your own jQuery dependency
   - [Initialize()](#ref.Core.Initialize)
   - [isInitialized()](#ref.Core.isInitialized)
   - [getters](#ref.Core.getters)
+  - [setBilling()](#ref.Core.setBilling)
 - [PayJS/UI](#ref.UI)
   - [Initialize()](#ref.UI.Initialize)
   - [isInitialized()](#ref.UI.isInitialized)
@@ -267,7 +268,7 @@ nonce | the encryption salt; see [Authentication & Verification](#Authentication
 amount | the amount to charge the card | "1.00", etc. | varies | when requestType = "payment" | N/A
 preAuth | toggles between authorization-only and authorization & capture | boolean | N/A | no | false (auth & cap)
 postbackUrl | a URL that will receive a copy of the gateway response | valid URI with https scheme | any | no | ""
-billing | add billing information (address/etc.) to the transaction request | see [`CORE.setBilling()`](#ref.Core.setBilling) | N/A | no | none/empty
+billing | add billing information (address/etc.) to the transaction request | see [`CORE.setBilling()`](#ref.Core.setBilling) | N/A | yes | N/A
 
 
 #### <a name="ref.Core.isInitialized"></a>isInitialized
