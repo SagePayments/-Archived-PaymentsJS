@@ -8,7 +8,7 @@ PaymentsJS is a JavaScript library that enables developers to quickly start proc
 1. [Authentication & Verification](#Authentication)
 1. [Modules](#Modules)
 1. [RequireJS](#RequireJS)
-1. [API Reference](#Reference)
+1. [API Reference](#Reference) 
 
 ---
 ## <a name="QuickStart"></a>Quick Start
