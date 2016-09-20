@@ -41,12 +41,19 @@ function($UI) { // assigning the module to a variable
         nonce: "ThisIsTotallyUnique", // a unique identifier, used as salt
         debug: true, // enables verbose console logging
         preAuth: false, // run a Sale, rather than a PreAuth
-        environment: "cert" // hit the certification environment
+        environment: "cert", // hit the certification environment
+        billing: {
+            name: "Will Wade",
+            address: "123 Address St",
+            city: "Denver",
+            state: "CO",
+            postalCode: "12345"
+        }
     });
     $UI.setCallback(function(result) { // custom code that will execute when the UI receives a response
         console.log(result.getResponse()); // log the result to the console
         var wasApproved = result.getTransactionSuccess();
-        alert(wasApproved ? "ka-ching!" : "bummer");
+        console.log(wasApproved ? "ka-ching!" : "bummer");
     });
 });
 ```
@@ -80,6 +87,7 @@ $req = [
    "requestType" => "payment",
    "requestId" => "Invoice12345",
    "postbackUrl" => "https://www.example.com/",
+   "environment" => "cert",
    "amount" => "1.00",
    "nonce" => $salt,
    "preAuth" => false
@@ -115,15 +123,23 @@ function($UI) {
         elementId: "paymentButton",
         nonce: "<?php echo $salt ?>",
         preAuth: false,
-        environment: "cert"
+        environment: "cert",
+        postbackUrl: "https://www.example.com/",
+        billing: {
+            name: "Will Wade",
+            address: "123 Address St",
+            city: "Denver",
+            state: "CO",
+            postalCode: "12345"
+        }
     });
 });
 ```
-
+If we don't have a sample in your language, the [Developer Forums](https://developer.sagepayments.com/content/how-calculate-authkey-outside-javascript-library) are a great resource for  information and/or help.
 
 #### <a name="respHash"></a>Response Hash
 
-Similarly, when we send the response back to the client, it will include a SHA-512 HMAC of the response (using your Developer Key to hash). **Always calculate & compare this server-side before updating any orders, databases, etc.**
+Similarly, when we send the response back to the client, it will include a SHA-512 HMAC of the response (using your Developer Key to hash). **Always [calculate & compare](https://developer.sagepayments.com/content/comparing-response-and-hash) this server-side before updating any orders, databases, etc.**
 
 ---
 ## <a name="Modules"></a>Modules
@@ -172,6 +188,7 @@ Please keep in mind that you'll also need to [provide your own jQuery dependency
   - [Initialize()](#ref.Core.Initialize)
   - [isInitialized()](#ref.Core.isInitialized)
   - [getters](#ref.Core.getters)
+  - [setBilling()](#ref.Core.setBilling)
 - [PayJS/UI](#ref.UI)
   - [Initialize()](#ref.UI.Initialize)
   - [isInitialized()](#ref.UI.isInitialized)
@@ -251,7 +268,7 @@ nonce | the encryption salt; see [Authentication & Verification](#Authentication
 amount | the amount to charge the card | "1.00", etc. | varies | when requestType = "payment" | N/A
 preAuth | toggles between authorization-only and authorization & capture | boolean | N/A | no | false (auth & cap)
 postbackUrl | a URL that will receive a copy of the gateway response | valid URI with https scheme | any | no | ""
-billing | add billing information (address/etc.) to the transaction request | see [`CORE.setBilling()`](#ref.Core.setBilling) | N/A | no | none/empty
+billing | add billing information (address/etc.) to the transaction request | see [`CORE.setBilling()`](#ref.Core.setBilling) | N/A | yes | N/A
 
 
 #### <a name="ref.Core.isInitialized"></a>isInitialized
@@ -275,10 +292,10 @@ This takes a single argument:
 ```javascript
 CORE.setBilling({
     name: "John Smith",
-    street: "123 Address St",
+    address: "123 Address St",
     city: "Denver",
     state: "CO",
-    zip: "12345",
+    postalCode: "12345",
     country: "USA"
 });
 ```
@@ -310,7 +327,7 @@ CORE.getNonce();
 CORE.getPhoneNumber();
 // => "800-555-1234"
 CORE.getBilling();
-// => Object {name: "John Smith", street: "123 Address St", state: "CO", postalCode: "12345", country: "USA"}
+// => Object {name: "John Smith", address: "123 Address St", state: "CO", postalCode: "12345", country: "USA"}
 ```
 ---
 ### <a name="ref.UI"></a>PayJS/UI
