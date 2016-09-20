@@ -8,7 +8,7 @@ PaymentsJS is a JavaScript library that enables developers to quickly start proc
 1. [Authentication & Verification](#Authentication)
 1. [Modules](#Modules)
 1. [RequireJS](#RequireJS)
-1. [API Reference](#Reference) 
+1. [API Reference](#Reference)
 
 ---
 ## <a name="QuickStart"></a>Quick Start
@@ -41,12 +41,19 @@ function($UI) { // assigning the module to a variable
         nonce: "ThisIsTotallyUnique", // a unique identifier, used as salt
         debug: true, // enables verbose console logging
         preAuth: false, // run a Sale, rather than a PreAuth
-        environment: "cert" // hit the certification environment
+        environment: "cert", // hit the certification environment
+        billing: {
+            name: "Will Wade",
+            address: "123 Address St",
+            city: "Denver",
+            state: "CO",
+            postalCode: "12345"
+        }
     });
     $UI.setCallback(function(result) { // custom code that will execute when the UI receives a response
         console.log(result.getResponse()); // log the result to the console
         var wasApproved = result.getTransactionSuccess();
-        alert(wasApproved ? "ka-ching!" : "bummer");
+        console.log(wasApproved ? "ka-ching!" : "bummer");
     });
 });
 ```
@@ -80,6 +87,7 @@ $req = [
    "requestType" => "payment",
    "requestId" => "Invoice12345",
    "postbackUrl" => "https://www.example.com/",
+   "environment" => "cert",
    "amount" => "1.00",
    "nonce" => $salt,
    "preAuth" => false
@@ -115,15 +123,23 @@ function($UI) {
         elementId: "paymentButton",
         nonce: "<?php echo $salt ?>",
         preAuth: false,
-        environment: "cert"
+        environment: "cert",
+        postbackUrl: "https://www.example.com/",
+        billing: {
+            name: "Will Wade",
+            address: "123 Address St",
+            city: "Denver",
+            state: "CO",
+            postalCode: "12345"
+        }
     });
 });
 ```
-
+If we don't have a sample in your language, the [Developer Forums](https://developer.sagepayments.com/content/how-calculate-authkey-outside-javascript-library) are a great resource for  information and/or help.
 
 #### <a name="respHash"></a>Response Hash
 
-Similarly, when we send the response back to the client, it will include a SHA-512 HMAC of the response (using your Developer Key to hash). **Always calculate & compare this server-side before updating any orders, databases, etc.**
+Similarly, when we send the response back to the client, it will include a SHA-512 HMAC of the response (using your Developer Key to hash). **Always [calculate & compare](https://developer.sagepayments.com/content/comparing-response-and-hash) this server-side before updating any orders, databases, etc.**
 
 ---
 ## <a name="Modules"></a>Modules
