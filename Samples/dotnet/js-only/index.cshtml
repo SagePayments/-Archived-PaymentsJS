@@ -212,10 +212,10 @@
             // we'll add on the billing data that we collected
             $CORE.setBilling({
                 name: $("#billing_name").val(),
-                street: $("#billing_street").val(),
+                address: $("#billing_street").val(),
                 city: $("#billing_city").val(),
                 state: $("#billing_state").val(),
-                zip: $("#billing_zip").val()
+                postalCode: $("#billing_zip").val()
             });
 
             var cc = $("#cc_number").val();

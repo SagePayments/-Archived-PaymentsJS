@@ -74,10 +74,10 @@
             amount: "<?php echo $request['amount']; ?>",
             billing: {
                 name: "PaymentsJS Sample",
-                street: "123 Address St",
+                address: "123 Address St",
                 city: "Denver",
                 state: "CO",
-                zip: "80205"
+                postalCode: "80205"
             },
             
             // ui:
