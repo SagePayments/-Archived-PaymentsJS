@@ -88,7 +88,14 @@
                         authKey: "@payment_AuthKey",
                         nonce: "@payment_Nonces.Salt",
                         requestType: "@payment_RequestType",
-                        requestId: "@payment_RequestId"
+                        requestId: "@payment_RequestId",
+                        billing: {
+                            name: "PaymentsJS Sample",
+                            address: "123 Address St",
+                            city: "Denver",
+                            state: "CO",
+                            postalCode: "80205"
+                        }
                     });
                     $REQ.doTokenPayment(vaultResponse.getVaultToken(), "123", function(paymentResponse) {
                         console.log(paymentResponse);
