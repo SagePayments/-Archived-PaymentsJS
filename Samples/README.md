@@ -1,6 +1,6 @@
 ## Sample Pages
 These samples demonstrate several common ways of utilizing Sage PaymentsJS:
-- *Modal* — display the UI over the page content in a modal dialog that appears when a `<button>` or `<a>` is clicked
+- *Modal* — display the UI when a `<button>` or `<a>` is clicked
 - *Inline* — display the UI inside a `<div>`
 - *RequireJS* — reference PaymentsJS on a page that uses RequireJS
 - *Dynamic* — use a simple ajax call to delay initialization
