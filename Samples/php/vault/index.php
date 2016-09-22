@@ -83,6 +83,13 @@
                         requestType: "<?php echo $payment_requestType; ?>",
                         requestId: "<?php echo $payment_requestId; ?>",
                         amount: "<?php echo $request['amount']; ?>",
+                        billing: {
+                            name: "PaymentsJS Sample",
+                            address: "123 Address St",
+                            city: "Denver",
+                            state: "CO",
+                            postalCode: "80205"
+                        }
                     });
                     $REQ.doTokenPayment(vaultResponse.getVaultToken(), "123", function(paymentResponse) {
                         console.log(paymentResponse);
