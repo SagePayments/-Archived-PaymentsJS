@@ -750,6 +750,7 @@ BUG FIXES:
 - UI now updates card type when using addFakeData option. (D-32367)
 - When authKey validation fails, server response now includes CORS headers. (D-32608)
 - When authKey validation fails, server now returns 401 instead of 400. (D-32608)
+  - (Note: the server will still return a 400 when authKey *decryption* fails.)
 
 ENHANCEMENTS:
 - Developer can now set customer data. (B-58611)
@@ -762,13 +763,14 @@ ENHANCEMENTS:
 - The 'requestId' is now named 'orderNumber'. (B-?????)
 - The 'apiKey' is now named 'clientId'. (B-?????)
 - The 'nonce' is now named 'salt'. (B-?????)
-  - (Note: renamed fields still retain their old aliases and getters/setters, for backwards compatibility.)
+  - (Note: renamed fields retain their old aliases and getters/setters, for backwards compatibility.)
 - Token payments now pass CVV. (B-57326)
 - When authKey validation fails, server response now specifies failures. (B-?????)
 - When preAuth defaults (or is set) to false, it is ignored during authKey validation. (B-?????)
 - When postbackUrl is not provided, it is ignored during authKey validation. (B-?????)
 
 MISC/OTHER:
+- Added this changelog to the GitHub readme.
 - UI text abstracted out to separate module.
 - Added a language option; value currently hard-coded to "en".
 
