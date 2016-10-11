@@ -741,7 +741,7 @@ Notes:
 ---
 ## <a name="Changelog"></a>Changelog
 
-![INT0000??](https://img.shields.io/badge/INTERNAL-1.0.0000??-red.svg)
+![INT0000XX](https://img.shields.io/badge/INTERNAL-1.0.0000XX-red.svg)
 BUG FIXES:
 - Billing data no longer required. (D-32342)
   - (Note: transactions processed without address data may incur additional fees.)
