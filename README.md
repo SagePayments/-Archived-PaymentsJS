@@ -741,7 +741,9 @@ Notes:
 ---
 ## <a name="Changelog"></a>Changelog
 
+---
 ![INT0000XX](https://img.shields.io/badge/INTERNAL-1.0.0000XX-red.svg)
+
 BUG FIXES:
 - Billing data no longer required. (D-32342)
   - (Note: transactions processed without address data may incur additional fees.)
@@ -770,9 +772,10 @@ MISC/OTHER:
 - UI text abstracted out to separate module.
 - Added a language option; value currently hard-coded to "en".
 
-
+---
 ![PROD000045](https://img.shields.io/badge/PROD-1.0.000045-brightgreen.svg)
 ![QA000043](https://img.shields.io/badge/QA-1.0.000043-yellow.svg)
+
 - Created changelog.
 - Added an internal-only build version.
   - Updated readme.
