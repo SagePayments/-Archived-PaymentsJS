@@ -741,10 +741,8 @@ Notes:
 ---
 ## <a name="Changelog"></a>Changelog
 
----------------------
 ![PROD000045](https://img.shields.io/badge/PROD-1.0.000045-brightgreen.svg)
 ![QA000043](https://img.shields.io/badge/QA-1.0.000043-yellow.svg)
----------------------
 - Created changelog.
 - Added an internal-only build version.
   - Updated readme.
@@ -753,7 +751,5 @@ Notes:
 - Fixed bug where PaymentsJS failed to pass address and zip to the gateway. (D-32318)
   - UI module no longer forces billing data into an incorrect format.
 
----------------------
 ![PROD000000](https://img.shields.io/badge/PROD-1.0.000000-brightgreen.svg)
----------------------
 - Initial Release
