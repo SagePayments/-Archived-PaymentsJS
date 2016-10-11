@@ -784,5 +784,7 @@ MISC/OTHER:
 - Fixed bug where PaymentsJS failed to pass address and zip to the gateway. (D-32318)
   - UI module no longer forces billing data into an incorrect format.
 
+---
 ![PROD000000](https://img.shields.io/badge/PROD-1.0.000000-brightgreen.svg)
+
 - Initial Release
