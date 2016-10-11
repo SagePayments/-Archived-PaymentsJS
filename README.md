@@ -165,6 +165,7 @@ Name | Description
 ---- | -----------
 "PayJS/Extensions" | Extends the `jquery` module with certain [Bootstrap](http://getbootstrap.com/javascript/) components.
 "PayJS/UI.html" | Provides the `UI` module with the HTML that it uses to build the payment form.
+"PayJS/UI.text" | Provides the `UI` module with the text used in form labels, placeholders, etc.
 
 ---
 ## <a name="RequireJS"></a>RequireJS
