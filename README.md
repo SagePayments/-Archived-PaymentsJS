@@ -32,14 +32,14 @@ Then, in a separate `<script>` tag, initialize the library:
 PayJS(['PayJS/UI'], // the name of the module we want to use
 function($UI) { // assigning the module to a variable
     $UI.Initialize({ // configuring the UI
-        apiKey: "myDeveloperId", // your developer ID
+        clientId: "myDeveloperId", // your developer ID
         merchantId: "999999999997", // your 12-digit account identifier
         authKey: "ABCD==", // covered in the next section!
         requestType: "payment", // use can use "vault" to tokenize a card without charging it
-        requestId: "Invoice12345", // an order number, customer or account identifier, etc.
+        orderNumber: "Invoice12345", // an order number, customer or account identifier, etc.
         amount: "1.00", // the amount to charge the card. in test mode, different amounts produce different results.
         elementId: "paymentButton", // the page element that will trigger the UI
-        nonce: "ThisIsTotallyUnique", // a unique identifier, used as salt
+        salt: "ThisIsTotallyUnique", // see the authKey section
         debug: true, // enables verbose console logging
         preAuth: false, // run a Sale, rather than a PreAuth
         environment: "cert", // hit the certification environment
@@ -82,15 +82,15 @@ Next, we're going to create an array (any serializable entity works) that contai
 
 ```php
 $req = [
-   "apiKey" => "myDeveloperId",
+   "clientId" => "myDeveloperId",
    "merchantId" => "999999999997",
    "merchantKey" => "K3QD6YWyhfD",
    "requestType" => "payment",
-   "requestId" => "Invoice12345",
+   "orderNumber" => "Invoice12345",
    "postbackUrl" => "https://www.example.com/",
    "environment" => "cert",
    "amount" => "1.00",
-   "nonce" => $salt,
+   "salt" => $salt,
    "preAuth" => false
 ];
 
@@ -115,14 +115,14 @@ Now that we have our `authKey`, all that's left is to initialize the JavaScript 
 PayJS(['PayJS/UI'],
 function($UI) {
     $UI.Initialize({
-        apiKey: "myDeveloperId",
+        clientId: "myDeveloperId",
         merchantId: "999999999997",
         authKey: "<?php echo $authKey ?>",
         requestType: "payment",
-        requestId: "Invoice12345",
+        orderNumber: "Invoice12345",
         amount: "1.00",
         elementId: "paymentButton",
-        nonce: "<?php echo $salt ?>",
+        salt: "<?php echo $salt ?>",
         preAuth: false,
         environment: "cert",
         postbackUrl: "https://www.example.com/",
@@ -260,12 +260,12 @@ Name | Description | Values | Length | Required | Default
 ---- | ----------- | ------ | ------ | -------- | -------
 debug | toggles verbose logging to browser console | boolean | N/A | no | false
 environment | chooses between the certification and production environments | "cert" or "prod" | 4 | no | cert
-apiKey | your developer id | alphanumeric string | 32 | yes | N/A
+clientId | your developer id | alphanumeric string | 32 | yes | N/A
 merchantId | identifies your gateway account | numeric string | 12 | yes | N/A
 authKey | see [Authentication & Verification](#Authentication) | string | varies | yes | N/A
-requestId | an identifier of your choosing | string | 1+ | yes | N/A
+orderNumber | an identifier of your choosing | string | 1+ | yes | N/A
 requestType | chooses between charging or tokenizing a card | "payment" or "vault" | N/A | yes | N/A
-nonce | the encryption salt; see [Authentication & Verification](#Authentication) | string | varies | yes | N/A
+salt | the encryption salt; see [Authentication & Verification](#Authentication) | string | varies | yes | N/A
 amount | the amount to charge the card | "1.00", etc. | varies | when requestType = "payment" | N/A
 preAuth | toggles between authorization-only and authorization & capture | boolean | N/A | no | false (auth & cap)
 postbackUrl | a URL that will receive a copy of the gateway response | valid URI with https scheme | any | no | ""
