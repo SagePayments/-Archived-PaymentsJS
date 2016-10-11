@@ -741,6 +741,36 @@ Notes:
 ---
 ## <a name="Changelog"></a>Changelog
 
+![INT0000??](https://img.shields.io/badge/INTERNAL-1.0.0000??-red.svg)
+BUG FIXES:
+- Billing data no longer required. (D-32342)
+  - (Note: transactions processed without address data may incur additional fees.)
+- UI now updates card type when using addFakeData option. (D-32367)
+- When authKey validation fails, server response now includes CORS headers. (D-32608)
+- When authKey validation fails, server now returns 401 instead of 400. (D-32608)
+
+ENHANCEMENTS:
+- Developer can now set customer data. (B-58611)
+- Developer can now set shipping data. (B-?????)
+- Developer can now set level2 data. (B-58612)
+- Developer can now set level3 data. (B-58612)
+- Developer can now set taxAmount. (B-?????)
+- Developer can now set shippingAmount. (B-?????)
+- Developer can now set isRecurring + recurringSchedule. (B-?????)
+- The 'requestId' is now named 'orderNumber'. (B-?????)
+- The 'apiKey' is now named 'clientId'. (B-?????)
+- The 'nonce' is now named 'salt'. (B-?????)
+  - (Note: renamed fields still retain their old aliases and getters/setters, for backwards compatibility.)
+- Token payments now pass CVV. (B-57326)
+- When authKey validation fails, server response now specifies failures. (B-?????)
+- When preAuth defaults (or is set) to false, it is ignored during authKey validation. (B-?????)
+- When postbackUrl is not provided, it is ignored during authKey validation. (B-?????)
+
+MISC/OTHER:
+- UI text abstracted out to separate module.
+- Added a language option; value currently hard-coded to "en".
+
+
 ![PROD000045](https://img.shields.io/badge/PROD-1.0.000045-brightgreen.svg)
 ![QA000043](https://img.shields.io/badge/QA-1.0.000043-yellow.svg)
 - Created changelog.
