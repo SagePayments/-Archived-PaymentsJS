@@ -58,7 +58,7 @@ At this point, clicking on `paymentButton` will make the payment form pop up! Yo
 
 Credit card data moves directly between the user's browser and Sage Payment Solutions' secure payment gateway. This is great news for your server, which doesn't have to touch any sensitive data! But, as with any client-side code, it means we have to take seriously the possibility of malicious users making changes to the request.
 
-The `authKey` is an encrypted version of the configuration settings that you pass into the [`UI.Initialize()`](#ref.UI.Initialize) (or [`CORE.Initialize()`](#ref.Core.Initialize)) method. When we receive the request, we'll decrypt the `authKey` and make sure that everything matches up. This is also how you send us your `merchantKey`, **which should never be exposed to the client browser**.
+The `authKey` is an encrypted version of the configuration settings that you pass into the [`UI.Initialize()`](#ref.UI.Initialize) (or [`CORE.Initialize()`](#ref.Core.Initialize)) method. When we receive the request, we'll decrypt the `authKey` compare it to the request body, to verify the integrity of the request. This is also how you send us your `merchantKey`, **which should never be exposed to the client browser**.
 
 The follow code snippets show the encryption in PHP; check out the `samples` folder of this repository for other languages.
 
@@ -73,11 +73,11 @@ Next, we're going to create an array (any serializable entity works) that contai
 
 ```php
 $req = [
-   "clientId" => "myDeveloperId",
+   "clientId" => "7SMmEF02WyC7H5TSdG1KssOQlwOOCagb",
    "merchantId" => "999999999997",
    "merchantKey" => "K3QD6YWyhfD",
    "requestType" => "payment",
-   "orderNumber" => "Invoice12345",
+   "orderNumber" => (string)time(),
    "amount" => "1.00",
    "salt" => $salt,
 ];
@@ -93,6 +93,7 @@ $jsonReq = json_encode($req)
 ... and then use it as the subject of our encryption:
 
 ```php
+$clientKey = "wtC5Ns0jbtiNA8sP";
 $passwordHash = hash_pbkdf2("sha1", $clientKey, $salt, 1500, 32, true);
 $authKey = openssl_encrypt($jsonReq, "aes-256-cbc", $passwordHash, 0, $iv);
 ```
@@ -103,14 +104,14 @@ Now that we have our `authKey`, all that's left is to initialize the JavaScript 
 PayJS(['PayJS/UI'],
 function($UI) {
     $UI.Initialize({
-        clientId: "myDeveloperId",
-        merchantId: "999999999997",
+        clientId: "<?php echo $req['clientId'] ?>",
+        merchantId: "<?php echo $req['merchantId'] ?>",
+        requestType: "<?php echo $req['requestType'] ?>",
+        orderNumber: "<?php echo $req['orderNumber'] ?>",
+        amount: "<?php echo $req['amount'] ?>",
         authKey: "<?php echo $authKey ?>",
-        requestType: "payment",
-        orderNumber: "Invoice12345",
-        amount: "1.00",
-        elementId: "paymentButton",
         salt: "<?php echo $salt ?>",
+        elementId: "paymentButton",
     });
 });
 ```
