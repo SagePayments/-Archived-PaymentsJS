@@ -743,37 +743,41 @@ Notes:
 ## <a name="Changelog"></a>Changelog
 
 ---
-![INT0000XX](https://img.shields.io/badge/INTERNAL-1.0.0000XX-red.svg)
+![QA000086](https://img.shields.io/badge/QA-1.0.000086-yellow.svg)
 
 BUG FIXES:
 - Billing data no longer required. (D-32342)
   - (Note: transactions processed without address data may incur additional fees.)
+- Server now includes appropriate Cache-Control headers. (D-32607)
+  - "no-store" for contents of /js, "no-cache" for /css and /img
 - UI now updates card type when using addFakeData option. (D-32367)
+- When authKey decryption fails, server response now includes CORS headers. (D-32608)
 - When authKey validation fails, server response now includes CORS headers. (D-32608)
-- When authKey validation fails, server now returns 401 instead of 400. (D-32608)
-  - (Note: the server will still return a 400 when authKey *decryption* fails.)
+- When authKey validation fails, server response now 401 instead of 400. (D-32608)
+- When authKey validation fails, server response now specifies failures. (D-32608)
+- When preAuth defaults (or is set) to false, it is ignored during authKey validation. (D-32799)
+- When postbackUrl is not provided, it is ignored during authKey validation. (D-32799)
 
 ENHANCEMENTS:
 - Developer can now set customer data. (B-58611)
-- Developer can now set shipping data. (B-?????)
+- Developer can now set shipping data. (B-59472)
 - Developer can now set level2 data. (B-58612)
 - Developer can now set level3 data. (B-58612)
-- Developer can now set taxAmount. (B-?????)
-- Developer can now set shippingAmount. (B-?????)
-- Developer can now set isRecurring + recurringSchedule. (B-?????)
-- The 'requestId' is now named 'orderNumber'. (B-?????)
-- The 'apiKey' is now named 'clientId'. (B-?????)
-- The 'nonce' is now named 'salt'. (B-?????)
-  - (Note: renamed fields retain their old aliases and getters/setters, for backwards compatibility.)
+- Developer can now set taxAmount. (B-59474)
+- Developer can now set shippingAmount. (B-59472)
+- Developer can now set isRecurring + recurringSchedule. (B-59477)
 - Token payments now pass CVV. (B-57326)
-- When authKey validation fails, server response now specifies failures. (B-?????)
-- When preAuth defaults (or is set) to false, it is ignored during authKey validation. (B-?????)
-- When postbackUrl is not provided, it is ignored during authKey validation. (B-?????)
 
 MISC/OTHER:
-- Added this changelog to the GitHub readme.
+- The 'requestId' is now named 'orderNumber'. (B-57258)
+- The 'apiKey' is now named 'clientId'. (B-57258)
+- The 'nonce' is now named 'salt'. (B-57258)
+  - (Note: renamed fields retain their old aliases and getters/setters, for backwards compatibility.)
 - UI text abstracted out to separate module.
 - Added a language option; value currently hard-coded to "en".
+- UI.Initialize() is now more closely aligned to CORE.Initialize() in terms of return values and exceptions.
+- Added this changelog to the GitHub readme.
+
 
 ---
 ![PROD000045](https://img.shields.io/badge/PROD-1.0.000045-brightgreen.svg)
