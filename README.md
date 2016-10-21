@@ -259,19 +259,26 @@ The configuration object can contain:
 
 Name | Description | Values | Length | Required | Default
 ---- | ----------- | ------ | ------ | -------- | -------
-debug | toggles verbose logging to browser console | boolean | N/A | no | false
-environment | chooses between the certification and production environments | "cert" or "prod" | 4 | no | cert
+debug | enable verbose logging to browser console | boolean | N/A | no | false
+environment | choose between the certification and production environments | "cert" or "prod" | 4 | no | cert
 clientId | your developer id | alphanumeric string | 32 | yes | N/A
 merchantId | identifies your gateway account | numeric string | 12 | yes | N/A
 authKey | see [Authentication & Verification](#Authentication) | string | varies | yes | N/A
 orderNumber | an identifier of your choosing | string | 1+ | yes | N/A
 requestType | chooses between charging or tokenizing a card | "payment" or "vault" | N/A | yes | N/A
 salt | the encryption salt; see [Authentication & Verification](#Authentication) | string | varies | yes | N/A
-amount | the amount to charge the card | "1.00", etc. | varies | when requestType = "payment" | N/A
-preAuth | toggles between authorization-only and authorization & capture | boolean | N/A | no | false (auth & cap)
-postbackUrl | a URL that will receive a copy of the gateway response | valid URI with https scheme | any | no | ""
-billing | add billing information (address/etc.) to the transaction request | see [`CORE.setBilling()`](#ref.Core.setBilling) | N/A | yes | N/A
-
+amount | the total amount to charge the card | "1.00", etc. | varies | when requestType == "payment" | N/A
+taxAmount | the amount charged as tax | "1.00", etc. | varies | no | null
+shippingAmount | the amount charged for shipping | "1.00", etc. | varies | no | null
+preAuth | toggles between authorization-only (true) and authorization & capture (false) | boolean | N/A | no | false
+postbackUrl | a URL that will receive a copy of the gateway response | valid URI with https scheme | any | no | null
+billing | add billing information (address/etc.) to the transaction request | see [`CORE.setBilling()`](#ref.Core.setBilling) | N/A | no | null
+shipping | add shipping information (address/etc.) to the transaction request | see [`CORE.setShipping()`](#ref.Core.setShipping) | N/A | no | null
+customer | add customer contact information (email/phone) to the transaction request | see [`CORE.setCustomer()`](#ref.Core.setCustomer) | N/A | no | null
+level2 | add level2 data to the transaction request | see [`CORE.setLevel2()`](#ref.Core.setLevel2) | N/A | no | null
+level3 | add level3 to the transaction request | see [`CORE.setLevel3()`](#ref.Core.setLevel3) | N/A | no | null
+isRecurring | indicate that a payment should also create a recurring transaction | boolean | N/A | no | null
+recurringSchedule | add customer contact information (email/phone) to the transaction request | see [`CORE.setRecurringSchedule()`](#ref.Core.setRecurringSchedule) | N/A | when isRecurring == true | null
 
 #### <a name="ref.Core.isInitialized"></a>isInitialized
 Returns a boolean that represents whether the module has been successfully initialized.
