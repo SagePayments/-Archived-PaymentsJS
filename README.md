@@ -307,29 +307,42 @@ Notes:
 
 
 #### <a name="ref.Core.getters"></a>getters
-These methods return information about the current configuration:
+These methods return information about the module state:
 
 ```javascript
-CORE.getMerchantId();
-// => "123456789123"
-CORE.getAuthKey();
-// => "H1x4ECB6TkeTSfkABNQXHNs5="
-CORE.getRequestId();
-// => "Invoice123"
-CORE.getAmount();
-// => "1.00"
-CORE.getRequestType();
-// => "payment"
-CORE.getPreAuth();
-// => false
-CORE.getPostbackUrl();
-// => "https://www.example.com/myHandler.php"
-CORE.getNonce();
-// => "NoncesAreCool"
-CORE.getPhoneNumber();
-// => "800-555-1234"
-CORE.getBilling();
-// => Object {name: "John Smith", address: "123 Address St", state: "CO", postalCode: "12345", country: "USA"}
+// auth:
+CORE.getClientId()
+CORE.getAuthKey()
+CORE.getSalt()
+// merchant:
+CORE.getMerchantId()
+CORE.getPhoneNumber()
+// environments/targets:
+CORE.getApiUrl()
+CORE.getClientUrl()
+CORE.getEnvironment()
+CORE.getPostbackUrl()
+CORE.getLanguage()
+// gateway:
+CORE.getOrderNumber()
+CORE.getRequestType()
+// transaction:
+CORE.getPreAuth()
+CORE.getAmount()
+CORE.getTaxAmount()
+CORE.getShippingAmount()
+CORE.getLevel2()
+CORE.getLevel3()
+CORE.getIsRecurring()
+CORE.getRecurringSchedule()
+// customer/cardholder:
+CORE.getBilling()
+CORE.getCustomer()
+CORE.getShipping()
+// for backwards-compatibility:
+CORE.getRequestId() // same as getOrderNumber()
+CORE.getApiKey() // same as getClientId()
+CORE.getNonce() // same as getSalt()
 ```
 ---
 ### <a name="ref.UI"></a>PayJS/UI
