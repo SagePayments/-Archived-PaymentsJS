@@ -340,9 +340,9 @@ CORE.getBilling()
 CORE.getCustomer()
 CORE.getShipping()
 // for backwards-compatibility:
-CORE.getRequestId() // same as getOrderNumber()
-CORE.getApiKey() // same as getClientId()
-CORE.getNonce() // same as getSalt()
+CORE.getRequestId() // getOrderNumber()
+CORE.getApiKey() // getClientId()
+CORE.getNonce() // getSalt()
 ```
 ---
 ### <a name="ref.UI"></a>PayJS/UI
