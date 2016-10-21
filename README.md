@@ -746,32 +746,32 @@ Notes:
 ![QA000086](https://img.shields.io/badge/QA-1.0.000086-yellow.svg)
 
 BUG FIXES:
-- Billing data no longer required. (D-32342)
+- Billing data no longer required.
   - (Note: transactions processed without address data may incur additional fees.)
-- Server now includes appropriate Cache-Control headers. (D-32607)
+- Server now includes appropriate Cache-Control headers.
   - "no-store" for contents of /js, "no-cache" for /css and /img
-- UI now updates card type when using addFakeData option. (D-32367)
-- When authKey decryption fails, server response now includes CORS headers. (D-32608)
-- When authKey validation fails, server response now includes CORS headers. (D-32608)
-- When authKey validation fails, server response now 401 instead of 400. (D-32608)
-- When authKey validation fails, server response now specifies failures. (D-32608)
-- When preAuth defaults (or is set) to false, it is ignored during authKey validation. (D-32799)
-- When postbackUrl is not provided, it is ignored during authKey validation. (D-32799)
+- UI now updates card type when using addFakeData option.
+- When authKey decryption fails, server response now includes CORS headers.
+- When authKey validation fails, server response now includes CORS headers.
+- When authKey validation fails, server response now 401 instead of 400.
+- When authKey validation fails, server response now specifies failures.
+- When preAuth defaults (or is set) to false, it is ignored during authKey validation.
+- When postbackUrl is not provided, it is ignored during authKey validation.
 
 ENHANCEMENTS:
-- Developer can now set customer data. (B-58611)
-- Developer can now set shipping data. (B-59472)
-- Developer can now set level2 data. (B-58612)
-- Developer can now set level3 data. (B-58612)
-- Developer can now set taxAmount. (B-59474)
-- Developer can now set shippingAmount. (B-59472)
-- Developer can now set isRecurring + recurringSchedule. (B-59477)
-- Token payments now pass CVV. (B-57326)
+- Developer can now set customer data.
+- Developer can now set shipping data.
+- Developer can now set level2 data.
+- Developer can now set level3 data.
+- Developer can now set taxAmount.
+- Developer can now set shippingAmount.
+- Developer can now set isRecurring + recurringSchedule.
+- Token payments now pass CVV.
 
 MISC/OTHER:
-- The 'requestId' is now named 'orderNumber'. (B-57258)
-- The 'apiKey' is now named 'clientId'. (B-57258)
-- The 'nonce' is now named 'salt'. (B-57258)
+- The 'requestId' is now named 'orderNumber'.
+- The 'apiKey' is now named 'clientId'.
+- The 'nonce' is now named 'salt'.
   - (Note: renamed fields retain their old aliases and getters/setters, for backwards compatibility.)
 - UI text abstracted out to separate module.
 - Added a language option; value currently hard-coded to "en".
