@@ -88,7 +88,7 @@ $req = [
 We convert it to JSON...
 
 ```php
-$jsonReq = json_encode($req)
+$jsonReq = json_encode($req);
 ```
 
 ... and then use it as the subject of our encryption:
