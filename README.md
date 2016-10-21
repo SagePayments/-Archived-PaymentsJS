@@ -34,22 +34,13 @@ function($UI) { // assigning the module to a variable
     $UI.Initialize({ // configuring the UI
         clientId: "myDeveloperId", // your developer ID
         merchantId: "999999999997", // your 12-digit account identifier
-        authKey: "ABCD==", // covered in the next section!
+        authKey: "ABCD==", // covered in the authKey section
         requestType: "payment", // use can use "vault" to tokenize a card without charging it
         orderNumber: "Invoice12345", // an order number, customer or account identifier, etc.
         amount: "1.00", // the amount to charge the card. in test mode, different amounts produce different results.
         elementId: "paymentButton", // the page element that will trigger the UI
-        salt: "ThisIsTotallyUnique", // see the authKey section
+        salt: "DEFG==", // see the authKey section
         debug: true, // enables verbose console logging
-        preAuth: false, // run a Sale, rather than a PreAuth
-        environment: "cert", // hit the certification environment
-        billing: {
-            name: "Will Wade",
-            address: "123 Address St",
-            city: "Denver",
-            state: "CO",
-            postalCode: "12345"
-        }
     });
     $UI.setCallback(function(result) { // custom code that will execute when the UI receives a response
         console.log(result.getResponse()); // log the result to the console
@@ -87,11 +78,8 @@ $req = [
    "merchantKey" => "K3QD6YWyhfD",
    "requestType" => "payment",
    "orderNumber" => "Invoice12345",
-   "postbackUrl" => "https://www.example.com/",
-   "environment" => "cert",
    "amount" => "1.00",
    "salt" => $salt,
-   "preAuth" => false
 ];
 
 ```
@@ -123,20 +111,10 @@ function($UI) {
         amount: "1.00",
         elementId: "paymentButton",
         salt: "<?php echo $salt ?>",
-        preAuth: false,
-        environment: "cert",
-        postbackUrl: "https://www.example.com/",
-        billing: {
-            name: "Will Wade",
-            address: "123 Address St",
-            city: "Denver",
-            state: "CO",
-            postalCode: "12345"
-        }
     });
 });
 ```
-If we don't have a sample in your language, the [Developer Forums](https://developer.sagepayments.com/content/how-calculate-authkey-outside-javascript-library) are a great resource for  information and/or help.
+If we don't have a sample in your language, the [Developer Forums](https://developer.sagepayments.com/content/how-calculate-authkey-outside-javascript-library) are a great resource for information and support.
 
 #### <a name="respHash"></a>Response Hash
 
@@ -190,6 +168,12 @@ Please keep in mind that you'll also need to [provide your own jQuery dependency
   - [Initialize()](#ref.Core.Initialize)
   - [isInitialized()](#ref.Core.isInitialized)
   - [setBilling()](#ref.Core.setBilling)
+  - [setShipping()](#ref.Core.setShipping)
+  - [setCustomer()](#ref.Core.setCustomer)
+  - [setLevel2()](#ref.Core.setLevel2)
+  - [setLevel3()](#ref.Core.setLevel3)
+  - [setIsRecurring()](#ref.Core.setIsRecurring)
+  - [setRecurringSchedule()](#ref.Core.setRecurringSchedule)
   - [getters](#ref.Core.getters)
 - [PayJS/UI](#ref.UI)
   - [Initialize()](#ref.UI.Initialize)
@@ -280,6 +264,7 @@ recurringSchedule | add customer contact information (email/phone) to the transa
 debug | enable verbose logging to browser console | boolean | no, default false
 environment | choose between the certification and production environments | "cert" or "prod" | no, default "cert"
 
+
 #### <a name="ref.Core.isInitialized"></a>isInitialized
 Returns a boolean that represents whether the module has been successfully initialized.
 
@@ -294,9 +279,9 @@ CORE.isInitialized();
 ```
 
 #### <a name="ref.Core.setBilling"></a>setBilling
-Adds billing information to a transaction request.
+Adds billing information to a payment request.
 
-This takes a single argument:
+This method takes a single argument:
 
 ```javascript
 CORE.setBilling({
@@ -311,6 +296,120 @@ CORE.setBilling({
 Notes:
 
 - Billing information can also be set during initialization.
+ 
+
+#### <a name="ref.Core.setShipping"></a>setShipping
+Adds shipping information to a payment request.
+
+This method takes a single argument:
+
+```javascript
+CORE.setShipping({
+    name: "John Smith",
+    address: "123 Address St",
+    city: "Denver",
+    state: "CO",
+    postalCode: "12345",
+    country: "USA"
+});
+```
+Notes:
+
+- Shipping information can also be set during initialization.
+
+
+#### <a name="ref.Core.setCustomer"></a>setCustomer
+Adds customer information to a payment request.
+
+This method takes a single argument:
+
+```javascript
+CORE.setCustomer({
+    email: "none@example.com",
+    telephone: "7035551234",
+    fax: "8041239999"
+});
+```
+Notes:
+
+- Customer information can also be set during initialization.
+
+
+#### <a name="ref.Core.setLevel2"></a>setLevel2
+Adds Level II data to a payment request.
+
+This method takes a single argument:
+
+```javascript
+CORE.setLevel2({
+    customerNumber: "123456789"
+});
+```
+Notes:
+
+- Level II data can also be set during initialization.
+
+
+#### <a name="ref.Core.setLevel3"></a>setLevel3
+Adds Level III data to a payment request.
+
+This method takes a single argument:
+
+```javascript
+CORE.setLevel3({
+    destinationCountryCode: "840",
+    amounts: {
+        discount: 1,
+        duty: 1,
+        nationalTax: 1
+    },
+    vat: {
+        idNumber: "123456789",
+        invoiceNumber: "Invoice12345",
+        amount: 1,
+        rate: 1
+    },
+    customerNumber: "123456789"
+});
+```
+Notes:
+
+- Level III data can also be set during initialization.
+- Level III processing requires [additional API calls](https://developer.sagepayments.com/bankcard-ecommerce-moto/apis/post/charges/%7Breference%7D/lineitems).
+
+
+#### <a name="ref.Core.setIsRecurring"></a>setIsRecurring
+Indicates that a payment should also create a recurring transaction that processes automatically on a defined schedule.
+
+This method takes a single argument:
+
+```javascript
+CORE.setIsRecurring(true);
+```
+Notes:
+
+- When setting this to true, don't forget to [define the recurring schedule](#ref.Core.setRecurringSchedule).
+
+
+#### <a name="ref.Core.setRecurringSchedule"></a>setRecurringSchedule
+Defines the processing schedule for a recurring transaction.
+
+This method takes a single argument:
+
+```javascript
+CORE.setRecurringSchedule({
+    "amount": 100,
+    "interval": 3,
+    "frequency": "Monthly",
+    "totalCount": 4,
+    "nonBusinessDaysHandling": "After",
+    "startDate": "2016-10-21T21:06:44.385Z",
+    "groupId": "123456"    
+});
+```
+Notes:
+
+- When defining a recurring schedule, don't forget to [set the isRecurring flag](#ref.Core.setIsRecurring).
 
 
 #### <a name="ref.Core.getters"></a>getters
