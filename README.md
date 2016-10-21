@@ -41,6 +41,7 @@ function($UI) { // assigning the module to a variable
         elementId: "paymentButton", // the page element that will trigger the UI
         salt: "DEFG==", // see the authKey section
         debug: true, // enables verbose console logging
+        addFakeData: true // pre-fill the payment form with fake credit card data
     });
     $UI.setCallback(function(result) { // custom code that will execute when the UI receives a response
         console.log(result.getResponse()); // log the result to the console
@@ -112,6 +113,7 @@ function($UI) {
         authKey: "<?php echo $authKey ?>",
         salt: "<?php echo $salt ?>",
         elementId: "paymentButton",
+        addFakeData: true
     });
 });
 ```
