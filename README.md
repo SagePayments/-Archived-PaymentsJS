@@ -259,14 +259,12 @@ The configuration object can contain:
 
 Name | Description | Values | Required
 ---- | ----------- | ------ | --------
-debug | enable verbose logging to browser console | boolean | no, default false
-environment | choose between the certification and production environments | "cert" or "prod" | no, default "cert"
 clientId | your developer id | alphanumeric string | yes
 merchantId | identifies your gateway account | numeric 12-character string | yes
 authKey | see [Authentication & Verification](#Authentication) | base64 string | yes
+salt | the encryption salt; see [Authentication & Verification](#Authentication) | base64 string | yes
 orderNumber | an identifier of your choosing | string | yes
 requestType | chooses between charging or tokenizing a card | "payment" or "vault" | yes
-salt | the encryption salt; see [Authentication & Verification](#Authentication) | base64 string | yes
 amount | the total amount to charge the card | "1.00", etc. | when requestType == "payment"
 taxAmount | the amount charged as tax | "1.00", etc. | no
 shippingAmount | the amount charged for shipping | "1.00", etc. | no
@@ -279,6 +277,8 @@ level2 | add level2 data to the transaction request | see [`CORE.setLevel2()`](#
 level3 | add level3 to the transaction request | see [`CORE.setLevel3()`](#ref.Core.setLevel3) | no
 isRecurring | indicate that a payment should also create a recurring transaction | boolean | no, default false
 recurringSchedule | add customer contact information (email/phone) to the transaction request | see [`CORE.setRecurringSchedule()`](#ref.Core.setRecurringSchedule) | when isRecurring == true
+debug | enable verbose logging to browser console | boolean | no, default false
+environment | choose between the certification and production environments | "cert" or "prod" | no, default "cert"
 
 #### <a name="ref.Core.isInitialized"></a>isInitialized
 Returns a boolean that represents whether the module has been successfully initialized.
