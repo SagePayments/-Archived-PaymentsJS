@@ -257,28 +257,28 @@ CORE.Initialize({
 
 The configuration object can contain:
 
-Name | Description | Values | Length | Required | Default
----- | ----------- | ------ | ------ | -------- | -------
-debug | enable verbose logging to browser console | boolean | N/A | no | false
-environment | choose between the certification and production environments | "cert" or "prod" | 4 | no | cert
-clientId | your developer id | alphanumeric string | 32 | yes | N/A
-merchantId | identifies your gateway account | numeric string | 12 | yes | N/A
-authKey | see [Authentication & Verification](#Authentication) | string | varies | yes | N/A
-orderNumber | an identifier of your choosing | string | 1+ | yes | N/A
-requestType | chooses between charging or tokenizing a card | "payment" or "vault" | N/A | yes | N/A
-salt | the encryption salt; see [Authentication & Verification](#Authentication) | string | varies | yes | N/A
-amount | the total amount to charge the card | "1.00", etc. | varies | when requestType == "payment" | N/A
-taxAmount | the amount charged as tax | "1.00", etc. | varies | no | null
-shippingAmount | the amount charged for shipping | "1.00", etc. | varies | no | null
-preAuth | toggles between authorization-only (true) and authorization & capture (false) | boolean | N/A | no | false
-postbackUrl | a URL that will receive a copy of the gateway response | valid URI with https scheme | any | no | null
-billing | add billing information (address/etc.) to the transaction request | see [`CORE.setBilling()`](#ref.Core.setBilling) | N/A | no | null
-shipping | add shipping information (address/etc.) to the transaction request | see [`CORE.setShipping()`](#ref.Core.setShipping) | N/A | no | null
-customer | add customer contact information (email/phone) to the transaction request | see [`CORE.setCustomer()`](#ref.Core.setCustomer) | N/A | no | null
-level2 | add level2 data to the transaction request | see [`CORE.setLevel2()`](#ref.Core.setLevel2) | N/A | no | null
-level3 | add level3 to the transaction request | see [`CORE.setLevel3()`](#ref.Core.setLevel3) | N/A | no | null
-isRecurring | indicate that a payment should also create a recurring transaction | boolean | N/A | no | null
-recurringSchedule | add customer contact information (email/phone) to the transaction request | see [`CORE.setRecurringSchedule()`](#ref.Core.setRecurringSchedule) | N/A | when isRecurring == true | null
+Name | Description | Values | Required
+---- | ----------- | ------ | --------
+debug | enable verbose logging to browser console | boolean | no, default false
+environment | choose between the certification and production environments | "cert" or "prod" | no, default "cert"
+clientId | your developer id | alphanumeric string | yes
+merchantId | identifies your gateway account | numeric 12-character string | yes
+authKey | see [Authentication & Verification](#Authentication) | base64 string | yes
+orderNumber | an identifier of your choosing | string | yes
+requestType | chooses between charging or tokenizing a card | "payment" or "vault" | yes
+salt | the encryption salt; see [Authentication & Verification](#Authentication) | base64 string | yes
+amount | the total amount to charge the card | "1.00", etc. | when requestType == "payment"
+taxAmount | the amount charged as tax | "1.00", etc. | no
+shippingAmount | the amount charged for shipping | "1.00", etc. | no
+preAuth | toggles between authorization-only (true) and authorization & capture (false) | boolean | no, default false
+postbackUrl | a URL that will receive a copy of the gateway response | valid URI with https scheme | no
+billing | add billing information (address/etc.) to the transaction request | see [`CORE.setBilling()`](#ref.Core.setBilling) | no
+shipping | add shipping information (address/etc.) to the transaction request | see [`CORE.setShipping()`](#ref.Core.setShipping) | no
+customer | add customer contact information (email/phone) to the transaction request | see [`CORE.setCustomer()`](#ref.Core.setCustomer) | no
+level2 | add level2 data to the transaction request | see [`CORE.setLevel2()`](#ref.Core.setLevel2) | no
+level3 | add level3 to the transaction request | see [`CORE.setLevel3()`](#ref.Core.setLevel3) | no
+isRecurring | indicate that a payment should also create a recurring transaction | boolean | no, default false
+recurringSchedule | add customer contact information (email/phone) to the transaction request | see [`CORE.setRecurringSchedule()`](#ref.Core.setRecurringSchedule) | when isRecurring == true
 
 #### <a name="ref.Core.isInitialized"></a>isInitialized
 Returns a boolean that represents whether the module has been successfully initialized.
