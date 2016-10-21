@@ -180,7 +180,7 @@ requirejs.config({
 ```
 -- and then use it like you would any other module.
 
-Please keep in mind that you'll also need to [provide your own jQuery dependency](http://requirejs.org/docs/jquery.html) if you don't already have one.
+Please keep in mind that you'll also need to [provide your own jQuery dependency](http://requirejs.org/docs/jquery.html) if you don't already have one. 
 
 ---
 ## <a name="Reference"></a>API Reference
