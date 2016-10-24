@@ -2,21 +2,16 @@
     require('../shared/shared.php');
     
     $nonces = getNonces();
-    
-    $requestType = "payment";
-    $requestId = "Invoice" . rand(0, 1000); // this'll be used as the order number
-    
+
     $req = [
         "merchantId" => $merchant['ID'],
         "merchantKey" => $merchant['KEY'], // don't include the Merchant Key in the JavaScript initialization!
-        "requestType" => $requestType,
-        "requestId" => $requestId,
+        "requestType" => "payment",
+        "orderNumber" => "Invoice" . rand(0, 1000),
         "amount" => $request['amount'],
-        "nonce" => $nonces['salt'],
-        // on the other hand, include these here even if you leave them out of the JS init
-        "postbackUrl" => $request['postbackUrl'], // if not specified in the JS init, defaults to the empty string
-        "environment" => $request['environment'], // defaults to "cert"
-        "preAuth" => $request['preAuth'] // defaults to false
+        "salt" => $nonces['salt'],
+        "postbackUrl" => $request['postbackUrl'],
+        "preAuth" => $request['preAuth']
     ]; 
     
     $authKey = getAuthKey(json_encode($req), $developer['KEY'], $nonces['salt'], $nonces['iv']);
@@ -58,7 +53,7 @@
         baseUrl: "require/my/other/js",
         paths: {
             "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min",
-            "PayJS": 'https://www.sagepayments.net/pay/1.0.0/js/build',
+            "PayJS": 'https://qa.sagepayments.net/pay/1.0.0/js/build',
         },
     });
 </script>
@@ -69,24 +64,16 @@
     function($MAC, $UI, $) {
         $MAC.doBusiness(); 
         $UI.Initialize({
-            apiKey: "<?php echo $developer['ID']; ?>",
-            environment: "<?php echo $request['environment']; ?>",
-            postbackUrl: "<?php echo $request['postbackUrl']; ?>",
-            merchantId: "<?php echo $merchant['ID']; ?>",
+            clientId: "<?php echo $developer['ID']; ?>",
+            postbackUrl: "<?php echo $req['postbackUrl']; ?>",
+            merchantId: "<?php echo $req['merchantId']; ?>",
             authKey: "<?php echo $authKey; ?>",
-            nonce: "<?php echo $nonces['salt']; ?>",
-            requestType: "<?php echo $requestType; ?>",
-            requestId: "<?php echo $requestId; ?>",
-            amount: "<?php echo $request['amount']; ?>",
-            billing: {
-                name: "PaymentsJS Sample",
-                address: "123 Address St",
-                city: "Denver",
-                state: "CO",
-                postalCode: "80205"
-            },
+            salt: "<?php echo $req['salt']; ?>",
+            requestType: "<?php echo $req['requestType']; ?>",
+            orderNumber: "<?php echo $req['orderNumber']; ?>",
+            amount: "<?php echo $req['amount']; ?>",
             elementId: "paymentButton",
-            phoneNumber: "1-800-555-1234",
+            addFakeData: true
         });
         $UI.setCallback(function($RESP) {
             console.log($RESP.getResponse());
