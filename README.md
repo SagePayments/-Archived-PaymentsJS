@@ -119,6 +119,25 @@ function($UI) {
 ```
 If we don't have a sample in your language, the [Developer Forums](https://developer.sagepayments.com/content/how-calculate-authkey-outside-javascript-library) are a great resource for information and support.
 
+#### <a name="whichFields"></a>What needs to be included in the authKey?
+
+The following fields should always be included in the authKey encryption:
+
+- `merchantId`
+- `merchantKey`
+- `requestType`
+- `orderNumber`/`requestId`
+- `salt`/`nonce`
+- `amount` (unless `requestType` is set to `"vault"`)
+
+These optional fields need to be included in the `authKey` only if they are used:
+
+- `taxAmount`
+- `shippingAmount`
+- `preAuth`
+- `postbackUrl`
+
+
 #### <a name="respHash"></a>Response Hash
 
 Similarly, when we send the response back to the client, it will include a SHA-512 HMAC of the response (using your Developer Key to hash). **Always [calculate & compare](https://developer.sagepayments.com/content/comparing-response-and-hash) this server-side before updating any orders, databases, etc.**
