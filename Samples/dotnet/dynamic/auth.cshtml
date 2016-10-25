@@ -2,24 +2,18 @@
 @using Newtonsoft.Json;
 @{
     string Amount = HttpContext.Current.Request.QueryString["amount"];
-
-    string RequestType = "payment";
-    string RequestId = "Invoice" + (new Random()).Next(100).ToString(); // this'll be used as the order number
-
     Nonces Nonces = Shared.GetNonces();
 
     var request = new
     {
         merchantId = Shared.MerchantID,
         merchantKey = Shared.MerchantKEY, // don't include the Merchant Key in the JavaScript initialization!
-        requestType = RequestType,
-        requestId = RequestId,
+        requestType = "payment",
+        orderNumber = "Invoice" + (new Random()).Next(100).ToString(),
         amount = Amount,
-        nonce = Nonces.Salt,
-        // on the other hand, include these here even if you leave them out of the JS init
-        postbackUrl = Shared.PostbackUrl, // if not specified in the JS init, defaults to the empty string
-        environment = Shared.Environment, // defaults to "cert"
-        preAuth = Shared.PreAuth // defaults to false
+        salt = Nonces.Salt,
+        postbackUrl = Shared.PostbackUrl,
+        preAuth = Shared.PreAuth
     };
 
     string jsonReq = JsonConvert.SerializeObject(request);
@@ -29,10 +23,10 @@
 }
 {
     "authKey": "@AuthKey",
-    "invoice": "@RequestId",
-    "nonce": "@Nonces.Salt",
-    "merch": "@Shared.MerchantID",
-    "apiKey": "@Shared.DeveloperID",
-    "postback": "@Shared.PostbackUrl"
+    "invoice": "@request.orderNumber",
+    "salt": "@request.salt",
+    "merch": "@request.merchantID",
+    "clientId": "@Shared.DeveloperID",
+    "postback": "@request.postbackUrl"
 }
 

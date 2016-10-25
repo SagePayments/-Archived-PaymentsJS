@@ -1,23 +1,18 @@
 ﻿@using PayJS_Samples.Misc
 @using Newtonsoft.Json
 @{
-    string RequestType = "payment";
-    string RequestId = "Invoice" + (new Random()).Next(100).ToString(); // this'll be used as the order number
-
     Nonces Nonces = Shared.GetNonces();
 
     var request = new
     {
         merchantId = Shared.MerchantID,
         merchantKey = Shared.MerchantKEY, // don't include the Merchant Key in the JavaScript initialization!
-        requestType = RequestType,
-        requestId = RequestId,
+        requestType = "payment",
+        orderNumber = "Invoice" + (new Random()).Next(100).ToString(),
         amount = Shared.Amount,
-        nonce = Nonces.Salt,
-        // on the other hand, include these here even if you leave them out of the JS init
-        postbackUrl = Shared.PostbackUrl, // if not specified in the JS init, defaults to the empty string
-        environment = Shared.Environment, // defaults to "cert"
-        preAuth = Shared.PreAuth // defaults to false
+        salt = Nonces.Salt,
+        postbackUrl = Shared.PostbackUrl,
+        preAuth = Shared.PreAuth
     };
 
     string jsonReq = JsonConvert.SerializeObject(request);
@@ -184,22 +179,14 @@
 
         // when using REQUEST library, initialize via CORE instead of UI
         $CORE.Initialize({
-            apiKey: "@Shared.DeveloperID",
-            environment: "@Shared.Environment",
-            postbackUrl: "@Shared.PostbackUrl",
-            merchantId: "@Shared.MerchantID",
+            clientId: "@Shared.DeveloperID",
+            postbackUrl: "@request.postbackUrl",
+            merchantId: "@request.merchantId",
             authKey: "@AuthKey",
-            nonce: "@Nonces.Salt",
-            requestType: "@RequestType",
-            requestId: "@RequestId",
-            amount: "@Shared.Amount",
-            billing: {
-                name: "PaymentsJS Sample",
-                street: "123 Address St",
-                city: "Denver",
-                state: "CO",
-                zip: "80205"
-            },
+            salt: "@request.salt",
+            requestType: "@request.requestType",
+            orderNumber: "@request.orderNumber",
+            amount: "@request.amount"
         });
 
         $("#paymentButton").click(function() {
