@@ -1,6 +1,7 @@
 <?php
     require('../shared/shared.php');
     
+    // for the vault request:
     $vault_nonces = getNonces();
     $vault_req = [
         "merchantId" => $merchant['ID'],
@@ -12,8 +13,8 @@
     ]; 
     $vault_authKey = getAuthKey(json_encode($vault_req), $developer['KEY'], $vault_nonces['salt'], $vault_nonces['iv']);
     
+    // for the payment request:
     $payment_nonces = getNonces();
-
     $payment_req = [
         "merchantId" => $merchant['ID'],
         "merchantKey" => $merchant['KEY'], // don't include the Merchant Key in the JavaScript initialization!
