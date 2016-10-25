@@ -57,7 +57,8 @@
             salt: "@vault_request.salt",
             requestType: "@vault_request.requestType",
             orderNumber: "@vault_request.orderNumber",
-            elementId: "vaultButton"
+            elementId: "vaultButton",
+            addFakeData: true
         });
         $UI.setCallback(function(vaultResponse) {
             console.log(vaultResponse.getResponse());

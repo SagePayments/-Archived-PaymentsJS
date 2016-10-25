@@ -73,6 +73,7 @@
             orderNumber: "@request.orderNumber",
             amount: "@request.amount",
             elementId: "paymentButton",
+            addFakeData: true
         });
         $UI.setCallback(function($RESP) {
             console.log($RESP.getResponse());
