@@ -865,7 +865,7 @@ Notes:
 ## <a name="Changelog"></a>Changelog
 
 ---
-![QA000086](https://img.shields.io/badge/QA-1.0.000086-yellow.svg)
+![QA000088](https://img.shields.io/badge/QA-1.0.000086-yellow.svg)
 
 BUG FIXES:
 - Billing data no longer required.
