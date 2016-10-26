@@ -53,7 +53,7 @@
         baseUrl: "require/my/other/js",
         paths: {
             "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min",
-            "PayJS": 'https://qa.sagepayments.net/pay/1.0.0/js/build',
+            "PayJS": 'https://www.sagepayments.net/pay/1.0.0/js/build',
         },
     });
 </script>
