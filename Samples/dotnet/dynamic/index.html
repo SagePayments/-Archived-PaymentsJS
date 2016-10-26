@@ -45,22 +45,16 @@
                 },
                 function(authResp) {
                     $UI.Initialize({
-                        apiKey: authResp.apiKey,
+                        clientId: authResp.clientId,
                         merchantId: authResp.merch,
                         authKey: authResp.authKey,
                         requestType: "payment",
-                        requestId: authResp.invoice,
+                        orderNumber: authResp.invoice,
                         amount: amt,
                         elementId: "paymentDiv",
                         postbackUrl: authResp.postback,
-                        nonce: authResp.nonce,
-                        billing: {
-                            name: "PaymentsJS Sample",
-                            address: "123 Address St",
-                            city: "Denver",
-                            state: "CO",
-                            postalCode: "80205"
-                        }
+                        salt: authResp.salt,
+                        addFakeData: true
                     });
                     $UI.setCallback(function(resp) {
                         console.log(resp.getResponse());

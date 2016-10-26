@@ -9,6 +9,7 @@ PaymentsJS is a JavaScript library that enables developers to quickly start proc
 1. [Modules](#Modules)
 1. [RequireJS](#RequireJS)
 1. [API Reference](#Reference)
+1. [Changelog](#Changelog)
 
 ---
 ## <a name="QuickStart"></a>Quick Start
@@ -31,24 +32,16 @@ Then, in a separate `<script>` tag, initialize the library:
 PayJS(['PayJS/UI'], // the name of the module we want to use
 function($UI) { // assigning the module to a variable
     $UI.Initialize({ // configuring the UI
-        apiKey: "myDeveloperId", // your developer ID
+        clientId: "myDeveloperId", // your developer ID
         merchantId: "999999999997", // your 12-digit account identifier
-        authKey: "ABCD==", // covered in the next section!
+        authKey: "ABCD==", // covered in the authKey section
         requestType: "payment", // use can use "vault" to tokenize a card without charging it
-        requestId: "Invoice12345", // an order number, customer or account identifier, etc.
+        orderNumber: "Invoice12345", // an order number, customer or account identifier, etc.
         amount: "1.00", // the amount to charge the card. in test mode, different amounts produce different results.
         elementId: "paymentButton", // the page element that will trigger the UI
-        nonce: "ThisIsTotallyUnique", // a unique identifier, used as salt
+        salt: "DEFG==", // see the authKey section
         debug: true, // enables verbose console logging
-        preAuth: false, // run a Sale, rather than a PreAuth
-        environment: "cert", // hit the certification environment
-        billing: {
-            name: "Will Wade",
-            address: "123 Address St",
-            city: "Denver",
-            state: "CO",
-            postalCode: "12345"
-        }
+        addFakeData: true // pre-fill the payment form with fake credit card data
     });
     $UI.setCallback(function(result) { // custom code that will execute when the UI receives a response
         console.log(result.getResponse()); // log the result to the console
@@ -66,7 +59,7 @@ At this point, clicking on `paymentButton` will make the payment form pop up! Yo
 
 Credit card data moves directly between the user's browser and Sage Payment Solutions' secure payment gateway. This is great news for your server, which doesn't have to touch any sensitive data! But, as with any client-side code, it means we have to take seriously the possibility of malicious users making changes to the request.
 
-The `authKey` is an encrypted version of the configuration settings that you pass into the [`UI.Initialize()`](#ref.UI.Initialize) (or [`CORE.Initialize()`](#ref.Core.Initialize)) method. When we receive the request, we'll decrypt the `authKey` and make sure that everything matches up. This is also how you send us your `merchantKey`, **which should never be exposed to the client browser**.
+The `authKey` is an encrypted version of the configuration settings that you pass into the [`UI.Initialize()`](#ref.UI.Initialize) (or [`CORE.Initialize()`](#ref.Core.Initialize)) method. We'll decrypt the `authKey` and compare it to the request body, to make sure that what we received matches what you were expecting. This is also how you send us your `merchantKey`, **which should never be exposed to the client browser**.
 
 The follow code snippets show the encryption in PHP; check out the `samples` folder of this repository for other languages.
 
@@ -81,16 +74,13 @@ Next, we're going to create an array (any serializable entity works) that contai
 
 ```php
 $req = [
-   "apiKey" => "myDeveloperId",
+   "clientId" => "7SMmEF02WyC7H5TSdG1KssOQlwOOCagb",
    "merchantId" => "999999999997",
    "merchantKey" => "K3QD6YWyhfD",
    "requestType" => "payment",
-   "requestId" => "Invoice12345",
-   "postbackUrl" => "https://www.example.com/",
-   "environment" => "cert",
+   "orderNumber" => (string)time(),
    "amount" => "1.00",
-   "nonce" => $salt,
-   "preAuth" => false
+   "salt" => $salt,
 ];
 
 ```
@@ -98,12 +88,13 @@ $req = [
 We convert it to JSON...
 
 ```php
-$jsonReq = json_encode($req)
+$jsonReq = json_encode($req);
 ```
 
 ... and then use it as the subject of our encryption:
 
 ```php
+$clientKey = "wtC5Ns0jbtiNA8sP";
 $passwordHash = hash_pbkdf2("sha1", $clientKey, $salt, 1500, 32, true);
 $authKey = openssl_encrypt($jsonReq, "aes-256-cbc", $passwordHash, 0, $iv);
 ```
@@ -114,28 +105,38 @@ Now that we have our `authKey`, all that's left is to initialize the JavaScript 
 PayJS(['PayJS/UI'],
 function($UI) {
     $UI.Initialize({
-        apiKey: "myDeveloperId",
-        merchantId: "999999999997",
+        clientId: "<?php echo $req['clientId'] ?>",
+        merchantId: "<?php echo $req['merchantId'] ?>",
+        requestType: "<?php echo $req['requestType'] ?>",
+        orderNumber: "<?php echo $req['orderNumber'] ?>",
+        amount: "<?php echo $req['amount'] ?>",
         authKey: "<?php echo $authKey ?>",
-        requestType: "payment",
-        requestId: "Invoice12345",
-        amount: "1.00",
+        salt: "<?php echo $salt ?>",
         elementId: "paymentButton",
-        nonce: "<?php echo $salt ?>",
-        preAuth: false,
-        environment: "cert",
-        postbackUrl: "https://www.example.com/",
-        billing: {
-            name: "Will Wade",
-            address: "123 Address St",
-            city: "Denver",
-            state: "CO",
-            postalCode: "12345"
-        }
+        addFakeData: true
     });
 });
 ```
-If we don't have a sample in your language, the [Developer Forums](https://developer.sagepayments.com/content/how-calculate-authkey-outside-javascript-library) are a great resource for  information and/or help.
+If we don't have a sample in your language, the [Developer Forums](https://developer.sagepayments.com/content/how-calculate-authkey-outside-javascript-library) are a great resource for information and support.
+
+#### <a name="whichFields"></a>What needs to be included in the authKey?
+
+The following fields should always be included in the authKey encryption:
+
+- `merchantId`
+- `merchantKey`
+- `requestType`
+- `orderNumber`/`requestId`
+- `salt`/`nonce`
+- `amount` (unless `requestType` is set to `"vault"`)
+
+These optional fields need to be included in the `authKey` only if they are used:
+
+- `taxAmount`
+- `shippingAmount`
+- `preAuth`
+- `postbackUrl`
+
 
 #### <a name="respHash"></a>Response Hash
 
@@ -164,6 +165,7 @@ Name | Description
 ---- | -----------
 "PayJS/Extensions" | Extends the `jquery` module with certain [Bootstrap](http://getbootstrap.com/javascript/) components.
 "PayJS/UI.html" | Provides the `UI` module with the HTML that it uses to build the payment form.
+"PayJS/UI.text" | Provides the `UI` module with the text used in form labels, placeholders, etc.
 
 ---
 ## <a name="RequireJS"></a>RequireJS
@@ -172,7 +174,7 @@ If you're already using RequireJS on your page, add a path to PaymentsJS --
 ```
 requirejs.config({
     paths: {
-        "PayJS": 'https://www.sagepayments.net/pay/js/build'
+        "PayJS": 'https://www.sagepayments.net/pay/1.0.0/js/build'
     },
 });
 ```
@@ -187,8 +189,14 @@ Please keep in mind that you'll also need to [provide your own jQuery dependency
 - [PayJS/Core](#ref.Core)
   - [Initialize()](#ref.Core.Initialize)
   - [isInitialized()](#ref.Core.isInitialized)
-  - [getters](#ref.Core.getters)
   - [setBilling()](#ref.Core.setBilling)
+  - [setShipping()](#ref.Core.setShipping)
+  - [setCustomer()](#ref.Core.setCustomer)
+  - [setLevel2()](#ref.Core.setLevel2)
+  - [setLevel3()](#ref.Core.setLevel3)
+  - [setIsRecurring()](#ref.Core.setIsRecurring)
+  - [setRecurringSchedule()](#ref.Core.setRecurringSchedule)
+  - [getters](#ref.Core.getters)
 - [PayJS/UI](#ref.UI)
   - [Initialize()](#ref.UI.Initialize)
   - [isInitialized()](#ref.UI.isInitialized)
@@ -255,20 +263,28 @@ CORE.Initialize({
 
 The configuration object can contain:
 
-Name | Description | Values | Length | Required | Default
----- | ----------- | ------ | ------ | -------- | -------
-debug | toggles verbose logging to browser console | boolean | N/A | no | false
-environment | chooses between the certification and production environments | "cert" or "prod" | 4 | no | cert
-apiKey | your developer id | alphanumeric string | 32 | yes | N/A
-merchantId | identifies your gateway account | numeric string | 12 | yes | N/A
-authKey | see [Authentication & Verification](#Authentication) | string | varies | yes | N/A
-requestId | an identifier of your choosing | string | 1+ | yes | N/A
-requestType | chooses between charging or tokenizing a card | "payment" or "vault" | N/A | yes | N/A
-nonce | the encryption salt; see [Authentication & Verification](#Authentication) | string | varies | yes | N/A
-amount | the amount to charge the card | "1.00", etc. | varies | when requestType = "payment" | N/A
-preAuth | toggles between authorization-only and authorization & capture | boolean | N/A | no | false (auth & cap)
-postbackUrl | a URL that will receive a copy of the gateway response | valid URI with https scheme | any | no | ""
-billing | add billing information (address/etc.) to the transaction request | see [`CORE.setBilling()`](#ref.Core.setBilling) | N/A | yes | N/A
+Name | Description | Values | Required
+---- | ----------- | ------ | --------
+clientId | your developer id | alphanumeric string | yes
+merchantId | identifies your gateway account | numeric 12-character string | yes
+authKey | see [Authentication & Verification](#Authentication) | base64 string | yes
+salt | the encryption salt; see [Authentication & Verification](#Authentication) | base64 string | yes
+orderNumber | an identifier of your choosing | string | yes
+requestType | chooses between charging or tokenizing a card | "payment" or "vault" | yes
+amount | the total amount to charge the card | "1.00", etc. | when requestType == "payment"
+taxAmount | the amount charged as tax | "1.00", etc. | no
+shippingAmount | the amount charged for shipping | "1.00", etc. | no
+preAuth | toggles between authorization-only (true) and authorization & capture (false) | boolean | no, default false
+postbackUrl | a URL that will receive a copy of the gateway response | valid URI with https scheme | no
+billing | add billing information (address/etc.) to the transaction request | see [`CORE.setBilling()`](#ref.Core.setBilling) | no
+shipping | add shipping information (address/etc.) to the transaction request | see [`CORE.setShipping()`](#ref.Core.setShipping) | no
+customer | add customer contact information (email/phone) to the transaction request | see [`CORE.setCustomer()`](#ref.Core.setCustomer) | no
+level2 | add level2 data to the transaction request | see [`CORE.setLevel2()`](#ref.Core.setLevel2) | no
+level3 | add level3 to the transaction request | see [`CORE.setLevel3()`](#ref.Core.setLevel3) | no
+isRecurring | indicate that a payment should also create a recurring transaction | boolean | no, default false
+recurringSchedule | add customer contact information (email/phone) to the transaction request | see [`CORE.setRecurringSchedule()`](#ref.Core.setRecurringSchedule) | when isRecurring == true
+debug | enable verbose logging to browser console | boolean | no, default false
+environment | choose between the certification and production environments | "cert" or "prod" | no, default "cert"
 
 
 #### <a name="ref.Core.isInitialized"></a>isInitialized
@@ -285,9 +301,9 @@ CORE.isInitialized();
 ```
 
 #### <a name="ref.Core.setBilling"></a>setBilling
-Adds billing information to a transaction request.
+Adds billing information to a payment request.
 
-This takes a single argument:
+This method takes a single argument:
 
 ```javascript
 CORE.setBilling({
@@ -302,32 +318,159 @@ CORE.setBilling({
 Notes:
 
 - Billing information can also be set during initialization.
+ 
+
+#### <a name="ref.Core.setShipping"></a>setShipping
+Adds shipping information to a payment request.
+
+This method takes a single argument:
+
+```javascript
+CORE.setShipping({
+    name: "John Smith",
+    address: "123 Address St",
+    city: "Denver",
+    state: "CO",
+    postalCode: "12345",
+    country: "USA"
+});
+```
+Notes:
+
+- Shipping information can also be set during initialization.
+
+
+#### <a name="ref.Core.setCustomer"></a>setCustomer
+Adds customer information to a payment request.
+
+This method takes a single argument:
+
+```javascript
+CORE.setCustomer({
+    email: "none@example.com",
+    telephone: "7035551234",
+    fax: "8041239999"
+});
+```
+Notes:
+
+- Customer information can also be set during initialization.
+
+
+#### <a name="ref.Core.setLevel2"></a>setLevel2
+Adds Level II data to a payment request.
+
+This method takes a single argument:
+
+```javascript
+CORE.setLevel2({
+    customerNumber: "123456789"
+});
+```
+Notes:
+
+- Level II data can also be set during initialization.
+
+
+#### <a name="ref.Core.setLevel3"></a>setLevel3
+Adds Level III data to a payment request.
+
+This method takes a single argument:
+
+```javascript
+CORE.setLevel3({
+    destinationCountryCode: "840",
+    amounts: {
+        discount: 1,
+        duty: 1,
+        nationalTax: 1
+    },
+    vat: {
+        idNumber: "123456789",
+        invoiceNumber: "Invoice12345",
+        amount: 1,
+        rate: 1
+    },
+    customerNumber: "123456789"
+});
+```
+Notes:
+
+- Level III data can also be set during initialization.
+- Level III processing requires [additional API calls](https://developer.sagepayments.com/bankcard-ecommerce-moto/apis/post/charges/%7Breference%7D/lineitems).
+
+
+#### <a name="ref.Core.setIsRecurring"></a>setIsRecurring
+Indicates that a payment should also create a recurring transaction that processes automatically on a defined schedule.
+
+This method takes a single argument:
+
+```javascript
+CORE.setIsRecurring(true);
+```
+Notes:
+
+- When setting this to true, don't forget to [define the recurring schedule](#ref.Core.setRecurringSchedule).
+
+
+#### <a name="ref.Core.setRecurringSchedule"></a>setRecurringSchedule
+Defines the processing schedule for a recurring transaction.
+
+This method takes a single argument:
+
+```javascript
+CORE.setRecurringSchedule({
+    "amount": 100,
+    "interval": 3,
+    "frequency": "Monthly",
+    "totalCount": 4,
+    "nonBusinessDaysHandling": "After",
+    "startDate": "2016-10-21T21:06:44.385Z",
+    "groupId": "123456"    
+});
+```
+Notes:
+
+- When defining a recurring schedule, don't forget to [set the isRecurring flag](#ref.Core.setIsRecurring).
 
 
 #### <a name="ref.Core.getters"></a>getters
-These methods return information about the current configuration:
+These methods return information about the module state:
 
 ```javascript
-CORE.getMerchantId();
-// => "123456789123"
-CORE.getAuthKey();
-// => "H1x4ECB6TkeTSfkABNQXHNs5="
-CORE.getRequestId();
-// => "Invoice123"
-CORE.getAmount();
-// => "1.00"
-CORE.getRequestType();
-// => "payment"
-CORE.getPreAuth();
-// => false
-CORE.getPostbackUrl();
-// => "https://www.example.com/myHandler.php"
-CORE.getNonce();
-// => "NoncesAreCool"
-CORE.getPhoneNumber();
-// => "800-555-1234"
-CORE.getBilling();
-// => Object {name: "John Smith", address: "123 Address St", state: "CO", postalCode: "12345", country: "USA"}
+// auth:
+CORE.getClientId()
+CORE.getAuthKey()
+CORE.getSalt()
+// merchant:
+CORE.getMerchantId()
+CORE.getPhoneNumber()
+// environments/targets:
+CORE.getApiUrl()
+CORE.getClientUrl()
+CORE.getEnvironment()
+CORE.getPostbackUrl()
+CORE.getLanguage()
+// gateway:
+CORE.getOrderNumber()
+CORE.getRequestType()
+// transaction:
+CORE.getPreAuth()
+CORE.getAmount()
+CORE.getTaxAmount()
+CORE.getShippingAmount()
+CORE.getLevel2()
+CORE.getLevel3()
+CORE.getIsRecurring()
+CORE.getRecurringSchedule()
+// customer/cardholder:
+CORE.getBilling()
+CORE.getCustomer()
+CORE.getShipping()
+// for backwards-compatibility:
+CORE.getRequestId() // getOrderNumber()
+CORE.getApiKey() // getClientId()
+CORE.getNonce() // getSalt()
 ```
 ---
 ### <a name="ref.UI"></a>PayJS/UI
@@ -350,15 +493,15 @@ UI.Initialize({
 
 In addition to the information outlined in [`CORE.Initialize()`](#ref.Core.Initialize), this configuration object can contain:
 
-Name | Description | Values | Length | Required | Default
----- | ----------- | ------ | ------ | -------- | -------
-elementId | the id of the html element to which the UI will attach | string | any | yes | N/A
-suppressResultPage | hide the approved/declined pages that show after a gateway request | boolean | N/A | no | false
-restrictInput | limits user entry to acceptable characters | boolean | N/A | no | true
-formatting | after the user enters their credit card number, the form will remove invalid characters and add dashes | boolean | N/A | no | true
-phoneNumber | displayed as a support number for declined transactions | string | any | no | none
-show | automatically show the modal UI when ready | boolean | N/A | no | false
-addFakeData | adds fake credit card data to the form, for testing | boolean | N/A | no | false
+Name | Description | Values | Required
+---- | ----------- | ------ | --------
+elementId | the id of the html element to which the UI will attach | string | yes
+suppressResultPage | hide the approved/declined pages that show after a gateway request | boolean | no, default false
+restrictInput | limits user entry to acceptable characters | boolean | no, default true
+formatting | after the user enters their credit card number, the form will remove invalid characters and add dashes | boolean | no, default true
+phoneNumber | displayed as a support number for declined transactions | string | no
+show | automatically show the modal UI when ready | boolean | no, default false
+addFakeData | adds fake credit card data to the form, for testing | boolean | no, default false
 
 Notes:
 
@@ -736,3 +879,61 @@ VALIDATION.getExpArray("12018"); // MYYYY
 Notes:
 - Despite its parent module, this method does *not* validate the string.
   - [`VALIDATION.isValidExpirationDate()`](#ref.Validation.isValidExpirationDate) calls this method before validating.
+
+---
+## <a name="Changelog"></a>Changelog
+
+---
+![PROD000089](https://img.shields.io/badge/PROD-1.0.000089-brightgreen.svg)
+![QA000088](https://img.shields.io/badge/QA-1.0.000086-yellow.svg)
+
+BUG FIXES:
+- Billing data no longer required.
+  - (Note: transactions processed without address data may incur additional fees.)
+- Server now includes appropriate Cache-Control headers.
+  - "no-store" for contents of /js, "no-cache" for /css and /img
+- UI now updates card type when using addFakeData option.
+- When authKey decryption fails, server response now includes CORS headers.
+- When authKey validation fails, server response now includes CORS headers.
+- When authKey validation fails, server response now 401 instead of 400.
+- When authKey validation fails, server response now specifies failures.
+- When preAuth defaults (or is set) to false, it is ignored during authKey validation.
+- When postbackUrl is not provided, it is ignored during authKey validation.
+
+ENHANCEMENTS:
+- Developer can now set customer data.
+- Developer can now set shipping data.
+- Developer can now set level2 data.
+- Developer can now set level3 data.
+- Developer can now set taxAmount.
+- Developer can now set shippingAmount.
+- Developer can now set isRecurring + recurringSchedule.
+- Token payments now pass CVV.
+
+MISC/OTHER:
+- The 'requestId' is now named 'orderNumber'.
+- The 'apiKey' is now named 'clientId'.
+- The 'nonce' is now named 'salt'.
+  - (Note: renamed fields retain their old aliases and getters/setters, for backwards compatibility.)
+- UI text abstracted out to separate module.
+- Added a language option; value currently hard-coded to "en".
+- UI.Initialize() is now more closely aligned to CORE.Initialize() in terms of return values and exceptions.
+- Added this changelog to the GitHub readme.
+
+
+---
+![PROD000045](https://img.shields.io/badge/PROD-1.0.000045-brightgreen.svg)
+![QA000043](https://img.shields.io/badge/QA-1.0.000043-yellow.svg)
+
+- Created changelog.
+- Added an internal-only build version.
+  - Updated readme.
+  - Updated gruntfile.
+  - Updated package.json.
+- Fixed bug where PaymentsJS failed to pass address and zip to the gateway. (D-32318)
+  - UI module no longer forces billing data into an incorrect format.
+
+---
+![PROD000000](https://img.shields.io/badge/PROD-1.0.000000-brightgreen.svg)
+
+- Initial Release
