@@ -275,6 +275,8 @@ amount | the total amount to charge the card | "1.00", etc. | when requestType =
 taxAmount | the amount charged as tax | "1.00", etc. | no
 shippingAmount | the amount charged for shipping | "1.00", etc. | no
 preAuth | toggles between authorization-only (true) and authorization & capture (false) | boolean | no, default false
+allowAmex | causes [`VALIDATION.isValidCreditCard()`](#ref.Validation.isValidCreditCard) to return false if it is passed an American Express card; when using the UI module, this also prevents submission | boolean | no, default true
+allowDiscover | behaves like allowAmex, but for Discover | boolean | no, default true
 postbackUrl | a URL that will receive a copy of the gateway response | valid URI with https scheme | no
 billing | add billing information (address/etc.) to the transaction request | see [`CORE.setBilling()`](#ref.Core.setBilling) | no
 shipping | add shipping information (address/etc.) to the transaction request | see [`CORE.setShipping()`](#ref.Core.setShipping) | no
