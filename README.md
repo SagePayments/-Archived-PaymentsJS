@@ -205,6 +205,7 @@ Please keep in mind that you'll also need to [provide your own jQuery dependency
   - [doPayment()](#ref.Request.doPayment)
   - [doVault()](#ref.Request.doVault)
   - [doTokenPayment()](#ref.Request.doTokenPayment)
+  - [getLastCard()](#ref.Request.getLastCard)
 - [PayJS/Response](#ref.Response)
   - [tryParse()](#ref.Response.tryParse)
   - [getResponse()](#ref.Response.getResponse)
@@ -597,6 +598,28 @@ Notes:
   - Pass the string into [`RESPONSE.tryParse()`](#ref.Response.tryParse) to initialize the [`PayJS/Response`](#ref.Response) module's [getters](#ref.Response.getters).
 - Always check [the response hash](#respHash) server-side to verify the integrity of the response.
 
+#### <a name="ref.Request.getLastCard"></a>getLastCard
+Get payment details for the last credit card charged or stored through PaymentsJS.
+
+This method does not take any arguments:
+
+```javascript
+REQUEST.doPayment("5424180279791732", "1017", "123", function() {
+    console.log( REQUEST.getLastCard() );
+    // => Object {maskedNumber: "542418XXXXXX1732", cardType: "5", BIN: "542418", lastFourDigits: "1732", expirationDate: "1017"}
+});
+```
+
+Notes:
+
+- For convenience, this method has the alias [`RESPONSE.getPaymentDetails()`](#ref.Response.getters).
+- The BIN identifies the bank that issued the card. For more, please see [this article](https://support.sagepayments.com/link/portal/20000/20000/Article/4618/Determining-the-issuer-of-your-customer-s-credit-card).
+- The card type is represented by the first digit of that card type.
+  - `3` -- American Express
+  - `4` -- Visa
+  - `5` -- MasterCard
+  - `6` -- Discover
+
 ---
 ### <a name="ref.Response"></a>PayJS/Response
 The Response module exposes methods for traversing transaction results.
@@ -683,6 +706,10 @@ RESPONSE.getReference();
 // returns the payment's order number
 RESPONSE.getOrderNumber();
 // => "123456789123"
+
+// returns information about the credit card
+RESPONSE.getPaymentDetails();
+// => Object {maskedNumber: "542418XXXXXX1732", cardType: "5", BIN: "542418", lastFourDigits: "1732", expirationDate: "1017"}
 ```
 
 These methods can take a configuration object as a single *optional* argument:
