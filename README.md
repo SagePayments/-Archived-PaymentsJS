@@ -213,6 +213,7 @@ Please keep in mind that you'll also need to [provide your own jQuery dependency
 - [PayJS/Formatting](#ref.Formatting)
   - [formatCardNumberInput()](#ref.Formatting.formatCardNumberInput)
   - [formatExpirationDateInput()](#ref.Formatting.formatExpirationDateInput)
+  - [maskCreditCardNumber()](#ref.Formatting.maskCreditCardNumber)
   - [stripNonNumeric()](#ref.Formatting.stripNonNumeric)
   - [stripNonAlphanumeric()](#ref.Formatting.stripNonAlphanumeric)
 - [PayJS/Validation](#ref.Validation)
@@ -757,6 +758,19 @@ FORMATTING.formatExpirationDateInput("1216", "~");
 ````
 Notes:
 - See [`VALIDATION.getExpArray()`](#ref.Validation.getExpArray) for more on expiration date string parsing.
+
+#### <a name="ref.Formatting.maskCreditCardNumber"></a>maskCreditCardNumber
+Masks a credit card number, so that only the first six and last four digits are visible.
+
+This method takes a single argument:
+
+```javascript
+FORMATTING.maskCreditCardNumber("5454545454545454");
+// => "545454XXXXXX5454"
+
+FORMATTING.maskCreditCardNumber("371449635392376");
+// => "371449XXXXX2376"
+````
 
 #### <a name="ref.Formatting.stripNonNumeric"></a>stripNonNumeric
 Removes from a string any characters other than digits.
