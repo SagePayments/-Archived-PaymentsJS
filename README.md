@@ -606,7 +606,7 @@ This method does not take any arguments:
 ```javascript
 REQUEST.doPayment("5424180279791732", "1017", "123", function() {
     console.log( REQUEST.getLastCard() );
-    // => Object {maskedNumber: "542418XXXXXX1732", cardType: "5", BIN: "542418", lastFourDigits: "1732", expirationDate: "1017"}
+    // => Object {maskedNumber: "XXXXXXXXXXXX1732", cardType: "5", BIN: "542418", lastFourDigits: "1732", expirationDate: "1017"}
 });
 ```
 
@@ -709,7 +709,7 @@ RESPONSE.getOrderNumber();
 
 // returns information about the credit card
 RESPONSE.getPaymentDetails();
-// => Object {maskedNumber: "542418XXXXXX1732", cardType: "5", BIN: "542418", lastFourDigits: "1732", expirationDate: "1017"}
+// => Object {maskedNumber: "XXXXXXXXXXXX1732", cardType: "5", BIN: "542418", lastFourDigits: "1732", expirationDate: "1017"}
 ```
 
 These methods can take a configuration object as a single *optional* argument:
@@ -787,16 +787,29 @@ Notes:
 - See [`VALIDATION.getExpArray()`](#ref.Validation.getExpArray) for more on expiration date string parsing.
 
 #### <a name="ref.Formatting.maskCreditCardNumber"></a>maskCreditCardNumber
-Masks a credit card number, so that only the first six and last four digits are visible.
+Masks a credit card number, so that only the last four digits are visible.
 
-This method takes a single argument:
+This method requires a single argument:
 
 ```javascript
 FORMATTING.maskCreditCardNumber("5454545454545454");
-// => "545454XXXXXX5454"
+// => "XXXXXXXXXXXX5454"
 
 FORMATTING.maskCreditCardNumber("371449635392376");
-// => "371449XXXXX2376"
+// => "XXXXXXXXXXX2376"
+````
+
+Optionally, pass a configuration object:
+
+```javascript
+// include the first six digits (BIN/IIN)
+FORMATTING.maskCreditCardNumber("5454545454545454", { showBin: true });
+// => "545454XXXXXX5454"
+
+// use something other than 'X'
+FORMATTING.maskCreditCardNumber("5454545454545454", { maskChar: '$' });
+// => "$$$$$$$$$$$$5454"
+
 ````
 
 #### <a name="ref.Formatting.stripNonNumeric"></a>stripNonNumeric
