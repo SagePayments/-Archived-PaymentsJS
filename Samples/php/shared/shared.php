@@ -2,8 +2,8 @@
 
     // this is a shared test account; don't hesitate to ask us for one of your own!
     $merchant = [
-        "ID" => "999999999997",
-        "KEY" => "K3QD6YWyhfD" 
+        "ID" => "173859436515",
+        "KEY" => "P1J2V8P2Q3D8" 
     ];
     
     // sign up at https://developer.sagepayments.com/ to get your own dev creds
