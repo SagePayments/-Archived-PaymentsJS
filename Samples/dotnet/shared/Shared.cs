@@ -12,8 +12,8 @@ namespace PayJS_Samples.Misc
         public static string DeveloperKEY = "wtC5Ns0jbtiNA8sP";
 
         // this is a shared test account; don't hesitate to ask us for one of your own!
-        public static string MerchantID = "999999999997";
-        public static string MerchantKEY = "K3QD6YWyhfD";
+        public static string MerchantID = "173859436515";
+        public static string MerchantKEY = "P1J2V8P2Q3D8";
 
         public static string Environment = "cert";
         public static string PostbackUrl = "https://www.example.com/myHandler.php"; // https://requestb.in is great for playing with this
