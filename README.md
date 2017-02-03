@@ -136,6 +136,8 @@ These optional fields need to be included in the `authKey` only if they are used
 - `shippingAmount`
 - `preAuth`
 - `postbackUrl`
+- `token`
+- `data`
 
 
 #### <a name="respHash"></a>Response Hash
@@ -289,6 +291,8 @@ isRecurring | indicate that a payment should also create a recurring transaction
 recurringSchedule | add customer contact information (email/phone) to the transaction request | see [`CORE.setRecurringSchedule()`](#ref.Core.setRecurringSchedule) | when isRecurring == true
 debug | enable verbose logging to browser console | boolean | no, default false
 environment | choose between the certification and production environments | "cert" or "prod" | no, default "cert"
+data | add custom data that is echoed in the response | string | no
+token | the vault token being passed to [`REQUEST.doTokenPayment()`](#ref.Request.doTokenPayment) | alphanumeric string | when running a token payment
 
 
 #### <a name="ref.Core.isInitialized"></a>isInitialized
@@ -471,10 +475,12 @@ CORE.getRecurringSchedule()
 CORE.getBilling()
 CORE.getCustomer()
 CORE.getShipping()
-// for backwards-compatibility:
+// backwards-compatibility:
 CORE.getRequestId() // getOrderNumber()
 CORE.getApiKey() // getClientId()
 CORE.getNonce() // getSalt()
+// misc/other:
+CORE.getCustomData()
 ```
 ---
 ### <a name="ref.UI"></a>PayJS/UI
@@ -542,8 +548,8 @@ UI.setCallback(myCallback);
 
 Notes:
 
-- The argument to your callback function is an object with all the methods of a [`PayJS/Response`](#ref.Response) module.
-  - This object will have already had [`RESPONSE.tryParse()`](#ref.Response.tryParse) called.
+- The argument to your callback function is the [`PayJS/Response`](#ref.Response) module.
+  - You do *not* need to call [`RESPONSE.tryParse()`](#ref.Response.tryParse) yourself.
 - Always check [the response hash](#respHash) server-side to verify the integrity of the response.
 
 
@@ -588,11 +594,12 @@ Charges a credit card using a vault token.
 This method takes three arguments:
 
 ```javascript
-REQUEST.doTokenPayment(vaultToken, cvv, callbackFunction);
+REQUEST.doTokenPayment(token, cvv, callbackFunction);
 ```
 
 Notes:
 
+- The `token` must be specified in the [authKey](#Authentication).
 - An empty string is an acceptable CVV value; however, to maximize the chances of the cardholder's bank approving the transaction, it is always preferable to collect and include a CVV whenever possible.
 - The argument to your callback function is a JSON string.
   - Pass the string into [`RESPONSE.tryParse()`](#ref.Response.tryParse) to initialize the [`PayJS/Response`](#ref.Response) module's [getters](#ref.Response.getters).
@@ -636,22 +643,24 @@ RESPONSE.tryParse(gatewayResponse);
 
 Notes:
 
-- This method should be used in the callback functions of the [`PayJS/Request`](#ref.Request) module's methods.
-  - Pass the string into [`RESPONSE.tryParse()`](#ref.Response.tryParse) to initialize the [`PayJS/Response`](#ref.Response) module's [getters](#ref.Response.getters).
-  - If this method returns `false`, use [`RESPONSE.getResponse()`](#ref.Response.getResponse) to view the unparsed result.
+- You do *not* need to use this method in [`UI.setCallback()`](#ref.UI.setCallback).
+- This method is used in the callback functions of the [`PayJS/Request`](#ref.Request) module's methods.
+  - Pass the callback argument into [`RESPONSE.tryParse()`](#ref.Response.tryParse) to initialize the [`PayJS/Response`](#ref.Response) module's [getters](#ref.Response.getters).
 
 
 #### <a name="ref.Response.getResponse"></a>getResponse
 Returns the result of the gateway request.
 
-This method takes a single *optional* argument:
+This method does not take any arguments:
 
 ```javascript
-RESPONSE.getResponse(); // without an argment, the method returns an object
-// => Object {Response: Object, Hash: "ABCD=="}
-
-RESPONSE.getResponse({ json: true }); // pass a configuration object to retrieve a json string instead 
-// => "{ "Response": {"status":"Approved", ... }, "Hash": "ABCD==" }"
+RESPONSE.getResponse();
+// => Object {
+//        RequestId: "SomeOrderNumber",
+//        RequestIdHash: "ABCD==",
+//        Response: Object { ... },
+//        ResponseHash: "EFGH==",
+//    }
 ```
 
 Notes:
@@ -660,17 +669,19 @@ Notes:
 - Always check [the response hash](#respHash) server-side to verify the integrity of the response.
 
 #### <a name="ref.Response.getRawResponse"></a>getRawResponse
-Returns the result of the gateway request *before* any attempted parsing. Useful in (rare) situations where [`RESPONSE.tryParse()`](#ref.Response.tryParse) fails to interpret a response message. 
+Returns the result of the gateway request *before* any attempted parsing. Since JSON de/serialization may vary across environments and browsers, this is the value to send server-side for hash verification.
 
 This method does not take any arguments:
 
 ```javascript
-RESPONSE.getRawResponse(); // without an argment, the method returns an object
-// => Object {Response: Object, Hash: "ABCD=="}
+RESPONSE.getRawResponse();
+// => '{"RequestId": "SomeOrderNumber", "RequestIdHash":"ABCD==", Response:"{\"...'
 ```
 
 Notes:
 
+- If the request fails with a 400 or 401, this method returns a complete [`jqXR`](https://api.jquery.com/jQuery.ajax/#jqXHR) object.
+  - In this case, the raw API response is provided in the `responseText` property.
 - Always check [the response hash](#respHash) server-side to verify the integrity of the response.
 
 #### <a name="ref.Response.getters"></a>getters
