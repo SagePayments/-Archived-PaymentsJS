@@ -59,7 +59,7 @@ At this point, clicking on `paymentButton` will make the payment form pop up! Yo
 
 Credit card data moves directly between the user's browser and Sage Payment Solutions' secure payment gateway. This is great news for your server, which doesn't have to touch any sensitive data! But, as with any client-side code, it means we have to take seriously the possibility of malicious users making changes to the request.
 
-The `authKey` is an encrypted version of the configuration settings that you pass into the [`UI.Initialize()`](#ref.UI.Initialize) (or [`CORE.Initialize()`](#ref.Core.Initialize)) method. We'll decrypt the `authKey` and compare it to the request body, to make sure that what we received matches what you were expecting. This is also how you send us your `merchantKey`, **which should never be exposed to the client browser**.
+The `authKey` is an encrypted version of the configuration settings that you pass into [`UI.Initialize()`](#ref.UI.Initialize) or [`CORE.Initialize()`](#ref.Core.Initialize). We'll decrypt the `authKey` and compare it to the request body, to make sure that what we received matches what you were expecting. This is also how you send us your `merchantKey`, **which should never be exposed to the client browser**.
 
 The follow code snippets show the encryption in PHP; check out the `samples` folder of this repository for other languages.
 
