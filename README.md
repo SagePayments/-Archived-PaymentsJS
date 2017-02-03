@@ -17,7 +17,7 @@ PaymentsJS is a JavaScript library that enables developers to quickly start proc
 Add the script to your page:
 
 ```html
-<script type="text/javascript" src="https://www.sagepayments.net/pay/1.0.0/js/pay.min.js"></script>
+<script type="text/javascript" src="https://www.sagepayments.net/pay/1.0.1/js/pay.min.js"></script>
 ```
 
 And, just for the sake of this sample, add a button:
@@ -32,7 +32,7 @@ Then, in a separate `<script>` tag, initialize the library:
 PayJS(['PayJS/UI'], // the name of the module we want to use
 function($UI) { // assigning the module to a variable
     $UI.Initialize({ // configuring the UI
-        clientId: "myDeveloperId", // your developer ID
+        clientId: "myDeveloperId", // https://developer.sagepayments.com/user/register
         merchantId: "999999999997", // your 12-digit account identifier
         authKey: "ABCD==", // covered in the authKey section
         requestType: "payment", // use can use "vault" to tokenize a card without charging it
@@ -44,7 +44,7 @@ function($UI) { // assigning the module to a variable
         addFakeData: true // pre-fill the payment form with fake credit card data
     });
     $UI.setCallback(function(result) { // custom code that will execute when the UI receives a response
-        console.log(result.getResponse()); // log the result to the console
+        console.log(result.getResponse());
         var wasApproved = result.getTransactionSuccess();
         console.log(wasApproved ? "ka-ching!" : "bummer");
     });
@@ -176,7 +176,7 @@ If you're already using RequireJS on your page, add a path to PaymentsJS --
 ```
 requirejs.config({
     paths: {
-        "PayJS": 'https://www.sagepayments.net/pay/1.0.0/js/build'
+        "PayJS": 'https://www.sagepayments.net/pay/1.0.1/js/build'
     },
 });
 ```
