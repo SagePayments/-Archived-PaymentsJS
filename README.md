@@ -138,6 +138,7 @@ These optional fields need to be included in the `authKey` only if they are used
 - `postbackUrl`
 - `token`
 - `data`
+- `doVault`
 
 
 #### <a name="respHash"></a>Response Hash
@@ -293,6 +294,7 @@ debug | enable verbose logging to browser console | boolean | no, default false
 environment | choose between the certification and production environments | "cert" or "prod" | no, default "cert"
 data | add custom data that is echoed in the response | string | no
 token | the vault token being passed to [`REQUEST.doTokenPayment()`](#ref.Request.doTokenPayment) | alphanumeric string | when running a token payment
+doVault | when processing a payment, also tokenize the card | boolean | no, default false
 
 
 #### <a name="ref.Core.isInitialized"></a>isInitialized
@@ -462,6 +464,7 @@ CORE.getLanguage()
 // gateway:
 CORE.getOrderNumber()
 CORE.getRequestType()
+CORE.getDoVault()
 // transaction:
 CORE.getPreAuth()
 CORE.getAmount()
