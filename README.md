@@ -954,8 +954,38 @@ Notes:
 ## <a name="Changelog"></a>Changelog
 
 ---
-![PROD000089](https://img.shields.io/badge/PROD-1.0.000089-brightgreen.svg)
-![QA000088](https://img.shields.io/badge/QA-1.0.000086-yellow.svg)
+### **1.0.1.0000XX**
+
+BUG FIXES: 
+- User is no longer able to hide the modal dialog while a request is pending.
+- Better support for overflow when the modal dialog is open on small, landscape screens.
+- Explicated certain CSS rules to avoid being overriden by parent styles; redundant in most cases.
+- The response sent to the postbackUrl now includes a Content-Type header.
+- The vault token is no longer an exception to authKey validation.
+- The response data now echoes the requestId/orderNumber, with a hash.
+
+ENHANCEMENTS:
+- User can now set allowAmex and allowDiscover.
+- The library can now be initialized with a 'data' field.
+  - This field is echoed back in the response, with a hash.
+- New method: FORMATTING.maskCreditCardNumber().
+- New method: REQUEST.getLastCard().
+  - This method also exists under the alias RESPONSE.getPaymentDetails().
+
+MISC/OTHER:
+- Changes to JSON de/serialization.
+  - The API now returns the gateway response as a string, rather than an object.
+  - The ajax requests in the REQUEST module now return JSON strings, rather than an object.
+  - RESPONSE.tryParse() has been adjusted to expect a JSON string.
+  - RESPONSE.getResponse() returns a completely-deserialized object, as before.
+  - RESPONSE.getResponse() no longer has a json option.
+  - RESPONSE.getRawResponse() now returns the original AJAX response, before any de/serialization.
+- API requests now include a version header.
+- Pre-patch for Kount integration.
+- Payments no longer automatically vault the card.
+  - This functionality is now available via a 'doVault' option.
+
+### **1.0.0.000089**
 
 BUG FIXES:
 - Billing data no longer required.
@@ -992,18 +1022,14 @@ MISC/OTHER:
 
 
 ---
-![PROD000045](https://img.shields.io/badge/PROD-1.0.000045-brightgreen.svg)
-![QA000043](https://img.shields.io/badge/QA-1.0.000043-yellow.svg)
+### **1.0.0.000045**
 
 - Created changelog.
-- Added an internal-only build version.
-  - Updated readme.
-  - Updated gruntfile.
-  - Updated package.json.
-- Fixed bug where PaymentsJS failed to pass address and zip to the gateway. (D-32318)
+- Added a build version.
+- Fixed bug where PaymentsJS failed to pass address and zip to the gateway.
   - UI module no longer forces billing data into an incorrect format.
 
 ---
-![PROD000000](https://img.shields.io/badge/PROD-1.0.000000-brightgreen.svg)
+### **1.0.0.000000**
 
 - Initial Release
