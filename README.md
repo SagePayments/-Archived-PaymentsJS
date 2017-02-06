@@ -35,7 +35,7 @@ function($UI) { // assigning the module to a variable
         clientId: "myDeveloperId", // https://developer.sagepayments.com/user/register
         merchantId: "999999999997", // your 12-digit account identifier
         authKey: "ABCD==", // covered in the authKey section
-        requestType: "payment", // use can use "vault" to tokenize a card without charging it
+        requestType: "payment", // use "vault" to tokenize a card without charging it
         orderNumber: "Invoice12345", // an order number, customer or account identifier, etc.
         amount: "1.00", // the amount to charge the card. in test mode, different amounts produce different results.
         elementId: "paymentButton", // the page element that will trigger the UI
