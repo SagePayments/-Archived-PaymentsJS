@@ -20,57 +20,59 @@ Add the script to your page:
 <script type="text/javascript" src="https://www.sagepayments.net/pay/1.0.1/js/pay.min.js"></script>
 ```
 
-And, just for the sake of this sample, add a button:
+And add a button:
 
 ```html
 <button id="paymentButton">Pay Now</button>
 ```
 
-Then, in a separate `<script>` tag, initialize the library:
+Then, in a separate `<script>` tag, initialize the UI:
 
 ```javascript
-PayJS(['PayJS/UI'], // the name of the module we want to use
-function($UI) { // assigning the module to a variable
-    $UI.Initialize({ // configuring the UI
-        clientId: "myDeveloperId", // https://developer.sagepayments.com/user/register
-        merchantId: "999999999997", // your 12-digit account identifier
-        authKey: "ABCD==", // covered in the authKey section
-        requestType: "payment", // use "vault" to tokenize a card without charging it
-        orderNumber: "Invoice12345", // an order number, customer or account identifier, etc.
-        amount: "1.00", // the amount to charge the card. in test mode, different amounts produce different results.
-        elementId: "paymentButton", // the page element that will trigger the UI
-        salt: "DEFG==", // see the authKey section
-        debug: true, // enables verbose console logging
-        addFakeData: true // pre-fill the payment form with fake credit card data
+PayJS(['PayJS/UI'], // loading the UI module...
+function($UI) { // ... and assigning it to a variable
+    $UI.Initialize({
+        elementId: "paymentButton",
+        // identifiers (no keys!):
+        clientId: "myClientId", // https://developer.sagepayments.com/user/register
+        merchantId: "999999999997",
+        // auth, covered later:
+        authKey: "ABCD==",
+        salt: "DEFG==",
+        // config:
+        requestType: "payment", // or "vault" to tokenize a card for later
+        amount: "1.00",
+        orderNumber: "Invoice12345",
+        // convenience:
+        addFakeData: true,
     });
-    $UI.setCallback(function(result) { // custom code that will execute when the UI receives a response
-        console.log(result.getResponse());
-        var wasApproved = result.getTransactionSuccess();
-        console.log(wasApproved ? "ka-ching!" : "bummer");
+    $UI.setCallback(function($RESP) { // fires after the payment
+        var wasApproved = $RESP.getTransactionSuccess();
+        console.log(wasApproved ? $RESP.getResponse() : $RESP.getRawResponse());
     });
 });
 ```
-At this point, clicking on `paymentButton` will make the payment form pop up! You can attempt a transaction, but it will be rejected... so our next step is to calculate the `authKey`.
+Clicking on `paymentButton` will make the payment window appear. You can submit the transaction, but it won't succeed -- so our next step is to calculate the `authKey`.
 
 ---
 ## <a name="Authentication"></a>Authentication & Verification
 
+Credit card data moves directly between the user's browser and Sage Payment Solutions' secure payment gateway. This is great news for your server, which doesn't have to touch any sensitive data; but, as with any client-side code, it means we have to be wary of malicious users.
+
 #### <a name="authKey"></a>authKey
 
-Credit card data moves directly between the user's browser and Sage Payment Solutions' secure payment gateway. This is great news for your server, which doesn't have to touch any sensitive data! But, as with any client-side code, it means we have to take seriously the possibility of malicious users making changes to the request.
+The `authKey` is an encrypted version of the configuration settings that you pass into [`UI.Initialize()`](#ref.UI.Initialize) or [`CORE.Initialize()`](#ref.Core.Initialize). We'll decrypt the `authKey` and compare it to the request body, to make sure that what we received matches what you were expecting. This is also how you send us your `merchantKey`, which should never be exposed to the client browser.
 
-The `authKey` is an encrypted version of the configuration settings that you pass into [`UI.Initialize()`](#ref.UI.Initialize) or [`CORE.Initialize()`](#ref.Core.Initialize). We'll decrypt the `authKey` and compare it to the request body, to make sure that what we received matches what you were expecting. This is also how you send us your `merchantKey`, **which should never be exposed to the client browser**.
+The follow code snippets show the encryption in PHP; check out the samples in this repository for other languages.
 
-The follow code snippets show the encryption in PHP; check out the `samples` folder of this repository for other languages.
-
-First, we need a [salt](https://en.wikipedia.org/wiki/Salt_(cryptography)) and an [initialization vector](https://en.wikipedia.org/wiki/Initialization_vector):
+First, we need a `salt` and an `initialization vector`:
 
 ```php
 $iv = openssl_random_pseudo_bytes(16);
 $salt = base64_encode(bin2hex($iv));
 ```
 
-Next, we're going to create an array (any serializable entity works) that contains our configuration settings, plus our `merchantKey`:
+Next, we're going to create an array that contains our configuration settings, plus our `merchantKey`:
 
 ```php
 $req = [
@@ -91,7 +93,7 @@ We convert it to JSON...
 $jsonReq = json_encode($req);
 ```
 
-... and then use it as the subject of our encryption:
+... and then use our client key to encrypt it:
 
 ```php
 $clientKey = "wtC5Ns0jbtiNA8sP";
@@ -99,7 +101,7 @@ $passwordHash = hash_pbkdf2("sha1", $clientKey, $salt, 1500, 32, true);
 $authKey = openssl_encrypt($jsonReq, "aes-256-cbc", $passwordHash, 0, $iv);
 ```
 
-Now that we have our `authKey`, all that's left is to initialize the JavaScript library with the same values!
+Now that we have our `authKey`, we initialize the UI with the same values:
 
 ```javascript
 PayJS(['PayJS/UI'],
@@ -117,7 +119,7 @@ function($UI) {
     });
 });
 ```
-If we don't have a sample in your language, the [Developer Forums](https://developer.sagepayments.com/content/how-calculate-authkey-outside-javascript-library) are a great resource for information and support.
+If we don't have a sample in your language, the [Developer Forums](https://developer.sagepayments.com/forum) are a great resource for information and support.
 
 #### <a name="whichFields"></a>What needs to be included in the authKey?
 
@@ -126,12 +128,12 @@ The following fields should always be included in the authKey encryption:
 - `merchantId`
 - `merchantKey`
 - `requestType`
-- `orderNumber`/`requestId`
-- `salt`/`nonce`
-- `amount` (unless `requestType` is set to `"vault"`)
+- `orderNumber` (aka `requestId`)
+- `salt` (aka `nonce`)
 
 These optional fields need to be included in the `authKey` only if they are used:
 
+- `amount`
 - `taxAmount`
 - `shippingAmount`
 - `preAuth`
@@ -141,9 +143,26 @@ These optional fields need to be included in the `authKey` only if they are used
 - `doVault`
 
 
-#### <a name="respHash"></a>Response Hash
+#### <a name="respHash"></a>Response Hashes
 
-Similarly, when we send the response back to the client, it will include a SHA-512 HMAC of the response (using your Developer Key to hash). **Always [calculate & compare](https://developer.sagepayments.com/content/comparing-response-and-hash) this server-side before updating any orders, databases, etc.**
+The response packet that is sent to the client library (and, optionally, to the `postbackUrl`) includes the API response and the original `requestId` (`orderNumber`). If the request included custom `data`, this is also be echoed in the response.
+
+Each of these fields will be accompanied by SHA-512 HMAC, using your client key to sign:
+
+```javascript
+{
+    "RequestId":"Invoice12345",
+    "RequestIdHash":"ABCD==",
+    "Response":"{\"status\":\"Approved\",\"reference\":\"A12BCdeFG0\", ... }",
+    "ResponseHash":"EFGH==",
+    "Data":"Some business-specific information.",
+    "DataHash":"IJKL=="
+}
+```
+
+Always verify these hashes on the server before shipping any orders, updating any databases, etc.
+
+(Note: if using the Response module, the [getRawResponse()](#ref.Response.getRawResponse) method returns the original string response, before any deserialization. )
 
 ---
 ## <a name="Modules"></a>Modules
@@ -739,7 +758,7 @@ RESPONSE.getAVS({ require: "none" }); // no match
 // => true
 RESPONSE.getAVS({ require: "partial" }); // partial match (address OR zip)
 // => true
-RESPONSE.getAVS({ require: "exact" }); // exact match (address OR zip)
+RESPONSE.getAVS({ require: "exact" }); // exact match (address AND zip)
 // => false
 
 // use the "require" option with the "test" option to test the given code for a certain match-level, irrespective of the actual AVS result
