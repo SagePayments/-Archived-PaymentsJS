@@ -1,0 +1,69 @@
+.wrapper.text-center
+  h1 Tokenization
+  p
+    | Not ready to charge a card, or expecting to charge it multiple times? Run a vault-only request to store the card, then charge it when you're ready.
+  br
+  div
+    button#vaultButton.btn.btn-primary Store Card
+    button#paymentButton.btn.btn-warning(disabled='') Charge Card
+    br
+    br
+    h5 Results:
+    p(style='width:100%')
+      pre.
+script(type='text/javascript').
+  PayJS(['PayJS/Request', 'PayJS/Response', 'PayJS/Core', 'PayJS/UI', 'jquery'],
+  function($REQ, $RESP, $CORE, $UI, $) {
+  $UI.Initialize({
+  clientId: "<?php echo $developer['ID']; ?>",
+  postbackUrl: "<?php echo $vault_req['postbackUrl']; ?>",
+  merchantId: "<?php echo $vault_req['merchantId']; ?>",
+  authKey: "<?php echo $vault_authKey; ?>",
+  salt: "<?php echo $vault_req['salt']; ?>",
+  requestType: "<?php echo $vault_req['requestType']; ?>",
+  orderNumber: "<?php echo $vault_req['orderNumber']; ?>",
+  elementId: "vaultButton",
+  addFakeData: true
+  });
+  $UI.setCallback(function(vaultResponse) {
+  $("#paymentResponse").text(
+  vaultResponse.getRawResponse()
+  );
+  if (vaultResponse.getVaultSuccess()) {
+  $("#vaultButton").prop('disabled', true);
+  $.get(
+  "vault/auth.php",
+  {
+  token: vaultResponse.getVaultToken(),
+  },
+  function(authResp) {
+  $CORE.Initialize({
+  clientId: authResp.clientId,
+  merchantId: authResp.merch,
+  authKey: authResp.authKey,
+  requestType: "payment",
+  orderNumber: authResp.invoice,
+  amount: authResp.amount,
+  postbackUrl: authResp.postback,
+  salt: authResp.salt
+  });
+  $("#paymentButton").prop('disabled', false);
+  $("#paymentButton").click(function() {
+  $("#paymentButton").prop('disabled', true);
+  $("#paymentResponse").text("The response will appear here as JSON, and in your browser console as a JavaScript object.");
+  $REQ.doTokenPayment(vaultResponse.getVaultToken(), "123", function(paymentResponse) {
+  $RESP.tryParse(paymentResponse);
+  console.log($RESP.getResponse());
+  $("#paymentResponse").text(
+  $RESP.getRawResponse()
+  );
+  });
+  })
+  },
+  "json"
+  );
+  } else {
+  // ...
+  }
+  });
+  });

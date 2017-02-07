@@ -1,0 +1,84 @@
+doctype html
+html
+  head
+    title PayJS Node Samples
+    // Libraries
+    link(href='css/bootstrap.css', rel='stylesheet')
+    script(src='https://code.jquery.com/jquery-2.2.4.min.js', crossorigin='anonymous')
+    script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.js')
+    script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular-route.js')
+    // PayJS
+    script(type='text/javascript', src='https://qa.sagepayments.net/pay/1.0.1/js/pay.min.js')
+  body
+    header.header
+      .header-global
+      .header-secondary
+        .wrapper
+          a.logo-product-rev(href='/')
+            img(src='img/logo_sage.png', alt='Sage', width='57', height='22')
+          a.logo-product(href='/')
+            img(src='img/logo-sage-paymentsjs-white-@1x.png', alt='Sage')
+          nav.nav-secondary
+            ul
+              li
+                a.menu-item(href='#/') Home
+              li
+                a.menu-item(href='#/modal') Modal
+              li
+                a.menu-item(href='#/inline') Inline
+              li
+                a.menu-item(href='#/require') RequireJS
+              li
+                a.menu-item(href='#/dynamic') Dynamic
+              li
+                a.menu-item(href='#/js-only') JS-Only
+              li
+                a.menu-item(href='#/adaptive') Adaptive
+              li
+                a.menu-item(href='#/vault') Tokens
+              li
+                a.menu-item(href='#/response') Responses
+              li
+                a.menu-item(href='https://github.com/SagePayments/PaymentsJS') Documentation
+    main.main-body(style='height:100%;', ng-app='PayJS_SamplesApp')
+      .wrapper(ng-view='')
+    footer.footer
+      .wrapper
+        a.logo-sage(href='http://www.sage.com')
+          img(src='img/logo_sage_rev.png', alt='Sage', width='50', height='20')
+        ul
+          li Copyright © 2016
+          li
+            a(href='#') Privacy Policy
+          li
+            a(href='#') Contact Us
+    // Misc.
+    script.
+      angular.module('PayJS_SamplesApp', ['ngRoute'])
+      .config(['$routeProvider', function($routeProvider) {
+        $routeProvider
+          .when('/', { templateUrl: 'home' })
+          .when('/modal', { templateUrl: 'modal' })
+          .when('/inline', { templateUrl: 'inline' })
+          .when('/js-only', { templateUrl: 'js-only' })
+          .when('/require', { templateUrl: 'require' })
+          .when('/dynamic', { templateUrl: 'dynamic' })
+          .when('/adaptive', { templateUrl: 'adaptive' })
+          .when('/vault', { templateUrl: 'vault' })
+          .when('/response', { templateUrl: 'response' })
+          .otherwise({ redirectTo: '/' });
+      }]);
+    script(type='text/javascript').
+      $(".menu-item").click(function() {
+        $(".menu-item").removeClass("active");
+        $(this).addClass("active");
+      })
+    script(type='text/javascript').
+      (function() {
+        affixFooter(); // initialize footer fix if no scrollbar
+        $(window).resize(affixFooter);
+        function affixFooter() {
+          $('.footer').removeClass('affix-bottom').addClass(function() {
+          if (window.innerHeight >= $('body').outerHeight(true)) return 'affix-bottom';
+        });
+      }}).call(this);

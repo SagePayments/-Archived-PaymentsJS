@@ -1,0 +1,71 @@
+.wrapper.text-center
+  h1 RequireJS
+  p
+    | The 
+    code pay.js
+    |  and 
+    code pay.min.js
+    |  files use a bundled version of 
+    a(href='http://requirejs.org/') RequireJS
+    |  to manage module dependencies. If you already use RequireJS on your site, reference PayJS directly via 
+    code config.paths
+    | :
+pre.
+  <code>  requirejs.config({
+        paths: {
+            "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min",
+            <span style="background-color: yellow">"PayJS": 'https://www.sagepayments.net/pay/1.0.1/js/build'</span>
+        },
+    });</code>
+.wrapper.text-center
+  p And then use it just like you would use any other module:
+pre.
+  <code>  requirejs(['jquery', 'myAwesomeCode', <span style="background-color: yellow">'PayJS/UI'</span>],
+        function($, $MAC, $UI) {
+            $MAC.doBusiness();
+            $UI.Initialize({
+                <i>(...)</i>
+            });
+        })</code>
+.wrapper.text-center
+  br
+  div
+    button#paymentButton.btn.btn-primary Pay Now
+    br
+    br
+    h5 Results:
+    p(style='width:100%')
+      pre.
+script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js')
+script(type='text/javascript').
+  requirejs.config({
+    baseUrl: "js",
+    paths: {
+    "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min",
+    "PayJS": 'https://qa.sagepayments.net/pay/1.0.1/js/build',
+    },
+  });
+script(type='text/javascript').
+  // you guessed it -- PayJS() is just an alias of requirejs()
+  requirejs(['myCustomCode', 'PayJS/UI', 'jquery'],
+  function($MCC, $UI, $) {
+    $MCC.doBusiness();
+    $UI.Initialize({
+    clientId: "<?php echo $developer['ID']; ?>",
+    postbackUrl: "<?php echo $req['postbackUrl']; ?>",
+    merchantId: "<?php echo $req['merchantId']; ?>",
+    authKey: "<?php echo $authKey; ?>",
+    salt: "<?php echo $req['salt']; ?>",
+    requestType: "<?php echo $req['requestType']; ?>",
+    orderNumber: "<?php echo $req['orderNumber']; ?>",
+    amount: "<?php echo $req['amount']; ?>",
+    elementId: "paymentButton",
+    addFakeData: true
+    });
+    $UI.setCallback(function($RESP) {
+    console.log($RESP.getResponse());
+    $("#paymentResponse").text(
+    $RESP.getRawResponse()
+    );
+    });
+  });

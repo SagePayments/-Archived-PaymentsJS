@@ -1,0 +1,53 @@
+.wrapper.text-center
+  h1 Adaptive
+  p
+    | The PayJS UI will adjust itself to the width of its container. Try stretching out this 
+    code &lt;div&gt;
+    | :
+  br
+  div
+    #paymentDiv.resizeable(style='width:35%')
+    br
+    br
+    h5 Results:
+    p(style='width:100%')
+      pre.
+script(type='text/javascript').
+  // full api reference is available at https://github.com/SagePayments/PaymentsJS
+  // the entire library is accessed through the PayJS() function:
+  PayJS(['PayJS/UI', 'jquery'], // name the modules you want to use...
+  function($UI, $) { // ... and then assign them to variables.
+  // we'll start by initializing the UI:
+  $UI.Initialize({
+  // developer:
+  clientId: "<?php echo $developer['ID']; ?>",
+  postbackUrl: "<?php echo $req['postbackUrl']; ?>", // you get a copy of the response here
+  // merchant:
+  merchantId: "<?php echo $req['merchantId']; ?>",
+  // security:
+  authKey: "<?php echo $authKey; ?>",
+  salt: "<?php echo $req['salt']; ?>",
+  // request:
+  requestType: "<?php echo $req['requestType']; ?>",
+  orderNumber: "<?php echo $req['orderNumber']; ?>",
+  amount: "<?php echo $req['amount']; ?>",
+  // ui:
+  elementId: "paymentDiv", // the DOM that $UI should attach itself to,
+  // dev QoL:
+  // debug: true, // verbose logging
+  // show: true, // show the modal immediately, instead of waiting for a click
+  addFakeData: true // pre-fill the form with test values
+  });
+  // and then we'll set a callback function to execute after the user
+  // has submitted their card data and received a respnonse back
+  $UI.setCallback(function($RESP) { // the callback function receives an instance of the RESPONSE module
+  console.log($RESP.getResponse());
+  $("#paymentResponse").text(
+  $RESP.getRawResponse()
+  );
+  // the response includes the gateway response, plus a SHA512 HMAC of the gateway response
+  // the HMAC uses your developer key to sign the response payload
+  // it's always a good idea to verify the hash, server-side, to ensure that the response is legitimate
+  // this is especially important if you're changing an account balance, shipping a product, etc.
+  });
+  });
