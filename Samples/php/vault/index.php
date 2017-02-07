@@ -12,21 +12,6 @@
         "postbackUrl" => $request['postbackUrl']
     ]; 
     $vault_authKey = getAuthKey(json_encode($vault_req), $developer['KEY'], $vault_nonces['salt'], $vault_nonces['iv']);
-    
-    // for the payment request:
-    $payment_nonces = getNonces();
-    $payment_req = [
-        "merchantId" => $merchant['ID'],
-        "merchantKey" => $merchant['KEY'], // don't include the Merchant Key in the JavaScript initialization!
-        "requestType" => "payment",
-        "orderNumber" => "Invoice" . rand(0, 1000),
-        "amount" => $request['amount'],
-        "salt" => $payment_nonces['salt'],
-        "postbackUrl" => $request['postbackUrl'],
-        "preAuth" => $request['preAuth'] // defaults to false
-    ]; 
-    
-    $payment_authKey = getAuthKey(json_encode($payment_req), $developer['KEY'], $payment_nonces['salt'], $payment_nonces['iv']);
 ?>
 <div class="wrapper text-center">
     <h1>Tokenization</h1>
@@ -55,34 +40,42 @@
             addFakeData: true
         });
         $UI.setCallback(function(vaultResponse) {
-            console.log(vaultResponse.getResponse());
             $("#paymentResponse").text(
-                vaultResponse.getResponse({ "json": true })
+                vaultResponse.getRawResponse()
             );
             if (vaultResponse.getVaultSuccess()) {
                 $("#vaultButton").prop('disabled', true);
-                $("#paymentButton").prop('disabled', false);
-                $("#paymentButton").click(function() {
-                    $("#paymentButton").prop('disabled', true);
-                    $("#paymentResponse").text("The response will appear here as JSON, and in your browser console as a JavaScript object.");
-                    $CORE.Initialize({
-                        clientId: "<?php echo $developer['ID']; ?>",
-                        postbackUrl: "<?php echo $payment_req['postbackUrl']; ?>",
-                        merchantId: "<?php echo $payment_req['merchantId']; ?>",
-                        authKey: "<?php echo $payment_authKey; ?>",
-                        salt: "<?php echo $payment_req['salt']; ?>",
-                        requestType: "<?php echo $payment_req['requestType']; ?>",
-                        orderNumber: "<?php echo $payment_req['orderNumber']; ?>",
-                        amount: "<?php echo $payment_req['amount']; ?>",
-                    });
-                    $REQ.doTokenPayment(vaultResponse.getVaultToken(), "123", function(paymentResponse) {
-                        console.log(paymentResponse);
-                        $RESP.tryParse(paymentResponse);
-                        $("#paymentResponse").text(
-                            $RESP.getResponse({"json": true})
-                        );
-                    });
-                })
+                $.get(
+                    "vault/auth.php",
+                    {
+                        token: vaultResponse.getVaultToken(),
+                    },
+                    function(authResp) {
+                        $CORE.Initialize({
+                            clientId: authResp.clientId,
+                            merchantId: authResp.merch,
+                            authKey: authResp.authKey,
+                            requestType: "payment",
+                            orderNumber: authResp.invoice,
+                            amount: authResp.amount,
+                            postbackUrl: authResp.postback,
+                            salt: authResp.salt
+                        });
+                        $("#paymentButton").prop('disabled', false);
+                        $("#paymentButton").click(function() {
+                            $("#paymentButton").prop('disabled', true);
+                            $("#paymentResponse").text("The response will appear here as JSON, and in your browser console as a JavaScript object.");
+                            $REQ.doTokenPayment(vaultResponse.getVaultToken(), "123", function(paymentResponse) {
+                                $RESP.tryParse(paymentResponse);
+                                console.log($RESP.getResponse());
+                                $("#paymentResponse").text(
+                                    $RESP.getRawResponse()
+                                );
+                            });
+                        })
+                    },
+                    "json"
+                );
             } else {
                 // ...
             }
