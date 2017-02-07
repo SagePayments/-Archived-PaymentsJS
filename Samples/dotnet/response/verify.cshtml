@@ -1,0 +1,17 @@
+﻿@using PayJS_Samples.Misc
+@using Newtonsoft.Json;
+@{
+    string resp = new StreamReader(Request.InputStream).ReadToEnd();
+    PayJSResponse response = JsonConvert.DeserializeObject<PayJSResponse>(resp);
+
+    var results = new 
+    {
+        RequestIdHash = Shared.GetHmac(response.RequestId, Shared.DeveloperKEY),
+        ResponseHash = Shared.GetHmac(response.Response, Shared.DeveloperKEY)
+    };
+   
+    string returnJson = JsonConvert.SerializeObject(results);
+    
+    HttpContext.Current.Response.ContentType = "text/json";
+    HttpContext.Current.Response.Write(returnJson);
+}
