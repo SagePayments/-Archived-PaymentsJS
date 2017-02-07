@@ -14,39 +14,41 @@ PaymentsJS is a JavaScript library that enables developers to quickly start proc
 ---
 ## <a name="QuickStart"></a>Quick Start
 
-Add the script to your page:
+Add the library:
 
 ```html
 <script type="text/javascript" src="https://www.sagepayments.net/pay/1.0.1/js/pay.min.js"></script>
 ```
 
-And add a button:
+And a button:
 
 ```html
 <button id="paymentButton">Pay Now</button>
 ```
 
-Then, in a separate `<script>` tag, initialize the UI:
+Then initialize the UI:
 
-```javascript
-PayJS(['PayJS/UI'], // loading the UI module...
-function($UI) { // ... and assigning it to a variable
-    $UI.Initialize({
-        elementId: "paymentButton",
-        // identifiers (no keys!):
-        clientId: "myClientId", // https://developer.sagepayments.com/user/register
-        merchantId: "999999999997",
-        // auth, covered later:
-        authKey: "ABCD==",
-        salt: "DEFG==",
-        // config:
-        requestType: "payment", // or "vault" to tokenize a card for later
-        amount: "1.00",
-        orderNumber: "Invoice12345",
-        // convenience:
-        addFakeData: true,
+```html
+<script type="text/javascript">
+    PayJS(['PayJS/UI'], // loading the UI module...
+    function($UI) { // ... and assigning it to a variable
+        $UI.Initialize({
+            elementId: "paymentButton",
+            // identifiers (no keys!):
+            clientId: "myClientId", // https://developer.sagepayments.com/user/register
+            merchantId: "999999999997",
+            // auth, covered later:
+            authKey: "ABCD==",
+            salt: "DEFG==",
+            // config:
+            requestType: "payment", // or "vault" to tokenize a card for later
+            amount: "1.00",
+            orderNumber: "Invoice12345",
+            // convenience:
+            addFakeData: true,
+        });
     });
-});
+</script>
 ```
 Clicking on `paymentButton` will make the payment window appear. You can submit the transaction, but it won't succeed -- so our next step is to calculate the `authKey`.
 
