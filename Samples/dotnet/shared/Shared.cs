@@ -8,8 +8,8 @@ namespace PayJS_Samples.Misc
     public static class Shared
     {
         // sign up at https://developer.sagepayments.com/ to get your own dev creds
-        public static string DeveloperID = "GTq2h4mXxLIBtzbOWLO2GwqZfOgK8BbT";//"7SMmEF02WyC7H5TSdG1KssOQlwOOCagb";
-        public static string DeveloperKEY = "ICkrA2n6HIleJ663"; //"wtC5Ns0jbtiNA8sP";
+        public static string DeveloperID = "7SMmEF02WyC7H5TSdG1KssOQlwOOCagb";
+        public static string DeveloperKEY = "wtC5Ns0jbtiNA8sP";
 
         // this is a shared test account; don't hesitate to ask us for one of your own!
         public static string MerchantID = "999999999997";
