@@ -46,10 +46,6 @@ function($UI) { // ... and assigning it to a variable
         // convenience:
         addFakeData: true,
     });
-    $UI.setCallback(function($RESP) { // fires after the payment
-        var wasApproved = $RESP.getTransactionSuccess();
-        console.log(wasApproved ? $RESP.getResponse() : $RESP.getRawResponse());
-    });
 });
 ```
 Clicking on `paymentButton` will make the payment window appear. You can submit the transaction, but it won't succeed -- so our next step is to calculate the `authKey`.
@@ -117,6 +113,9 @@ function($UI) {
         elementId: "paymentButton",
         addFakeData: true
     });
+    $UI.setCallback(function($RESP) { // fires after the payment
+        console.log($RESP.getResponse());
+    });
 });
 ```
 If we don't have a sample in your language, the [Developer Forums](https://developer.sagepayments.com/forum) are a great resource for information and support.
@@ -174,10 +173,10 @@ The following modules contain methods that you may want to use in your project:
 Name | Description
 ---- | -----------
 "jquery" | Version 2.0 of [the common JavaScript library](https://jquery.com/).
-"PayJS/Core" | Manages configuration settings when _not_ using the UI.
-"PayJS/UI" | Manages configuration settings when using the UI.
+"PayJS/Core" | Manages configuration settings and other shared values.
+"PayJS/UI" | Configures and manages the user interface.
 "PayJS/Request" | Sends transaction and vault requests to the gateway. 
-"PayJS/Response" | Reads information out of responses from the gateway.
+"PayJS/Response" | Reads information from gateway responses.
 "PayJS/Formatting" | Converts credit card data into standardized strings.
 "PayJS/Validation" | Checks credit card data for acceptable values.
 
