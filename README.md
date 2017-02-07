@@ -61,7 +61,7 @@ Credit card data moves directly between the user's browser and Sage Payment Solu
 
 The `authKey` is an encrypted version of the configuration settings that you pass into [`UI.Initialize()`](#ref.UI.Initialize) or [`CORE.Initialize()`](#ref.Core.Initialize). We'll decrypt the `authKey` and compare it to the request body, to make sure that what we received matches what you were expecting. This is also how you send us your `merchantKey`, which should never be exposed to the client browser.
 
-The follow code snippets show the encryption in PHP; check out the samples in this repository for other languages.
+The follow code snippets show the encryption in PHP; check out the samples in this repository for other languages. If we don't have a sample in your language, the [Developer Forums](https://developer.sagepayments.com/forum) are a great resource for information and support.
 
 First, we need a `salt` and an `initialization vector`:
 
@@ -120,7 +120,7 @@ function($UI) {
     });
 });
 ```
-If we don't have a sample in your language, the [Developer Forums](https://developer.sagepayments.com/forum) are a great resource for information and support.
+The payment now goes through!
 
 #### <a name="whichFields"></a>What needs to be included in the authKey?
 
@@ -538,7 +538,7 @@ addFakeData | adds fake credit card data to the form, for testing | boolean | no
 
 Notes:
 
-- If `targetElement` refers to a `<button>`, `<a>`, or `<input>`, the UI will appear as a [modal dialog](http://getbootstrap.com/javascript/#modals) when that element is clicked. If it refers to a `<div>`, the UI will be put *inside* the element. Other element types will probably just do something weird.
+- If `targetElement` refers to a `<button>`, `<a>`, or `<input>`, the UI will appear as a [modal dialog](http://getbootstrap.com/javascript/#modals) when that element is clicked. If it refers to a `<div>`, the UI will be put *inside* the element.
 - If `suppressResultPage` is enabled, the UI will never move past the processing bar. This can be used in conjunction with [`UI.setCallback()`](#ref.UI.setCallback) to customize response handling (eg, redirecting to another page).
 - We do not recommend changing `restrictInput` or `formatting` to `false`. (These options may be deprecated in a future release.)
 
