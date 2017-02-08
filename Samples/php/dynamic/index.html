@@ -61,7 +61,7 @@
                     $UI.setCallback(function(resp) {
                         console.log(resp.getResponse());
                         $("#paymentResponse").text(
-                            resp.getResponse({ "json": true })
+                            resp.getRawResponse()
                         );
                         $("#paymentButton").prop('disabled', false);
                     });
