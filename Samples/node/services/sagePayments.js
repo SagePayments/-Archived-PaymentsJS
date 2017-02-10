@@ -16,20 +16,21 @@ const config = {
     requestType: "payment",
 }
 
-
-const baseRequest = {
-  clientId: config.developer.id,
-  postbackUrl: config.postbackUrl, // you get a copy of the response here
-  merchantId: config.merchant.id,
-  authKey: undefined,
-  salt: undefined,
-  requestType: config.requestType,
-  orderNumber: undefined,
-  amount: config.amount,
-};
+function getBaseRequest() {
+    return {
+        clientId: config.developer.id,
+        postbackUrl: config.postbackUrl, // you get a copy of the response here
+        merchantId: config.merchant.id,
+        authKey: undefined,
+        salt: undefined,
+        requestType: config.requestType,
+        orderNumber: undefined,
+        amount: config.amount,
+    };
+}
 
 function getAuthedRequest(){
-    const newRequest = baseRequest;
+    const newRequest = getBaseRequest();
     const nonces = getSecureNonces();
     newRequest.orderNumber =  Date.now().toString();
     newRequest.salt = nonces.salt;

@@ -36,6 +36,7 @@ pre.
     h5 Results:
     p(style='width:100%')
       pre.
+        <code id="paymentResponse">The response will appear here as JSON, and in your browser console as a JavaScript object.</code>
 script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js')
 script(type='text/javascript').
   requirejs.config({
@@ -45,27 +46,17 @@ script(type='text/javascript').
     "PayJS": 'https://qa.sagepayments.net/pay/1.0.1/js/build',
     },
   });
+script(type='text/javascript') window.sageInit = !{initialization}
 script(type='text/javascript').
   // you guessed it -- PayJS() is just an alias of requirejs()
   requirejs(['myCustomCode', 'PayJS/UI', 'jquery'],
   function($MCC, $UI, $) {
     $MCC.doBusiness();
-    $UI.Initialize({
-    clientId: "<?php echo $developer['ID']; ?>",
-    postbackUrl: "<?php echo $req['postbackUrl']; ?>",
-    merchantId: "<?php echo $req['merchantId']; ?>",
-    authKey: "<?php echo $authKey; ?>",
-    salt: "<?php echo $req['salt']; ?>",
-    requestType: "<?php echo $req['requestType']; ?>",
-    orderNumber: "<?php echo $req['orderNumber']; ?>",
-    amount: "<?php echo $req['amount']; ?>",
-    elementId: "paymentButton",
-    addFakeData: true
-    });
+    sageInit.elementId = 'paymentButton';
+    sageInit.addFakeData = true;
+    $UI.Initialize(sageInit);
     $UI.setCallback(function($RESP) {
-    console.log($RESP.getResponse());
-    $("#paymentResponse").text(
-    $RESP.getRawResponse()
-    );
+      console.log($RESP.getResponse());
+      $("#paymentResponse").text($RESP.getRawResponse());
     });
   });
