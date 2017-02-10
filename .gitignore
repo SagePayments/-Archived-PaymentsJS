@@ -14,6 +14,7 @@ x64/
 build/
 bld/
 [Bb]in/
+!Samples/node/bin/
 [Oo]bj/
 
 # Roslyn cache directories
