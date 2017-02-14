@@ -22,44 +22,35 @@ style.
     h5 Results:
     p(style='width:100%')
       pre.
+        <code id="paymentResponse">The response will appear here as JSON, and in your browser console as a JavaScript object.</code>
 script(type='text/javascript').
+  console.log('bar');
   // this time, when the user submits, we'll send the amount to a server-side
   // script that returns the data we'll need for initialization.
   PayJS(['PayJS/UI', 'jquery'],
   function($UI, $) {
-  $("#paymentButton").click(function() {
-  $(this).prop('disabled', true);
-  $("#paymentResponse").text("The response will appear here as JSON, and in your browser console as a JavaScript object.");
-  var amt = parseFloat($("#exampleInputDollar").val().replace('$', ''));
-  amt = amt.toFixed(2);
-  $.get(
-  "dynamic/auth.php",
-  {
-  amount: amt,
-  },
-  function(authResp) {
-  $UI.Initialize({
-  clientId: authResp.clientId,
-  merchantId: authResp.merch,
-  authKey: authResp.authKey,
-  requestType: "payment",
-  orderNumber: authResp.invoice,
-  amount: amt,
-  elementId: "paymentDiv",
-  postbackUrl: authResp.postback,
-  salt: authResp.salt,
-  addFakeData: true
-  });
-  $UI.setCallback(function(resp) {
-  console.log(resp.getResponse());
-  $("#paymentResponse").text(
-  resp.getRawResponse()
-  );
-  $("#paymentButton").prop('disabled', false);
-  });
-  $("#paymentDiv").show('slow');
-  },
-  "json"
-  );
-  });
+    $("#paymentButton").click(function() {
+      console.log('foo');
+      $(this).prop('disabled', true);
+      $("#paymentResponse").text("The response will appear here as JSON, and in your browser console as a JavaScript object.");
+      var amt = parseFloat($("#exampleInputDollar").val().replace('$', '')).toFixed(2);
+      $.get(
+        "custom",
+        {
+          amount: amt,
+        },
+        function(authResp) {
+          authResp.elementId = 'paymentDiv';
+          authResp.addFakeData = true;
+          $UI.Initialize(authResp);
+          $UI.setCallback(function(resp) {
+            console.log(resp.getResponse());
+            $("#paymentResponse").text(resp.getRawResponse());
+            $("#paymentButton").prop('disabled', false);
+          });
+          $("#paymentDiv").show('slow');
+        },
+        "json"
+      );
+    });
   });

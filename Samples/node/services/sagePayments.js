@@ -29,18 +29,35 @@ function getBaseRequest() {
     };
 }
 
-function getAuthedRequest(){
+function getPreppedBaseRequest() {
     const newRequest = getBaseRequest();
     const nonces = getSecureNonces();
     newRequest.orderNumber =  Date.now().toString();
     newRequest.salt = nonces.salt;
     newRequest.merchantKey = config.merchant.key;
+    return [newRequest, nonces];
+}
+
+function getAuthedRequest() {
+    const br = getPreppedBaseRequest();
+    const newRequest = br[0];
+    const nonces = br[1];
     newRequest.authKey = getAuthKey(JSON.stringify(newRequest), nonces, config.developer.key);
     delete newRequest.merchantKey;
     return newRequest;
 }
 
-function getSecureNonces(){
+function getCustomRequest(customValues) {
+    const br = getPreppedBaseRequest();
+    const newRequest = br[0];
+    const nonces = br[1];
+    Object.keys(customValues).map(key => newRequest[key] = customValues[key]);
+    newRequest.authKey = getAuthKey(JSON.stringify(newRequest), nonces, config.developer.key);
+    delete newRequest.merchantKey;
+    return newRequest;
+}
+
+function getSecureNonces() {
     const iv = crypto.lib.WordArray.random(16)
     const salt = crypto.enc.Base64.stringify(crypto.enc.Utf8.parse(crypto.enc.Hex.stringify(iv)));
     return {
@@ -49,14 +66,13 @@ function getSecureNonces(){
     }
 }
 
-function getAuthKey(message, nonces, secret){
+function getAuthKey(message, nonces, secret) {
     var derivedPassword = crypto.PBKDF2(secret, nonces.salt, { keySize: 256/32, iterations: 1500, hasher: crypto.algo.SHA1 });
     var encrypted = crypto.AES.encrypt(message, derivedPassword, { iv: nonces.iv });
     return encrypted.toString();
 }
 
 module.exports = {
-    getInitialization: () => {
-        return getAuthedRequest();
-    }
+    getInitialization: () => getAuthedRequest(),
+    getCustomInitialization: (customValues) => getCustomRequest(customValues)
 }
