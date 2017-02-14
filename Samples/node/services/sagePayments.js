@@ -72,7 +72,16 @@ function getAuthKey(message, nonces, secret) {
     return encrypted.toString();
 }
 
+function getHmac(string, secret) {
+    const hmac = crypto.HmacSHA512(string, secret);
+    return crypto.enc.Base64.stringify(hmac);
+}
+
 module.exports = {
     getInitialization: () => getAuthedRequest(),
-    getCustomInitialization: (customValues) => getCustomRequest(customValues)
+    getCustomInitialization: customValues => getCustomRequest(customValues),
+    getResponseHashes: response => ({
+        RequestIdHash: getHmac(response.RequestId, config.developer.key),
+        ResponseHash: getHmac(response.Response, config.developer.key),
+    })
 }
