@@ -11,59 +11,40 @@
     h5 Results:
     p(style='width:100%')
       pre.
+        <code id="paymentResponse">The response will appear here as JSON, and in your browser console as a JavaScript object.</code>
+script(type='text/javascript') window.sageInit = !{initialization}
 script(type='text/javascript').
   PayJS(['PayJS/Request', 'PayJS/Response', 'PayJS/Core', 'PayJS/UI', 'jquery'],
   function($REQ, $RESP, $CORE, $UI, $) {
-  $UI.Initialize({
-  clientId: "<?php echo $developer['ID']; ?>",
-  postbackUrl: "<?php echo $vault_req['postbackUrl']; ?>",
-  merchantId: "<?php echo $vault_req['merchantId']; ?>",
-  authKey: "<?php echo $vault_authKey; ?>",
-  salt: "<?php echo $vault_req['salt']; ?>",
-  requestType: "<?php echo $vault_req['requestType']; ?>",
-  orderNumber: "<?php echo $vault_req['orderNumber']; ?>",
-  elementId: "vaultButton",
-  addFakeData: true
-  });
-  $UI.setCallback(function(vaultResponse) {
-  $("#paymentResponse").text(
-  vaultResponse.getRawResponse()
-  );
-  if (vaultResponse.getVaultSuccess()) {
-  $("#vaultButton").prop('disabled', true);
-  $.get(
-  "vault/auth.php",
-  {
-  token: vaultResponse.getVaultToken(),
-  },
-  function(authResp) {
-  $CORE.Initialize({
-  clientId: authResp.clientId,
-  merchantId: authResp.merch,
-  authKey: authResp.authKey,
-  requestType: "payment",
-  orderNumber: authResp.invoice,
-  amount: authResp.amount,
-  postbackUrl: authResp.postback,
-  salt: authResp.salt
-  });
-  $("#paymentButton").prop('disabled', false);
-  $("#paymentButton").click(function() {
-  $("#paymentButton").prop('disabled', true);
-  $("#paymentResponse").text("The response will appear here as JSON, and in your browser console as a JavaScript object.");
-  $REQ.doTokenPayment(vaultResponse.getVaultToken(), "123", function(paymentResponse) {
-  $RESP.tryParse(paymentResponse);
-  console.log($RESP.getResponse());
-  $("#paymentResponse").text(
-  $RESP.getRawResponse()
-  );
-  });
-  })
-  },
-  "json"
-  );
-  } else {
-  // ...
-  }
-  });
+    sageInit.elementId = 'vaultButton';
+    sageInit.addFakeData = true;
+    $UI.Initialize(sageInit);
+    $UI.setCallback(function(vaultResponse) {
+      $("#paymentResponse").text(vaultResponse.getRawResponse());
+      if (vaultResponse.getVaultSuccess()) {
+        $("#vaultButton").prop('disabled', true);
+        $.get(
+          "custom",
+          {
+            token: vaultResponse.getVaultToken(),
+          },
+          function(authResp) {
+            $CORE.Initialize(authResp);
+            $("#paymentButton").prop('disabled', false);
+            $("#paymentButton").click(function() {
+            $("#paymentButton").prop('disabled', true);
+            $("#paymentResponse").text("The response will appear here as JSON, and in your browser console as a JavaScript object.");
+            $REQ.doTokenPayment(vaultResponse.getVaultToken(), "123", function(paymentResponse) {
+              $RESP.tryParse(paymentResponse);
+              console.log($RESP.getResponse());
+              $("#paymentResponse").text($RESP.getRawResponse());
+              });
+            })
+          },
+          "json"
+        );
+      } else {
+        // ...
+      }
+    });
   });
