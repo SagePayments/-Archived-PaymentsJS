@@ -2,8 +2,8 @@ const crypto = require('crypto-js');
 
 const config = {
     merchant: {
-        id: "999999999997",
-        key: "K3QD6YWyhfD",
+        id: "173859436515",
+        key: "P1J2V8P2Q3D8",
     },
     developer: {
         id: "7SMmEF02WyC7H5TSdG1KssOQlwOOCagb",
