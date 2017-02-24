@@ -974,7 +974,7 @@ Notes:
 ## <a name="Changelog"></a>Changelog
 
 ---
-### **1.0.1.0000XX**
+### **1.0.1.000034**
 
 BUG FIXES: 
 - User is no longer able to hide the modal dialog while a request is pending.
