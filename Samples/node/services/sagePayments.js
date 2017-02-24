@@ -6,8 +6,8 @@ const config = {
         key: "K3QD6YWyhfD",
     },
     developer: {
-        id: "GTq2h4mXxLIBtzbOWLO2GwqZfOgK8BbT",//"7SMmEF02WyC7H5TSdG1KssOQlwOOCagb",
-        key: "ICkrA2n6HIleJ663",//"wtC5Ns0jbtiNA8sP",
+        id: "7SMmEF02WyC7H5TSdG1KssOQlwOOCagb",
+        key: "wtC5Ns0jbtiNA8sP",
     },
     postbackUrl: "https://www.example.com/myHandler.php", // https://requestb.in is great for playing with this
     environment: "cert",
