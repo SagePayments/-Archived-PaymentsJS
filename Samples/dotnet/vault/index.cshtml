@@ -15,22 +15,6 @@
     };
     string vault_jsonReq = JsonConvert.SerializeObject(vault_request);
     string vault_AuthKey = Shared.GetAuthKey(vault_jsonReq, Shared.DeveloperKEY, vault_Nonces.IV, vault_Nonces.Salt);
-
-    // for the payment request:
-    Nonces payment_Nonces = Shared.GetNonces();
-    var payment_request = new
-    {
-        merchantId = Shared.MerchantID,
-        merchantKey = Shared.MerchantKEY,
-        requestType = "payment",
-        orderNumber = "Invoice" + (new Random()).Next(100).ToString(),
-        salt = payment_Nonces.Salt,
-        postbackUrl = Shared.PostbackUrl,
-        amount = Shared.Amount,
-        preAuth = Shared.PreAuth
-    };
-    string payment_jsonReq = JsonConvert.SerializeObject(payment_request);
-    string payment_AuthKey = Shared.GetAuthKey(payment_jsonReq, Shared.DeveloperKEY, payment_Nonces.IV, payment_Nonces.Salt);
 }
 
 <div class="wrapper text-center">
@@ -61,34 +45,42 @@
             addFakeData: true
         });
         $UI.setCallback(function(vaultResponse) {
-            console.log(vaultResponse.getResponse());
             $("#paymentResponse").text(
-                vaultResponse.getResponse({ "json": true })
+                vaultResponse.getRawResponse()
             );
             if (vaultResponse.getVaultSuccess()) {
                 $("#vaultButton").prop('disabled', true);
-                $("#paymentButton").prop('disabled', false);
-                $("#paymentButton").click(function() {
-                    $("#paymentButton").prop('disabled', true);
-                    $("#paymentResponse").text("The response will appear here as JSON, and in your browser console as a JavaScript object.");
-                    $CORE.Initialize({
-                        amount: "@payment_request.amount",
-                        clientId: "@Shared.DeveloperID",
-                        postbackUrl: "@payment_request.postbackUrl",
-                        merchantId: "@payment_request.merchantId",
-                        authKey: "@payment_AuthKey",
-                        salt: "@payment_request.salt",
-                        requestType: "@payment_request.requestType",
-                        orderNumber: "@payment_request.orderNumber",
-                    });
-                    $REQ.doTokenPayment(vaultResponse.getVaultToken(), "123", function(paymentResponse) {
-                        console.log(paymentResponse);
-                        $RESP.tryParse(paymentResponse);
-                        $("#paymentResponse").text(
-                            $RESP.getResponse({"json": true})
-                        );
-                    });
-                })
+                $.get(
+                    "vault/auth.cshtml",
+                    {
+                        token: vaultResponse.getVaultToken(),
+                    },
+                    function(authResp) {
+                        $CORE.Initialize({
+                            clientId: authResp.clientId,
+                            merchantId: authResp.merch,
+                            authKey: authResp.authKey,
+                            requestType: "payment",
+                            orderNumber: authResp.invoice,
+                            amount: authResp.amount,
+                            postbackUrl: authResp.postback,
+                            salt: authResp.salt
+                        });
+                        $("#paymentButton").prop('disabled', false);
+                        $("#paymentButton").click(function() {
+                            $("#paymentButton").prop('disabled', true);
+                            $("#paymentResponse").text("The response will appear here as JSON, and in your browser console as a JavaScript object.");
+                            $REQ.doTokenPayment(vaultResponse.getVaultToken(), "123", function(paymentResponse) {
+                                $RESP.tryParse(paymentResponse);
+                                console.log($RESP.getResponse());
+                                $("#paymentResponse").text(
+                                    $RESP.getRawResponse()
+                                );
+                            });
+                        })
+                    },
+                    "json"
+                );
             } else {
                 // ...
             }

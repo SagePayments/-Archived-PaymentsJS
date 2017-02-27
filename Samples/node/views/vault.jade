@@ -1,0 +1,50 @@
+.wrapper.text-center
+  h1 Tokenization
+  p
+    | Not ready to charge a card, or expecting to charge it multiple times? Run a vault-only request to store the card, then charge it when you're ready.
+  br
+  div
+    button#vaultButton.btn.btn-primary Store Card
+    button#paymentButton.btn.btn-warning(disabled='') Charge Card
+    br
+    br
+    h5 Results:
+    p(style='width:100%')
+      pre.
+        <code id="paymentResponse">The response will appear here as JSON, and in your browser console as a JavaScript object.</code>
+script(type='text/javascript') window.sageInit = !{initialization}
+script(type='text/javascript').
+  PayJS(['PayJS/Request', 'PayJS/Response', 'PayJS/Core', 'PayJS/UI', 'jquery'],
+  function($REQ, $RESP, $CORE, $UI, $) {
+    sageInit.elementId = 'vaultButton';
+    sageInit.addFakeData = true;
+    $UI.Initialize(sageInit);
+    $UI.setCallback(function(vaultResponse) {
+      $("#paymentResponse").text(vaultResponse.getRawResponse());
+      if (vaultResponse.getVaultSuccess()) {
+        $("#vaultButton").prop('disabled', true);
+        $.get(
+          "custom",
+          {
+            token: vaultResponse.getVaultToken(),
+          },
+          function(authResp) {
+            $CORE.Initialize(authResp);
+            $("#paymentButton").prop('disabled', false);
+            $("#paymentButton").click(function() {
+            $("#paymentButton").prop('disabled', true);
+            $("#paymentResponse").text("The response will appear here as JSON, and in your browser console as a JavaScript object.");
+            $REQ.doTokenPayment(vaultResponse.getVaultToken(), "123", function(paymentResponse) {
+              $RESP.tryParse(paymentResponse);
+              console.log($RESP.getResponse());
+              $("#paymentResponse").text($RESP.getRawResponse());
+              });
+            })
+          },
+          "json"
+        );
+      } else {
+        // ...
+      }
+    });
+  });

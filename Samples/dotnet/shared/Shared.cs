@@ -73,11 +73,32 @@ namespace PayJS_Samples.Misc
                 hex.AppendFormat("{0:x2}", b);
             return hex.ToString();
         }
+
+        public static string GetHmac(string toHash, string privateKey)
+        {
+            byte[] msgBytes = UTF8Encoding.UTF8.GetBytes(toHash);
+            byte[] keyBytes = UTF8Encoding.UTF8.GetBytes(privateKey);
+            using (var HMAC = new HMACSHA512(keyBytes))
+            {
+                byte[] hash = HMAC.ComputeHash(msgBytes);
+                return Convert.ToBase64String(hash);
+            }
+        }
     }
 
     public class Nonces
     {
         public byte[] IV;
         public string Salt;
+    }
+
+    public class PayJSResponse
+    {
+        public string RequestId;
+        public string RequestIdHash;
+        public string Response;
+        public string ResponseHash;
+        public string Data;
+        public string DataHash;
     }
 }

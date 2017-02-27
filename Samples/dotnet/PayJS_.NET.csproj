@@ -127,9 +127,12 @@
     <Content Include="dynamic\index.html" />
     <Content Include="dynamic\auth.cshtml" />
     <Content Include="adaptive\index.cshtml" />
+    <Content Include="vault\auth.cshtml" />
+    <Content Include="response\index.cshtml" />
     <None Include="Properties\PublishProfiles\QA.pubxml" />
     <None Include="require\index.cshtml" />
     <Content Include="vault\index.cshtml" />
+    <Content Include="response\verify.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

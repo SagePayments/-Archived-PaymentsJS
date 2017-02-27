@@ -81,7 +81,7 @@
         $UI.setCallback(function($RESP) { // the callback function receives an instance of the RESPONSE module
             console.log($RESP.getResponse());
             $("#paymentResponse").text(
-                $RESP.getResponse({ "json": true })
+                $RESP.getRawResponse()
             );
             // the response includes the gateway response, plus a SHA512 HMAC of the gateway response
             // the HMAC uses your developer key to sign the response payload

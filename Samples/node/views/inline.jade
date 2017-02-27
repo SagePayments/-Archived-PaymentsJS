@@ -1,0 +1,36 @@
+style.
+  #paymentDiv {
+    width: 60%;
+    margin-left:auto;
+    margin-right:auto;
+    padding: 30px;
+    border-width: thin;
+    border-style: dotted;
+    border-color: #3c424f;
+  }
+.wrapper.text-center
+  h1 Inline
+  p
+    | When PayJS is initialized with a 
+    code &lt;div&gt;
+    | , the UI appears within that element:
+  br
+  div#paymentDiv
+  br
+  br
+  h5 Results:
+  p(style='width:100%')
+    pre.
+      <code id="paymentResponse">The response will appear here as JSON, and in your browser console as a JavaScript object.</code>
+script(type='text/javascript') window.sageInit = !{initialization}
+script(type='text/javascript').
+  PayJS(['PayJS/UI', 'jquery'],
+  function($UI, $) {
+    sageInit.elementId = 'paymentDiv';
+    sageInit.addFakeData = true;
+    $UI.Initialize(sageInit);
+    $UI.setCallback(function($RESP) {
+      console.log($RESP.getResponse());
+      $("#paymentResponse").text($RESP.getRawResponse());
+    });
+  });

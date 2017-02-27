@@ -1,0 +1,62 @@
+.wrapper.text-center
+  h1 Response Integrity
+  p
+    | The response data returned from the API includes hashes of the various elements, which should be used to verify their integrity. This page runs a transaction upon loading; when you're ready, send it to the server for hash verification:
+  br
+  div
+    h5 Result:
+    textarea#paymentResponse(style='font-family: monospace; width:100%;', rows='6')
+    br
+    br
+    button#verifyButton.btn.btn-primary(disabled='') Verify
+    br
+    br
+    h5 Hash Verification:
+    .compare
+      input#reqIdHashClient.form-control.disabled(type='text', style='font-family: monospace; width:48%;', placeholder='')
+      input#reqIdHashServer.form-control.disabled(type='text', style='font-family: monospace; width:48%;', placeholder='')
+    br
+    br
+    .compare
+      input#respHashClient.form-control.disabled(type='text', style='font-family: monospace; width:48%;', placeholder='')
+      input#respHashServer.form-control.disabled(type='text', style='font-family: monospace; width:48%;', placeholder='')
+      script(type='text/javascript') window.sageInit = !{initialization}
+script(type='text/javascript').
+  PayJS(['PayJS/Core', 'PayJS/Request', 'PayJS/Response', 'jquery'],
+  function($CORE, $REQ, $RESP, $) {
+    $CORE.Initialize(sageInit);
+    $REQ.doPayment("5454545454545454", "1220", "123", function(resp) {
+      $("#verifyButton").prop('disabled', false);
+      $RESP.tryParse(resp);
+      var rawResponse = ((typeof (r = $RESP.getRawResponse()) == "string") ? r : r.responseText);
+      $("#paymentResponse").text(rawResponse);
+      $("#verifyButton").click(function() {
+        $("#verifyButton").prop('disabled', true);
+        var editedResponse = $("#paymentResponse").val();
+        var o = JSON.parse(editedResponse);
+        $('#reqIdHashClient').val(o.RequestIdHash);
+        $('#respHashClient').val(o.ResponseHash);
+        $.post(
+          "hashes",
+          { resp: editedResponse },
+          function(r) {
+            $("#verifyButton").prop('disabled', false);
+            $('#reqIdHashServer').val(r.RequestIdHash);
+            $('#respHashServer').val(r.ResponseHash);
+            $('.compare').each(function(index, element) {
+              var kids = $(element).children();
+              var client = $(kids[0]).val();
+              var server = $(kids[1]).val();
+              kids.css("color", client === server ? 'green' : 'red');
+            })
+          },
+        "json"
+        );
+      })
+  })
+  function getEditedResponseText() {
+    console.log($("#paymentResponse").text());
+    console.log();
+    return $("#paymentResponse").text();
+  }
+  });

@@ -1,0 +1,56 @@
+style.
+  #paymentDiv {
+  width: 60%;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 15px;
+  }
+.wrapper.text-center
+  h1 Dynamic
+  p
+    | It's not always possible to know all the initialization data up front — for instance, a non-profit might want to offer users several different donation amounts. Since the authKey encryption needs to be done server-side, and include the amount, these cases require an extra step:
+  br
+  div
+    form.form
+      .form-group
+        label.control-label Amount
+        input#exampleInputDollar.form-control.currency(type='text', value='$1.00')
+      button#paymentButton.btn.btn-primary Pay Now
+    #paymentDiv(hidden='')
+    br
+    br
+    h5 Results:
+    p(style='width:100%')
+      pre.
+        <code id="paymentResponse">The response will appear here as JSON, and in your browser console as a JavaScript object.</code>
+script(type='text/javascript').
+  console.log('bar');
+  // this time, when the user submits, we'll send the amount to a server-side
+  // script that returns the data we'll need for initialization.
+  PayJS(['PayJS/UI', 'jquery'],
+  function($UI, $) {
+    $("#paymentButton").click(function() {
+      console.log('foo');
+      $(this).prop('disabled', true);
+      $("#paymentResponse").text("The response will appear here as JSON, and in your browser console as a JavaScript object.");
+      var amt = parseFloat($("#exampleInputDollar").val().replace('$', '')).toFixed(2);
+      $.get(
+        "custom",
+        {
+          amount: amt,
+        },
+        function(authResp) {
+          authResp.elementId = 'paymentDiv';
+          authResp.addFakeData = true;
+          $UI.Initialize(authResp);
+          $UI.setCallback(function(resp) {
+            console.log(resp.getResponse());
+            $("#paymentResponse").text(resp.getRawResponse());
+            $("#paymentButton").prop('disabled', false);
+          });
+          $("#paymentDiv").show('slow');
+        },
+        "json"
+      );
+    });
+  });

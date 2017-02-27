@@ -1,0 +1,33 @@
+﻿@using PayJS_Samples.Misc
+@using Newtonsoft.Json;
+@{
+    string Token = HttpContext.Current.Request.QueryString["token"];
+    Nonces Nonces = Shared.GetNonces();
+
+    var request = new
+    {
+        merchantId = Shared.MerchantID,
+        merchantKey = Shared.MerchantKEY, // don't include the Merchant Key in the JavaScript initialization!
+        requestType = "payment",
+        orderNumber = "Invoice" + (new Random()).Next(100).ToString(),
+        amount = Shared.Amount,
+        salt = Nonces.Salt,
+        postbackUrl = Shared.PostbackUrl,
+        preAuth = Shared.PreAuth,
+        token = Token
+    };
+
+    string jsonReq = JsonConvert.SerializeObject(request);
+    string AuthKey = Shared.GetAuthKey(jsonReq, Shared.DeveloperKEY, Nonces.IV, Nonces.Salt);
+
+    HttpContext.Current.Response.ContentType = "text/json";
+}{
+    "authKey": "@AuthKey",
+    "invoice": "@request.orderNumber",
+    "salt": "@request.salt",
+    "amount": "@request.amount",
+    "merch": "@request.merchantId",
+    "clientId": "@Shared.DeveloperID",
+    "postback": "@request.postbackUrl"
+}
+

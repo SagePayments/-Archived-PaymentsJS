@@ -1,0 +1,221 @@
+style.
+  #paymentResponse.alert{
+    background-color: #3c424f;
+    color: white;
+    opacity: 0;
+  }
+  .form-control{
+    width: 50%;
+  }
+  #customFormWrapper{
+    padding: 15px;
+  }
+  #customFormWrapper.static{
+    background: repeating-linear-gradient(
+      -45deg,
+      #3c424f,
+      #3c424f 10px,
+      #f5f5f5 10px,
+      #f5f5f5 20px
+    );
+  }
+  #customFormWrapper.animated{
+    background-image: repeating-linear-gradient(-45deg, #3c424f, #3c424f 10px, #f5f5f5 10px, #f5f5f5 20px);
+    -webkit-animation:progress 2s linear infinite;
+    -moz-animation:progress 2s linear infinite;
+    -ms-animation:progress 2s linear infinite;
+    animation:progress 2s linear infinite;
+    background-size: 150% 100%;
+  }
+  #myCustomForm{
+    padding-top: 15px;
+    padding-bottom: 15px;
+    background-color: white;
+  }
+  #paymentButton.not-disabled{
+    background-color: #3c424f;
+    border-color: #01db00;
+  }
+  @-webkit-keyframes progress{
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: -75px 0px;
+    }
+  }
+  @-moz-keyframes progress{
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: -75px 0px;
+    }
+  }
+  @keyframes progress{
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: -70px 0px;
+    }
+  }
+.wrapper.text-center
+  h1 JS-Only
+  p
+    | If you need more flexibility than the PayJS UI offers, use the other modules to power your own payment form:
+pre.
+  <code>    PayJS(['jquery', 'PayJS/Core', 'PayJS/Request', 'PayJS/Response', 'PayJS/Formatting', 'PayJS/Validation'],
+      function($, $CORE, $REQUEST, $RESPONSE, $FORMATTING, $VALIDATION) {
+        $CORE.Initialize({
+            <i>(...)</i>
+        });
+        $("#paymentButton").click(function() {    
+            $REQUEST.doPayment(cc, exp, cvv, function(resp) {
+                $RESPONSE.tryParse(resp);
+                var isApproved = $RESPONSE.getTransactionSuccess();
+                <i>(...)</i>
+            })
+        });
+        $("#cc_number").blur(function() {
+            var cc = $("#cc_number").val();
+            cc = $FORMATTING.formatCardNumberInput(cc, '-');
+            $("#cc_number").val(cc);
+            if ($VALIDATION.isValidCreditCard(cc, cc[0])) {
+                <i>(...)</i>
+            }
+        })
+        <i>(...)</i>
+    });</code>
+.wrapper.text-center
+  #customFormWrapper.static
+    form#myCustomForm.form
+      h1 Checkout Now
+      #name-group.form-group.billing
+        label.control-label Name
+        input#billing_name.form-control(type='text', value='', placeholder='')
+        span.help-block
+      #address-group.form-group.billing
+        label.control-label Street Address
+        input#billing_street.form-control(type='text', value='', placeholder='')
+        span.help-block
+      #city-group.form-group.billing
+        label.control-label City
+        input#billing_city.form-control(type='text', value='', placeholder='')
+        span.help-block
+      #state-group.form-group.billing
+        label.control-label State
+        input#billing_state.form-control(type='text', value='', placeholder='')
+        span.help-block
+      #zip-group.form-group.billing
+        label.control-label Zip
+        input#billing_zip.form-control(type='text', value='', placeholder='')
+        span.help-block
+      #cc-group.form-group.cc
+        label.control-label Credit Card Number
+        input#cc_number.form-control(type='text', value='', placeholder='')
+        span.help-block
+      #exp-group.form-group.cc
+        label.control-label Expiration Date
+        input#cc_expiration.form-control(type='text', value='', placeholder='')
+        span.help-block
+      #cvv-group.form-group.cc
+        label.control-label CVV
+        input#cc_cvv.form-control(type='text', value='', placeholder='')
+        span.help-block
+      button#paymentButton.btn.btn-primary Pay Now
+    // <br /><br />
+    // <h5>Results:</h5>
+    // <p style="width:100%"><pre><code id="paymentResponse">The response will appear here as JSON, and in your browser console as a JavaScript object.</code></pre></p>
+  #paymentResponse.alert.alert-success(role='alert')
+br
+br
+br
+script(type='text/javascript') window.sageInit = !{initialization}
+script(type='text/javascript').
+  PayJS(['jquery', 'PayJS/Core', 'PayJS/Request', 'PayJS/Response', 'PayJS/Formatting', 'PayJS/Validation'],
+  function($, $CORE, $REQUEST, $RESPONSE, $FORMATTING, $VALIDATION) {
+    $("#paymentButton").prop('disabled', true);
+    var isValidCC = false,
+    isValidExp = false,
+    isValidCVV = false;
+    // when using REQUEST library, initialize via CORE instead of UI
+    $CORE.Initialize(sageInit);
+    $("#paymentButton").click(function() {
+      $(this).prop('disabled', true).removeClass("not-disabled");
+      $("#myCustomForm :input").prop('disabled', true);
+      $("#customFormWrapper").addClass("animated").removeClass("static");
+      $("#customFormWrapper").fadeTo(2000, 0.1);
+      // we'll add on the billing data that we collected
+      $CORE.setBilling({
+        name: $("#billing_name").val(),
+        address: $("#billing_street").val(),
+        city: $("#billing_city").val(),
+        state: $("#billing_state").val(),
+        postalCode: $("#billing_zip").val()
+      });
+      var cc = $("#cc_number").val();
+      var exp = $("#cc_expiration").val();
+      var cvv = $("#cc_cvv").val();
+      // run the payment
+      $REQUEST.doPayment(cc, exp, cvv, function(resp) {
+      // if you want to use the RESPONSE module with REQUEST, run the ajax response through tryParse...
+        $RESPONSE.tryParse(resp);
+        // ... which will initialize the RESPONSE module's getters
+        console.log($RESPONSE.getResponse());
+        $("#paymentResponse").text($RESPONSE.getTransactionSuccess() ? "APPROVED" : "DECLINED")
+        $("#customFormWrapper").hide();
+        $("#paymentResponse").fadeTo(1000, 1);
+      })
+    })
+    $(".billing .form-control").blur(function(){
+      toggleClasses($(this).val().length > 0, $(this).parent());
+      checkForCompleteAndValidForm();
+    })
+    $("#cc_number").blur(function() {
+      var cc = $("#cc_number").val();
+      // we'll format the credit card number with dashes
+      cc = $FORMATTING.formatCardNumberInput(cc, '-');
+      $("#cc_number").val(cc);
+      // and then check it for validity
+      isValidCC = $VALIDATION.isValidCreditCard(cc);
+      toggleClasses(isValidCC, $("#cc-group"));
+      checkForCompleteAndValidForm();
+    })
+    $("#cc_expiration").blur(function() {
+      var exp = $("#cc_expiration").val();
+      exp = $FORMATTING.formatExpirationDateInput(exp, '/');
+      $("#cc_expiration").val(exp);
+      isValidExp = $VALIDATION.isValidExpirationDate(exp);
+      toggleClasses(isValidExp, $("#exp-group"));
+      checkForCompleteAndValidForm();
+    })
+    $("#cc_cvv").blur(function() {
+      var cvv = $("#cc_cvv").val();
+      cvv = cvv.replace(/\\D/g,'');
+      $("#cc_cvv").val(cvv);
+      isValidCVV = $VALIDATION.isValidCvv(cvv, $("#cc_number").val()[0]);
+      toggleClasses(isValidCVV, $("#cvv-group"));
+      checkForCompleteAndValidForm();
+    })
+    function toggleClasses(isValid, obj) {
+      if (isValid) {
+        obj.addClass("has-success").removeClass("has-error");
+        obj.children(".help-block").text("Valid");
+      } else {
+        obj.removeClass("has-success").addClass("has-error");
+        obj.children(".help-block").text("Invalid");
+      }
+    }
+    function checkForCompleteAndValidForm() {
+      var isValidBilling = true;
+      $.each($(".billing"), function(){ 
+        isValidBilling = isValidBilling && $(this).hasClass("has-success");
+      });
+      // assuming most people fill out the form from top-to-bottom,
+      // checking it from bottom-to-top takes advantage of short-circuiting
+      if (isValidCVV && isValidExp && isValidCC && isValidBilling) {
+        $("#paymentButton").prop('disabled', false).addClass("not-disabled");
+      }
+    }
+  });

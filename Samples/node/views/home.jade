@@ -1,0 +1,52 @@
+h1 PayJS Node Samples
+h3 Overview
+p These samples show several different ways of using PayJS:
+ul
+  li
+    a(href='#/modal') Modal
+    |  — display the UI over the page content when a 
+    code &lt;button&gt;
+    |  or 
+    code &lt;a&gt;
+    | is clicked
+  li
+    a(href='#/inline') Inline
+    |  — display the UI inside a 
+    code &lt;div&gt;
+    |  or other similar element
+  li
+    a(href='#/require') RequireJS
+    |  — load the PayJS library on a page that uses RequireJS
+  li
+    a(href='#/dynamic') Dynamic
+    |  — use a simple ajax helper to facilitate lazy initialization
+  li
+    a(href='#/js-only') JS-Only
+    |  — use the PayJS library to power your own payment forms
+  li
+    a(href='#/adaptive') Adaptive
+    |  — see the UI adapt to various container sizes
+  li
+    a(href='#/vault') Tokens
+    |  — tokenize payment data for later use
+  li
+    a(href='#/response') Responses
+    |  — verify response integrity via hashes
+p
+  | These samples and documentation are available on 
+  a(href='https://github.com/SagePayments/PaymentsJS') GitHub
+  | .
+h3 Testing
+p
+  | By default, these samples use fake merchant credentials that only accept certain credit card numbers.
+p The following credit card numbers can be safely used:
+ul
+  li 4111-1111-1111-1111 — Visa
+  li 5454-5454-5454-5454 — MasterCard
+  li 6011-0009-9302-6909 — Discover
+  li 3714-496353-92376 — American Express
+p Additionally, the following dollar amounts will produce specific results:
+ul
+  li $1.xx — Approved
+  li $2.xx — Declined
+  li $16.xx — Error

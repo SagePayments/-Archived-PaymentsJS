@@ -1,0 +1,37 @@
+style.
+  .resizeable {
+        resize:horizontal;
+        overflow: auto;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 15px;
+        border-width: thin;
+        border-style: dotted;
+        border-color: #3c424f;
+    }
+.wrapper.text-center
+  h1 Adaptive
+  p
+    | The PayJS UI will adjust itself to the width of its container. Try stretching out this 
+    code &lt;div&gt;
+    | :
+  br
+  div#paymentDiv.resizeable(style='width:35%')
+  br
+  br
+  h5 Results:
+  p(style='width:100%')
+    pre.
+      <code id="paymentResponse">The response will appear here as JSON, and in your browser console as a JavaScript object.</code>
+script(type='text/javascript') window.sageInit = !{initialization}
+script(type='text/javascript').
+  PayJS(['PayJS/UI', 'jquery'],
+  function($UI, $) {
+    sageInit.elementId = 'paymentDiv';
+    sageInit.addFakeData = true;
+    $UI.Initialize(sageInit);
+    $UI.setCallback(function($RESP) {
+      console.log($RESP.getResponse());
+      $("#paymentResponse").text($RESP.getRawResponse());
+    });
+  });

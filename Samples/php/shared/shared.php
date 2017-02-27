@@ -33,5 +33,9 @@
             "salt" => $salt
         ];
     }
+
+    function getHmac($toBeHashed, $privateKey){
+        return base64_encode(hash_hmac('sha512', $toBeHashed, $privateKey, true));
+    }
     
 ?>

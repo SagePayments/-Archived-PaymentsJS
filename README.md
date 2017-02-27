@@ -14,63 +14,63 @@ PaymentsJS is a JavaScript library that enables developers to quickly start proc
 ---
 ## <a name="QuickStart"></a>Quick Start
 
-Add the script to your page:
+Add the library:
 
 ```html
-<script type="text/javascript" src="https://www.sagepayments.net/pay/1.0.0/js/pay.min.js"></script>
+<script type="text/javascript" src="https://www.sagepayments.net/pay/1.0.1/js/pay.min.js"></script>
 ```
 
-And, just for the sake of this sample, add a button:
+And a button:
 
 ```html
 <button id="paymentButton">Pay Now</button>
 ```
 
-Then, in a separate `<script>` tag, initialize the library:
+Then initialize the UI:
 
-```javascript
-PayJS(['PayJS/UI'], // the name of the module we want to use
-function($UI) { // assigning the module to a variable
-    $UI.Initialize({ // configuring the UI
-        clientId: "myDeveloperId", // your developer ID
-        merchantId: "999999999997", // your 12-digit account identifier
-        authKey: "ABCD==", // covered in the authKey section
-        requestType: "payment", // use can use "vault" to tokenize a card without charging it
-        orderNumber: "Invoice12345", // an order number, customer or account identifier, etc.
-        amount: "1.00", // the amount to charge the card. in test mode, different amounts produce different results.
-        elementId: "paymentButton", // the page element that will trigger the UI
-        salt: "DEFG==", // see the authKey section
-        debug: true, // enables verbose console logging
-        addFakeData: true // pre-fill the payment form with fake credit card data
+```html
+<script type="text/javascript">
+    PayJS(['PayJS/UI'], // loading the UI module...
+    function($UI) { // ... and assigning it to a variable
+        $UI.Initialize({
+            elementId: "paymentButton",
+            // identifiers (no keys!):
+            clientId: "myClientId", // https://developer.sagepayments.com/user/register
+            merchantId: "999999999997",
+            // auth, covered later:
+            authKey: "ABCD==",
+            salt: "DEFG==",
+            // config:
+            requestType: "payment", // or "vault" to tokenize a card for later
+            amount: "1.00",
+            orderNumber: "Invoice12345",
+            // convenience:
+            addFakeData: true,
+        });
     });
-    $UI.setCallback(function(result) { // custom code that will execute when the UI receives a response
-        console.log(result.getResponse()); // log the result to the console
-        var wasApproved = result.getTransactionSuccess();
-        console.log(wasApproved ? "ka-ching!" : "bummer");
-    });
-});
+</script>
 ```
-At this point, clicking on `paymentButton` will make the payment form pop up! You can attempt a transaction, but it will be rejected... so our next step is to calculate the `authKey`.
+Clicking on `paymentButton` will make the payment window appear. You can submit the transaction, but it won't succeed -- so our next step is to calculate the `authKey`.
 
 ---
 ## <a name="Authentication"></a>Authentication & Verification
 
+Credit card data moves directly between the user's browser and Sage Payment Solutions' secure payment gateway. This is great news for your server, which doesn't have to touch any sensitive data; but, as with any client-side code, it means we have to be wary of malicious users.
+
 #### <a name="authKey"></a>authKey
 
-Credit card data moves directly between the user's browser and Sage Payment Solutions' secure payment gateway. This is great news for your server, which doesn't have to touch any sensitive data! But, as with any client-side code, it means we have to take seriously the possibility of malicious users making changes to the request.
+The `authKey` is an encrypted version of the configuration settings that you pass into [`UI.Initialize()`](#ref.UI.Initialize) or [`CORE.Initialize()`](#ref.Core.Initialize). We'll decrypt the `authKey` and compare it to the request body, to make sure that what we received matches what you were expecting. This is also how you send us your `merchantKey`, which should never be exposed to the client browser.
 
-The `authKey` is an encrypted version of the configuration settings that you pass into the [`UI.Initialize()`](#ref.UI.Initialize) (or [`CORE.Initialize()`](#ref.Core.Initialize)) method. We'll decrypt the `authKey` and compare it to the request body, to make sure that what we received matches what you were expecting. This is also how you send us your `merchantKey`, **which should never be exposed to the client browser**.
+The follow code snippets show the encryption in PHP; check out the samples in this repository for other languages. If we don't have a sample in your language, the [Developer Forums](https://developer.sagepayments.com/forum) are a great resource for information and support.
 
-The follow code snippets show the encryption in PHP; check out the `samples` folder of this repository for other languages.
-
-First, we need a [salt](https://en.wikipedia.org/wiki/Salt_(cryptography)) and an [initialization vector](https://en.wikipedia.org/wiki/Initialization_vector):
+First, we need a `salt` and an `initialization vector`:
 
 ```php
 $iv = openssl_random_pseudo_bytes(16);
 $salt = base64_encode(bin2hex($iv));
 ```
 
-Next, we're going to create an array (any serializable entity works) that contains our configuration settings, plus our `merchantKey`:
+Next, we're going to create an array that contains our configuration settings, plus our `merchantKey`:
 
 ```php
 $req = [
@@ -91,7 +91,7 @@ We convert it to JSON...
 $jsonReq = json_encode($req);
 ```
 
-... and then use it as the subject of our encryption:
+... and then use our client key to encrypt it:
 
 ```php
 $clientKey = "wtC5Ns0jbtiNA8sP";
@@ -99,7 +99,7 @@ $passwordHash = hash_pbkdf2("sha1", $clientKey, $salt, 1500, 32, true);
 $authKey = openssl_encrypt($jsonReq, "aes-256-cbc", $passwordHash, 0, $iv);
 ```
 
-Now that we have our `authKey`, all that's left is to initialize the JavaScript library with the same values!
+Now that we have our `authKey`, we initialize the UI with the same values:
 
 ```javascript
 PayJS(['PayJS/UI'],
@@ -115,9 +115,12 @@ function($UI) {
         elementId: "paymentButton",
         addFakeData: true
     });
+    $UI.setCallback(function($RESP) { // fires after the payment
+        console.log($RESP.getResponse());
+    });
 });
 ```
-If we don't have a sample in your language, the [Developer Forums](https://developer.sagepayments.com/content/how-calculate-authkey-outside-javascript-library) are a great resource for information and support.
+The payment now goes through!
 
 #### <a name="whichFields"></a>What needs to be included in the authKey?
 
@@ -126,21 +129,41 @@ The following fields should always be included in the authKey encryption:
 - `merchantId`
 - `merchantKey`
 - `requestType`
-- `orderNumber`/`requestId`
-- `salt`/`nonce`
-- `amount` (unless `requestType` is set to `"vault"`)
+- `orderNumber` (aka `requestId`)
+- `salt` (aka `nonce`)
 
 These optional fields need to be included in the `authKey` only if they are used:
 
+- `amount`
 - `taxAmount`
 - `shippingAmount`
 - `preAuth`
 - `postbackUrl`
+- `token`
+- `data`
+- `doVault`
 
 
-#### <a name="respHash"></a>Response Hash
+#### <a name="respHash"></a>Response Hashes
 
-Similarly, when we send the response back to the client, it will include a SHA-512 HMAC of the response (using your Developer Key to hash). **Always [calculate & compare](https://developer.sagepayments.com/content/comparing-response-and-hash) this server-side before updating any orders, databases, etc.**
+The response packet that is sent to the client library (and, optionally, to the `postbackUrl`) includes the API response and the original `requestId` (`orderNumber`). If the request included custom `data`, this is also be echoed in the response.
+
+Each of these fields will be accompanied by SHA-512 HMAC, using your client key to sign:
+
+```javascript
+{
+    "RequestId":"Invoice12345",
+    "RequestIdHash":"ABCD==",
+    "Response":"{\"status\":\"Approved\",\"reference\":\"A12BCdeFG0\", ... }",
+    "ResponseHash":"EFGH==",
+    "Data":"Some business-specific information.",
+    "DataHash":"IJKL=="
+}
+```
+
+Always verify these hashes on the server before shipping any orders, updating any databases, etc.
+
+(Note: if using the Response module, the [getRawResponse()](#ref.Response.getRawResponse) method returns the original string response, before any deserialization. )
 
 ---
 ## <a name="Modules"></a>Modules
@@ -152,10 +175,10 @@ The following modules contain methods that you may want to use in your project:
 Name | Description
 ---- | -----------
 "jquery" | Version 2.0 of [the common JavaScript library](https://jquery.com/).
-"PayJS/Core" | Manages configuration settings when _not_ using the UI.
-"PayJS/UI" | Manages configuration settings when using the UI.
+"PayJS/Core" | Manages configuration settings and other shared values.
+"PayJS/UI" | Configures and manages the user interface.
 "PayJS/Request" | Sends transaction and vault requests to the gateway. 
-"PayJS/Response" | Reads information out of responses from the gateway.
+"PayJS/Response" | Reads information from gateway responses.
 "PayJS/Formatting" | Converts credit card data into standardized strings.
 "PayJS/Validation" | Checks credit card data for acceptable values.
 
@@ -174,7 +197,7 @@ If you're already using RequireJS on your page, add a path to PaymentsJS --
 ```
 requirejs.config({
     paths: {
-        "PayJS": 'https://www.sagepayments.net/pay/1.0.0/js/build'
+        "PayJS": 'https://www.sagepayments.net/pay/1.0.1/js/build'
     },
 });
 ```
@@ -205,6 +228,7 @@ Please keep in mind that you'll also need to [provide your own jQuery dependency
   - [doPayment()](#ref.Request.doPayment)
   - [doVault()](#ref.Request.doVault)
   - [doTokenPayment()](#ref.Request.doTokenPayment)
+  - [getLastCard()](#ref.Request.getLastCard)
 - [PayJS/Response](#ref.Response)
   - [tryParse()](#ref.Response.tryParse)
   - [getResponse()](#ref.Response.getResponse)
@@ -213,6 +237,7 @@ Please keep in mind that you'll also need to [provide your own jQuery dependency
 - [PayJS/Formatting](#ref.Formatting)
   - [formatCardNumberInput()](#ref.Formatting.formatCardNumberInput)
   - [formatExpirationDateInput()](#ref.Formatting.formatExpirationDateInput)
+  - [maskCreditCardNumber()](#ref.Formatting.maskCreditCardNumber)
   - [stripNonNumeric()](#ref.Formatting.stripNonNumeric)
   - [stripNonAlphanumeric()](#ref.Formatting.stripNonAlphanumeric)
 - [PayJS/Validation](#ref.Validation)
@@ -275,6 +300,8 @@ amount | the total amount to charge the card | "1.00", etc. | when requestType =
 taxAmount | the amount charged as tax | "1.00", etc. | no
 shippingAmount | the amount charged for shipping | "1.00", etc. | no
 preAuth | toggles between authorization-only (true) and authorization & capture (false) | boolean | no, default false
+allowAmex | causes [`VALIDATION.isValidCreditCard()`](#ref.Validation.isValidCreditCard) to return false if it is passed an American Express card; when using the UI module, this also prevents submission | boolean | no, default true
+allowDiscover | behaves like allowAmex, but for Discover | boolean | no, default true
 postbackUrl | a URL that will receive a copy of the gateway response | valid URI with https scheme | no
 billing | add billing information (address/etc.) to the transaction request | see [`CORE.setBilling()`](#ref.Core.setBilling) | no
 shipping | add shipping information (address/etc.) to the transaction request | see [`CORE.setShipping()`](#ref.Core.setShipping) | no
@@ -285,6 +312,9 @@ isRecurring | indicate that a payment should also create a recurring transaction
 recurringSchedule | add customer contact information (email/phone) to the transaction request | see [`CORE.setRecurringSchedule()`](#ref.Core.setRecurringSchedule) | when isRecurring == true
 debug | enable verbose logging to browser console | boolean | no, default false
 environment | choose between the certification and production environments | "cert" or "prod" | no, default "cert"
+data | add custom data that is echoed in the response | string | no
+token | the vault token being passed to [`REQUEST.doTokenPayment()`](#ref.Request.doTokenPayment) | alphanumeric string | when running a token payment
+doVault | when processing a payment, also tokenize the card | boolean | no, default false
 
 
 #### <a name="ref.Core.isInitialized"></a>isInitialized
@@ -454,6 +484,7 @@ CORE.getLanguage()
 // gateway:
 CORE.getOrderNumber()
 CORE.getRequestType()
+CORE.getDoVault()
 // transaction:
 CORE.getPreAuth()
 CORE.getAmount()
@@ -467,10 +498,12 @@ CORE.getRecurringSchedule()
 CORE.getBilling()
 CORE.getCustomer()
 CORE.getShipping()
-// for backwards-compatibility:
+// backwards-compatibility:
 CORE.getRequestId() // getOrderNumber()
 CORE.getApiKey() // getClientId()
 CORE.getNonce() // getSalt()
+// misc/other:
+CORE.getCustomData()
 ```
 ---
 ### <a name="ref.UI"></a>PayJS/UI
@@ -505,7 +538,7 @@ addFakeData | adds fake credit card data to the form, for testing | boolean | no
 
 Notes:
 
-- If `targetElement` refers to a `<button>`, `<a>`, or `<input>`, the UI will appear as a [modal dialog](http://getbootstrap.com/javascript/#modals) when that element is clicked. If it refers to a `<div>`, the UI will be put *inside* the element. Other element types will probably just do something weird.
+- If `targetElement` refers to a `<button>`, `<a>`, or `<input>`, the UI will appear as a [modal dialog](http://getbootstrap.com/javascript/#modals) when that element is clicked. If it refers to a `<div>`, the UI will be put *inside* the element.
 - If `suppressResultPage` is enabled, the UI will never move past the processing bar. This can be used in conjunction with [`UI.setCallback()`](#ref.UI.setCallback) to customize response handling (eg, redirecting to another page).
 - We do not recommend changing `restrictInput` or `formatting` to `false`. (These options may be deprecated in a future release.)
 
@@ -538,8 +571,8 @@ UI.setCallback(myCallback);
 
 Notes:
 
-- The argument to your callback function is an object with all the methods of a [`PayJS/Response`](#ref.Response) module.
-  - This object will have already had [`RESPONSE.tryParse()`](#ref.Response.tryParse) called.
+- The argument to your callback function is the [`PayJS/Response`](#ref.Response) module.
+  - You do *not* need to call [`RESPONSE.tryParse()`](#ref.Response.tryParse) yourself.
 - Always check [the response hash](#respHash) server-side to verify the integrity of the response.
 
 
@@ -584,15 +617,38 @@ Charges a credit card using a vault token.
 This method takes three arguments:
 
 ```javascript
-REQUEST.doTokenPayment(vaultToken, cvv, callbackFunction);
+REQUEST.doTokenPayment(token, cvv, callbackFunction);
 ```
 
 Notes:
 
+- The `token` must be specified in the [authKey](#Authentication).
 - An empty string is an acceptable CVV value; however, to maximize the chances of the cardholder's bank approving the transaction, it is always preferable to collect and include a CVV whenever possible.
 - The argument to your callback function is a JSON string.
   - Pass the string into [`RESPONSE.tryParse()`](#ref.Response.tryParse) to initialize the [`PayJS/Response`](#ref.Response) module's [getters](#ref.Response.getters).
 - Always check [the response hash](#respHash) server-side to verify the integrity of the response.
+
+#### <a name="ref.Request.getLastCard"></a>getLastCard
+Get payment details for the last credit card charged or stored through PaymentsJS.
+
+This method does not take any arguments:
+
+```javascript
+REQUEST.doPayment("5424180279791732", "1017", "123", function() {
+    console.log( REQUEST.getLastCard() );
+    // => Object {maskedNumber: "XXXXXXXXXXXX1732", cardType: "5", BIN: "542418", lastFourDigits: "1732", expirationDate: "1017"}
+});
+```
+
+Notes:
+
+- For convenience, this method has the alias [`RESPONSE.getPaymentDetails()`](#ref.Response.getters).
+- The BIN identifies the bank that issued the card. For more, please see [this article](https://support.sagepayments.com/link/portal/20000/20000/Article/4618/Determining-the-issuer-of-your-customer-s-credit-card).
+- The card type is represented by the first digit of that card type.
+  - `3` -- American Express
+  - `4` -- Visa
+  - `5` -- MasterCard
+  - `6` -- Discover
 
 ---
 ### <a name="ref.Response"></a>PayJS/Response
@@ -610,22 +666,24 @@ RESPONSE.tryParse(gatewayResponse);
 
 Notes:
 
-- This method should be used in the callback functions of the [`PayJS/Request`](#ref.Request) module's methods.
-  - Pass the string into [`RESPONSE.tryParse()`](#ref.Response.tryParse) to initialize the [`PayJS/Response`](#ref.Response) module's [getters](#ref.Response.getters).
-  - If this method returns `false`, use [`RESPONSE.getResponse()`](#ref.Response.getResponse) to view the unparsed result.
+- You do *not* need to use this method in [`UI.setCallback()`](#ref.UI.setCallback).
+- This method is used in the callback functions of the [`PayJS/Request`](#ref.Request) module's methods.
+  - Pass the callback argument into [`RESPONSE.tryParse()`](#ref.Response.tryParse) to initialize the [`PayJS/Response`](#ref.Response) module's [getters](#ref.Response.getters).
 
 
 #### <a name="ref.Response.getResponse"></a>getResponse
 Returns the result of the gateway request.
 
-This method takes a single *optional* argument:
+This method does not take any arguments:
 
 ```javascript
-RESPONSE.getResponse(); // without an argment, the method returns an object
-// => Object {Response: Object, Hash: "ABCD=="}
-
-RESPONSE.getResponse({ json: true }); // pass a configuration object to retrieve a json string instead 
-// => "{ "Response": {"status":"Approved", ... }, "Hash": "ABCD==" }"
+RESPONSE.getResponse();
+// => Object {
+//        RequestId: "SomeOrderNumber",
+//        RequestIdHash: "ABCD==",
+//        Response: Object { ... },
+//        ResponseHash: "EFGH==",
+//    }
 ```
 
 Notes:
@@ -634,17 +692,19 @@ Notes:
 - Always check [the response hash](#respHash) server-side to verify the integrity of the response.
 
 #### <a name="ref.Response.getRawResponse"></a>getRawResponse
-Returns the result of the gateway request *before* any attempted parsing. Useful in (rare) situations where [`RESPONSE.tryParse()`](#ref.Response.tryParse) fails to interpret a response message. 
+Returns the result of the gateway request *before* any attempted parsing. Since JSON de/serialization may vary across environments and browsers, this is the value to send server-side for hash verification.
 
 This method does not take any arguments:
 
 ```javascript
-RESPONSE.getRawResponse(); // without an argment, the method returns an object
-// => Object {Response: Object, Hash: "ABCD=="}
+RESPONSE.getRawResponse();
+// => '{"RequestId": "SomeOrderNumber", "RequestIdHash":"ABCD==", Response:"{\"...'
 ```
 
 Notes:
 
+- If the request fails with a 400 or 401, this method returns a complete [`jqXR`](https://api.jquery.com/jQuery.ajax/#jqXHR) object.
+  - In this case, the raw API response is provided in the `responseText` property.
 - Always check [the response hash](#respHash) server-side to verify the integrity of the response.
 
 #### <a name="ref.Response.getters"></a>getters
@@ -680,6 +740,10 @@ RESPONSE.getReference();
 // returns the payment's order number
 RESPONSE.getOrderNumber();
 // => "123456789123"
+
+// returns information about the credit card
+RESPONSE.getPaymentDetails();
+// => Object {maskedNumber: "XXXXXXXXXXXX1732", cardType: "5", BIN: "542418", lastFourDigits: "1732", expirationDate: "1017"}
 ```
 
 These methods can take a configuration object as a single *optional* argument:
@@ -695,7 +759,7 @@ RESPONSE.getAVS({ require: "none" }); // no match
 // => true
 RESPONSE.getAVS({ require: "partial" }); // partial match (address OR zip)
 // => true
-RESPONSE.getAVS({ require: "exact" }); // exact match (address OR zip)
+RESPONSE.getAVS({ require: "exact" }); // exact match (address AND zip)
 // => false
 
 // use the "require" option with the "test" option to test the given code for a certain match-level, irrespective of the actual AVS result
@@ -755,6 +819,32 @@ FORMATTING.formatExpirationDateInput("1216", "~");
 ````
 Notes:
 - See [`VALIDATION.getExpArray()`](#ref.Validation.getExpArray) for more on expiration date string parsing.
+
+#### <a name="ref.Formatting.maskCreditCardNumber"></a>maskCreditCardNumber
+Masks a credit card number, so that only the last four digits are visible.
+
+This method requires a single argument:
+
+```javascript
+FORMATTING.maskCreditCardNumber("5454545454545454");
+// => "XXXXXXXXXXXX5454"
+
+FORMATTING.maskCreditCardNumber("371449635392376");
+// => "XXXXXXXXXXX2376"
+````
+
+Optionally, pass a configuration object:
+
+```javascript
+// include the first six digits (BIN/IIN)
+FORMATTING.maskCreditCardNumber("5454545454545454", { showBin: true });
+// => "545454XXXXXX5454"
+
+// use something other than 'X'
+FORMATTING.maskCreditCardNumber("5454545454545454", { maskChar: '$' });
+// => "$$$$$$$$$$$$5454"
+
+````
 
 #### <a name="ref.Formatting.stripNonNumeric"></a>stripNonNumeric
 Removes from a string any characters other than digits.
@@ -884,8 +974,38 @@ Notes:
 ## <a name="Changelog"></a>Changelog
 
 ---
-![PROD000089](https://img.shields.io/badge/PROD-1.0.000089-brightgreen.svg)
-![QA000088](https://img.shields.io/badge/QA-1.0.000086-yellow.svg)
+### **1.0.1.000034**
+
+BUG FIXES: 
+- User is no longer able to hide the modal dialog while a request is pending.
+- Better support for overflow when the modal dialog is open on small, landscape screens.
+- Explicated certain CSS rules to avoid being overriden by parent styles; redundant in most cases.
+- The response sent to the postbackUrl now includes a Content-Type header.
+- The vault token is no longer an exception to authKey validation.
+- The response data now echoes the requestId/orderNumber, with a hash.
+
+ENHANCEMENTS:
+- User can now set allowAmex and allowDiscover.
+- The library can now be initialized with a 'data' field.
+  - This field is echoed back in the response, with a hash.
+- New method: FORMATTING.maskCreditCardNumber().
+- New method: REQUEST.getLastCard().
+  - This method also exists under the alias RESPONSE.getPaymentDetails().
+
+MISC/OTHER:
+- Changes to JSON de/serialization.
+  - The API now returns the gateway response as a string, rather than an object.
+  - The ajax requests in the REQUEST module now return JSON strings, rather than an object.
+  - RESPONSE.tryParse() has been adjusted to expect a JSON string.
+  - RESPONSE.getResponse() returns a completely-deserialized object, as before.
+  - RESPONSE.getResponse() no longer has a json option.
+  - RESPONSE.getRawResponse() now returns the original AJAX response, before any de/serialization.
+- API requests now include a version header.
+- Pre-patch for Kount integration.
+- Payments no longer automatically vault the card.
+  - This functionality is now available via a 'doVault' option.
+
+### **1.0.0.000089**
 
 BUG FIXES:
 - Billing data no longer required.
@@ -922,18 +1042,14 @@ MISC/OTHER:
 
 
 ---
-![PROD000045](https://img.shields.io/badge/PROD-1.0.000045-brightgreen.svg)
-![QA000043](https://img.shields.io/badge/QA-1.0.000043-yellow.svg)
+### **1.0.0.000045**
 
 - Created changelog.
-- Added an internal-only build version.
-  - Updated readme.
-  - Updated gruntfile.
-  - Updated package.json.
-- Fixed bug where PaymentsJS failed to pass address and zip to the gateway. (D-32318)
+- Added a build version.
+- Fixed bug where PaymentsJS failed to pass address and zip to the gateway.
   - UI module no longer forces billing data into an incorrect format.
 
 ---
-![PROD000000](https://img.shields.io/badge/PROD-1.0.000000-brightgreen.svg)
+### **1.0.0.000000**
 
 - Initial Release
