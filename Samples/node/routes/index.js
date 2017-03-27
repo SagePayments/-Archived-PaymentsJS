@@ -11,7 +11,7 @@ router.get('/vault', (req, res, next) => {
 })
 
 router.post('/hashes', (req, res, next) => {
-  res.send(payjs.getResponseHashes(req.body));
+  res.send(payjs.getResponseHashes(req.body.resp));
 })
 
 router.get('/:page', (req, res, next) => {
