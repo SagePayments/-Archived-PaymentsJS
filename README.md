@@ -661,7 +661,7 @@ Notes:
 
 
 #### <a name="ref.Response.getResponse"></a>get[...]Response
-These methods return different "layers" of the API response:
+These methods return different layers of the data:
 
 They do not take any arguments:
 
@@ -974,7 +974,20 @@ Notes:
 ---
 ## <a name="Changelog"></a>Changelog
 
+### **1.0.2.0000XX**
+
+ENHANCEMENTS:
+- The API now returns a single response hash in the header.
+- All callback functions now receive all of jQuery's ajax/jqXHR arguments.
+- The RESPONSE module has four new methods:
+  - `getAjaxResponse`: returns the AJAX response object
+  - `getApiResponse`: returns the API response string
+  - `getGatewayResponse`: returns the inner gateway response, deserialized
+  - `getResponseHash`: returns an object with the API response and its hash
+-Documentation and Samples have been updated accordingly.
+
 ---
+
 ### **1.0.1.000034**
 
 BUG FIXES: 
