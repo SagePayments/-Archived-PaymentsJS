@@ -31,13 +31,8 @@
         <br /><br />
         <h5>Hash Verification:</h5>
         <div class="compare">
-            <input type="text" class="form-control disabled" id="reqIdHashClient" style="font-family: monospace; width:48%;" placeholder="">
-            <input type="text" class="form-control disabled" id="reqIdHashServer" style="font-family: monospace; width:48%;" placeholder="">
-        </div>
-        <br /><br />
-        <div class="compare">
-            <input type="text" class="form-control disabled" id="respHashClient" style="font-family: monospace; width:48%;" placeholder="">
-            <input type="text" class="form-control disabled" id="respHashServer" style="font-family: monospace; width:48%;" placeholder="">
+            <input type="text" class="form-control disabled" id="clientHash" style="font-family: monospace; width:48%;" placeholder="">
+            <input type="text" class="form-control disabled" id="serverHash" style="font-family: monospace; width:48%;" placeholder="">
         </div>
     </div>
 </div>
@@ -62,13 +57,13 @@
             $("#verifyButton").click(function() {
                 $("#verifyButton").prop('disabled', true);
                 var editedResponse = $("#paymentResponse").val();
-                $('#reqIdHashClient').val($RESP.getResponseHash().hash);
+                $('#clientHash').val($RESP.getResponseHash().hash);
                 $.post(
                     "response/verify.cshtml",
                     editedResponse,
                     function(r) {
                         $("#verifyButton").prop('disabled', false);
-                        $('#reqIdHashServer').val(r.hash);
+                        $('#serverHash').val(r.hash);
                         $('.compare').each(function(index, element) {
                             var kids = $(element).children();
                             var client = $(kids[0]).val();
@@ -80,11 +75,5 @@
                 );
             })
         })
-
-        function getEditedResponseText() {
-            console.log($("#paymentResponse").text());
-            console.log();
-            return $("#paymentResponse").text();
-        }
     });
 </script>

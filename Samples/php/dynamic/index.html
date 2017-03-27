@@ -58,10 +58,17 @@
                         salt: authResp.salt,
                         addFakeData: true
                     });
-                    $UI.setCallback(function(resp) {
-                        console.log(resp.getResponse());
+                    $UI.setCallback(function($RESP) {
+                        console.log("Ajax Response:");
+                        console.log($RESP.getAjaxResponse());
+                        console.log("API Response:");
+                        console.log($RESP.getApiResponse());
+                        console.log("Gateway Response:");
+                        console.log($RESP.getGatewayResponse());
+                        console.log("API Response + Hash:");
+                        console.log($RESP.getResponseHash())
                         $("#paymentResponse").text(
-                            resp.getRawResponse()
+                            $RESP.getApiResponse()
                         );
                         $("#paymentButton").prop('disabled', false);
                     });

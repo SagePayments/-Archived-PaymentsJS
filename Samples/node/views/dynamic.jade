@@ -43,10 +43,18 @@ script(type='text/javascript').
           authResp.elementId = 'paymentDiv';
           authResp.addFakeData = true;
           $UI.Initialize(authResp);
-          $UI.setCallback(function(resp) {
-            console.log(resp.getResponse());
-            $("#paymentResponse").text(resp.getRawResponse());
-            $("#paymentButton").prop('disabled', false);
+          $UI.setCallback(function($RESP) {
+            console.log("Ajax Response:");
+            console.log($RESP.getAjaxResponse());
+            console.log("API Response:");
+            console.log($RESP.getApiResponse());
+            console.log("Gateway Response:");
+            console.log($RESP.getGatewayResponse());
+            console.log("API Response + Hash:");
+            console.log($RESP.getResponseHash())
+            $("#paymentResponse").text(
+              $RESP.getApiResponse()
+            );
           });
           $("#paymentDiv").show('slow');
         },
