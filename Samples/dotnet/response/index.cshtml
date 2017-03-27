@@ -21,7 +21,7 @@
 
 <div class="wrapper text-center">
     <h1>Response Integrity</h1>
-    <p>The response data returned from the API includes hashes of the various elements, which should be used to verify their integrity. This page runs a transaction upon loading; when you're ready, send it to the server for hash verification:</p>
+    <p>The response headers returned from the API includes a hash of the body, which should be used to verify its integrity. This page runs a transaction upon loading; when you're ready, send it to the server for hash verification:</p>
     <br />
     <div>
         <h5>Result:</h5>
@@ -55,24 +55,20 @@
             orderNumber: "@request.orderNumber",
             amount: "@request.amount",
         });
-        $REQ.doPayment("5454545454545454", "1220", "123", function(resp) {
+        $REQ.doPayment("5454545454545454", "1220", "123", function(data, status, jqxhr) {
             $("#verifyButton").prop('disabled', false);
-            $RESP.tryParse(resp);
-            var rawResponse = ((typeof (r = $RESP.getRawResponse()) == "string") ? r : r.responseText);
-            $("#paymentResponse").text(rawResponse);
+            $RESP.tryParse(data, status, jqxhr);
+            $("#paymentResponse").text($RESP.getApiResponse());
             $("#verifyButton").click(function() {
                 $("#verifyButton").prop('disabled', true);
                 var editedResponse = $("#paymentResponse").val();
-                var o = JSON.parse(editedResponse);
-                $('#reqIdHashClient').val(o.RequestIdHash);
-                $('#respHashClient').val(o.ResponseHash);
+                $('#reqIdHashClient').val($RESP.getResponseHash().hash);
                 $.post(
                     "response/verify.cshtml",
                     editedResponse,
                     function(r) {
                         $("#verifyButton").prop('disabled', false);
-                        $('#reqIdHashServer').val(r.RequestIdHash);
-                        $('#respHashServer').val(r.ResponseHash);
+                        $('#reqIdHashServer').val(r.hash);
                         $('.compare').each(function(index, element) {
                             var kids = $(element).children();
                             var client = $(kids[0]).val();
