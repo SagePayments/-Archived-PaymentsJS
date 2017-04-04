@@ -81,7 +81,6 @@ module.exports = {
     getInitialization: () => getAuthedRequest(),
     getCustomInitialization: customValues => getCustomRequest(customValues),
     getResponseHashes: response => ({
-        RequestIdHash: getHmac(response.RequestId, config.developer.key),
-        ResponseHash: getHmac(response.Response, config.developer.key),
+        hash: getHmac(response, config.developer.key),
     })
 }

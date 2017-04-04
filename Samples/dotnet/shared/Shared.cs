@@ -92,13 +92,4 @@ namespace PayJS_Samples.Misc
         public string Salt;
     }
 
-    public class PayJSResponse
-    {
-        public string RequestId;
-        public string RequestIdHash;
-        public string Response;
-        public string ResponseHash;
-        public string Data;
-        public string DataHash;
-    }
 }

@@ -20,7 +20,7 @@ script(type='text/javascript').
     sageInit.addFakeData = true;
     $UI.Initialize(sageInit);
     $UI.setCallback(function(vaultResponse) {
-      $("#paymentResponse").text(vaultResponse.getRawResponse());
+      $("#paymentResponse").text(vaultResponse.getApiResponse());
       if (vaultResponse.getVaultSuccess()) {
         $("#vaultButton").prop('disabled', true);
         $.get(
@@ -37,7 +37,7 @@ script(type='text/javascript').
             $REQ.doTokenPayment(vaultResponse.getVaultToken(), "123", function(paymentResponse) {
               $RESP.tryParse(paymentResponse);
               console.log($RESP.getResponse());
-              $("#paymentResponse").text($RESP.getRawResponse());
+              $("#paymentResponse").text($RESP.getApiResponse());
               });
             })
           },

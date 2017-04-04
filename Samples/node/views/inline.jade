@@ -30,7 +30,16 @@ script(type='text/javascript').
     sageInit.addFakeData = true;
     $UI.Initialize(sageInit);
     $UI.setCallback(function($RESP) {
-      console.log($RESP.getResponse());
-      $("#paymentResponse").text($RESP.getRawResponse());
+      console.log("Ajax Response:");
+      console.log($RESP.getAjaxResponse());
+      console.log("API Response:");
+      console.log($RESP.getApiResponse());
+      console.log("Gateway Response:");
+      console.log($RESP.getGatewayResponse());
+      console.log("API Response + Hash:");
+      console.log($RESP.getResponseHash())
+      $("#paymentResponse").text(
+        $RESP.getApiResponse()
+      );
     });
   });

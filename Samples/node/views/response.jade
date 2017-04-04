@@ -1,7 +1,7 @@
 .wrapper.text-center
   h1 Response Integrity
   p
-    | The response data returned from the API includes hashes of the various elements, which should be used to verify their integrity. This page runs a transaction upon loading; when you're ready, send it to the server for hash verification:
+    | The response headers returned from the API includes a hash of the body, which should be used to verify its integrity. This page runs a transaction upon loading; when you're ready, send it to the server for hash verification:
   br
   div
     h5 Result:
@@ -13,36 +13,28 @@
     br
     h5 Hash Verification:
     .compare
-      input#reqIdHashClient.form-control.disabled(type='text', style='font-family: monospace; width:48%;', placeholder='')
-      input#reqIdHashServer.form-control.disabled(type='text', style='font-family: monospace; width:48%;', placeholder='')
-    br
-    br
-    .compare
-      input#respHashClient.form-control.disabled(type='text', style='font-family: monospace; width:48%;', placeholder='')
-      input#respHashServer.form-control.disabled(type='text', style='font-family: monospace; width:48%;', placeholder='')
-      script(type='text/javascript') window.sageInit = !{initialization}
+      input#clientHash.form-control.disabled(type='text', style='font-family: monospace; width:48%;', placeholder='')
+      input#serverHash.form-control.disabled(type='text', style='font-family: monospace; width:48%;', placeholder='')
+
+script(type='text/javascript') window.sageInit = !{initialization}
 script(type='text/javascript').
   PayJS(['PayJS/Core', 'PayJS/Request', 'PayJS/Response', 'jquery'],
   function($CORE, $REQ, $RESP, $) {
     $CORE.Initialize(sageInit);
-    $REQ.doPayment("5454545454545454", "1220", "123", function(resp) {
+    $REQ.doPayment("5454545454545454", "1220", "123", function(data, status, jqxhr) {
       $("#verifyButton").prop('disabled', false);
-      $RESP.tryParse(resp);
-      var rawResponse = ((typeof (r = $RESP.getRawResponse()) == "string") ? r : r.responseText);
-      $("#paymentResponse").text(rawResponse);
+      $RESP.tryParse(data, status, jqxhr);
+      $("#paymentResponse").text($RESP.getApiResponse());
       $("#verifyButton").click(function() {
         $("#verifyButton").prop('disabled', true);
         var editedResponse = $("#paymentResponse").val();
-        var o = JSON.parse(editedResponse);
-        $('#reqIdHashClient').val(o.RequestIdHash);
-        $('#respHashClient').val(o.ResponseHash);
+        $('#clientHash').val($RESP.getResponseHash().hash);
         $.post(
           "hashes",
           { resp: editedResponse },
           function(r) {
             $("#verifyButton").prop('disabled', false);
-            $('#reqIdHashServer').val(r.RequestIdHash);
-            $('#respHashServer').val(r.ResponseHash);
+            $('#serverHash').val(r.hash);
             $('.compare').each(function(index, element) {
               var kids = $(element).children();
               var client = $(kids[0]).val();
@@ -54,9 +46,4 @@ script(type='text/javascript').
         );
       })
   })
-  function getEditedResponseText() {
-    console.log($("#paymentResponse").text());
-    console.log();
-    return $("#paymentResponse").text();
-  }
   });

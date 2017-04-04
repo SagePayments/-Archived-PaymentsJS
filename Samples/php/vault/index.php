@@ -41,7 +41,7 @@
         });
         $UI.setCallback(function(vaultResponse) {
             $("#paymentResponse").text(
-                vaultResponse.getRawResponse()
+                vaultResponse.getApiResponse()
             );
             if (vaultResponse.getVaultSuccess()) {
                 $("#vaultButton").prop('disabled', true);
@@ -67,9 +67,8 @@
                             $("#paymentResponse").text("The response will appear here as JSON, and in your browser console as a JavaScript object.");
                             $REQ.doTokenPayment(vaultResponse.getVaultToken(), "123", function(paymentResponse) {
                                 $RESP.tryParse(paymentResponse);
-                                console.log($RESP.getResponse());
                                 $("#paymentResponse").text(
-                                    $RESP.getRawResponse()
+                                    $RESP.getApiResponse()
                                 );
                             });
                         })

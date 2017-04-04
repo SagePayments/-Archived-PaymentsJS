@@ -17,7 +17,7 @@ PaymentsJS is a JavaScript library that enables developers to quickly start proc
 Add the library:
 
 ```html
-<script type="text/javascript" src="https://www.sagepayments.net/pay/1.0.1/js/pay.min.js"></script>
+<script type="text/javascript" src="https://www.sagepayments.net/pay/1.0.2/js/pay.min.js"></script>
 ```
 
 And a button:
@@ -144,26 +144,21 @@ These optional fields need to be included in the `authKey` only if they are used
 - `doVault`
 
 
-#### <a name="respHash"></a>Response Hashes
+#### <a name="respHash"></a>Response Hash
 
-The response packet that is sent to the client library (and, optionally, to the `postbackUrl`) includes the API response and the original `requestId` (`orderNumber`). If the request included custom `data`, this is also be echoed in the response.
-
-Each of these fields will be accompanied by SHA-512 HMAC, using your client key to sign:
+The response body that is returned to the client library (and, optionally, to the `postbackUrl`) includes the gateway response and the original `requestId` (`orderNumber`). If the request included custom `data`, this is also echoed in the response body:
 
 ```javascript
 {
-    "RequestId":"Invoice12345",
-    "RequestIdHash":"ABCD==",
-    "Response":"{\"status\":\"Approved\",\"reference\":\"A12BCdeFG0\", ... }",
-    "ResponseHash":"EFGH==",
-    "Data":"Some business-specific information.",
-    "DataHash":"IJKL=="
+    "requestId":"Invoice12345",
+    "gatewayResponse":"{\"status\":\"Approved\",\"reference\":\"A12BCdeFG0\", ... }",
+    "data":"Some business-specific information.",
 }
 ```
 
-Always verify these hashes on the server before shipping any orders, updating any databases, etc.
+The response headers contain a `responseHash`, which is a SHA-512 HMAC of the response body.
 
-(Note: if using the Response module, the [getRawResponse()](#ref.Response.getRawResponse) method returns the original string response, before any deserialization. )
+Use your client key to verify this hash on the server before shipping any orders, updating any databases, etc.
 
 ---
 ## <a name="Modules"></a>Modules
@@ -182,14 +177,6 @@ Name | Description
 "PayJS/Formatting" | Converts credit card data into standardized strings.
 "PayJS/Validation" | Checks credit card data for acceptable values.
 
-Additionally, the following dependency-modules will probably *not* be particularly useful, but are listed here for the sake of completeness:
-
-Name | Description
----- | -----------
-"PayJS/Extensions" | Extends the `jquery` module with certain [Bootstrap](http://getbootstrap.com/javascript/) components.
-"PayJS/UI.html" | Provides the `UI` module with the HTML that it uses to build the payment form.
-"PayJS/UI.text" | Provides the `UI` module with the text used in form labels, placeholders, etc.
-
 ---
 ## <a name="RequireJS"></a>RequireJS
 
@@ -197,7 +184,7 @@ If you're already using RequireJS on your page, add a path to PaymentsJS --
 ```
 requirejs.config({
     paths: {
-        "PayJS": 'https://www.sagepayments.net/pay/1.0.1/js/build'
+        "PayJS": 'https://www.sagepayments.net/pay/1.0.2/js/build'
     },
 });
 ```
@@ -232,7 +219,7 @@ Please keep in mind that you'll also need to [provide your own jQuery dependency
 - [PayJS/Response](#ref.Response)
   - [tryParse()](#ref.Response.tryParse)
   - [getResponse()](#ref.Response.getResponse)
-  - [getRawResponse()](#ref.Response.getRawResponse)
+  - [getResponseHash()](#ref.Response.getResponseHash)
   - [getters](#ref.Response.getters)
 - [PayJS/Formatting](#ref.Formatting)
   - [formatCardNumberInput()](#ref.Formatting.formatCardNumberInput)
@@ -558,10 +545,10 @@ UI.isInitialized();
 #### <a name="ref.UI.setCallback"></a>setCallback
 Sets a function that executes after a request completes.
 
-This method takes a single argument:
+This method takes up to four arguments:
 
 ```javascript
-var myCallback = function(RESP){
+var myCallback = function(RESP, data|jqXHR, textStatus, jqXHR|errorThrown){
     SendResultToServer(RESP.getResponse({ json: true }))
     var wasApproved = RESP.getTransactionSuccess();
     RedirectUser(wasApproved ? "approved.html" : "declined.html");
@@ -571,8 +558,9 @@ UI.setCallback(myCallback);
 
 Notes:
 
-- The argument to your callback function is the [`PayJS/Response`](#ref.Response) module.
+- The first argument to your callback function is the [`PayJS/Response`](#ref.Response) module.
   - You do *not* need to call [`RESPONSE.tryParse()`](#ref.Response.tryParse) yourself.
+- The final three arguments are passed through from jQuery's ajax method; please refer to [the jQuery documentation](http://api.jquery.com/jQuery.ajax/#jqXHR) for more information.
 - Always check [the response hash](#respHash) server-side to verify the integrity of the response.
 
 
@@ -591,8 +579,8 @@ REQUEST.doPayment(cardNumber, expirationDate, cvv, callbackFunction);
 
 Notes:
 
-- The argument to your callback function is a JSON string.
-  - Pass the string into [`RESPONSE.tryParse()`](#ref.Response.tryParse) to initialize the [`PayJS/Response`](#ref.Response) module's [getters](#ref.Response.getters).
+- The arguments to your callback are passed through from jQuery's ajax method; please refer to [the jQuery documentation](http://api.jquery.com/jQuery.ajax/#jqXHR) for more information.
+  - Pass the response string into [`RESPONSE.tryParse()`](#ref.Response.tryParse) to initialize the [`PayJS/Response`](#ref.Response) module's [getters](#ref.Response.getters).
 - Always check [the response hash](#respHash) server-side to verify the integrity of the response.
 
 
@@ -607,8 +595,8 @@ REQUEST.doVault(cardNumber, expirationDate, callbackFunction);
 
 Notes:
 
-- The argument to your callback function is a JSON string.
-  - Pass the string into [`RESPONSE.tryParse()`](#ref.Response.tryParse) to initialize the [`PayJS/Response`](#ref.Response) module's [getters](#ref.Response.getters).
+- The arguments to your callback are passed through from jQuery's ajax method; please refer to [the jQuery documentation](http://api.jquery.com/jQuery.ajax/#jqXHR) for more information.
+  - Pass the response string into [`RESPONSE.tryParse()`](#ref.Response.tryParse) to initialize the [`PayJS/Response`](#ref.Response) module's [getters](#ref.Response.getters).
 - Always check [the response hash](#respHash) server-side to verify the integrity of the response.
 
 #### <a name="ref.Request.doTokenPayment"></a>doTokenPayment
@@ -624,8 +612,8 @@ Notes:
 
 - The `token` must be specified in the [authKey](#Authentication).
 - An empty string is an acceptable CVV value; however, to maximize the chances of the cardholder's bank approving the transaction, it is always preferable to collect and include a CVV whenever possible.
-- The argument to your callback function is a JSON string.
-  - Pass the string into [`RESPONSE.tryParse()`](#ref.Response.tryParse) to initialize the [`PayJS/Response`](#ref.Response) module's [getters](#ref.Response.getters).
+- The arguments to your callback are passed through from jQuery's ajax method; please refer to [the jQuery documentation](http://api.jquery.com/jQuery.ajax/#jqXHR) for more information.
+  - Pass the response string into [`RESPONSE.tryParse()`](#ref.Response.tryParse) to initialize the [`PayJS/Response`](#ref.Response) module's [getters](#ref.Response.getters).
 - Always check [the response hash](#respHash) server-side to verify the integrity of the response.
 
 #### <a name="ref.Request.getLastCard"></a>getLastCard
@@ -655,56 +643,69 @@ Notes:
 The Response module exposes methods for traversing transaction results.
 
 #### <a name="ref.Response.tryParse"></a>tryParse
-Attempts to initialize this module's [getters](#ref.Response.getters) from a JSON string.
+Attempts to initialize this module's [getters](#ref.Response.getters) from an AJAX response.
 
-This method takes a single argument:
+This method takes up to three arguments:
 
 ```javascript
-RESPONSE.tryParse(gatewayResponse);
+RESPONSE.tryParse(data|jqXHR, textStatus, jqXHR|errorThrown);
 // => true
 ```
 
 Notes:
 
-- You do *not* need to use this method in [`UI.setCallback()`](#ref.UI.setCallback).
+- The arguments are passed through from jQuery's ajax method; please refer to [the jQuery documentation](http://api.jquery.com/jQuery.ajax/#jqXHR) for more information.
 - This method is used in the callback functions of the [`PayJS/Request`](#ref.Request) module's methods.
-  - Pass the callback argument into [`RESPONSE.tryParse()`](#ref.Response.tryParse) to initialize the [`PayJS/Response`](#ref.Response) module's [getters](#ref.Response.getters).
+  - Use [`RESPONSE.tryParse()`](#ref.Response.tryParse) to initialize the [`PayJS/Response`](#ref.Response) module's [getters](#ref.Response.getters).
+  - You do *not* need to use this method in [`UI.setCallback()`](#ref.UI.setCallback).
 
 
-#### <a name="ref.Response.getResponse"></a>getResponse
-Returns the result of the gateway request.
+#### <a name="ref.Response.getResponse"></a>get[...]Response
+These methods return different layers of the data:
 
-This method does not take any arguments:
+They do not take any arguments:
 
 ```javascript
-RESPONSE.getResponse();
+// returns the jqXHR object returned by the AJAX request:
+RESPONSE.getAjaxResponse();
 // => Object {
-//        RequestId: "SomeOrderNumber",
-//        RequestIdHash: "ABCD==",
-//        Response: Object { ... },
-//        ResponseHash: "EFGH==",
+//        readyState: 4,
+//        responseText: "{"requestId":"Invoice12345","gatewayResponse":{"status":"Approved", "orderNumber":"Invoice12345", (...)
+//        (...)
+//    }
+
+// returns the json string that the library received from the proxy api:
+RESPONSE.getApiResponse();
+// => "{"requestId":"Invoice12345","gatewayResponse":{"status":"Approved", "orderNumber":"Invoice12345", (...)
+
+// returns the deserialized inner response from the payment gateway:
+RESPONSE.getGatewayResponse();
+// => Object {
+//        status: "Approved",
+//        orderNumber: "Invoice12345",
+//        (...)
 //    }
 ```
 
 Notes:
 
-- When using the [`PayJS/Request`](#ref.Request) module's methods, you must call [`RESPONSE.tryParse()`](#ref.Response.tryParse) before this method is available. The [`PayJS/UI`](#ref.UI) module does this for you.
+- When using the [`PayJS/Request`](#ref.Request) module's methods, you must call [`RESPONSE.tryParse()`](#ref.Response.tryParse) before these methods are available. The [`PayJS/UI`](#ref.UI) module does this for you.
 - Always check [the response hash](#respHash) server-side to verify the integrity of the response.
 
-#### <a name="ref.Response.getRawResponse"></a>getRawResponse
-Returns the result of the gateway request *before* any attempted parsing. Since JSON de/serialization may vary across environments and browsers, this is the value to send server-side for hash verification.
+#### <a name="ref.Response.getResponseHash"></a>getResponseHash
+Returns the API response and its hash. Send these values server-side for hash verification.
 
 This method does not take any arguments:
 
 ```javascript
-RESPONSE.getRawResponse();
-// => '{"RequestId": "SomeOrderNumber", "RequestIdHash":"ABCD==", Response:"{\"...'
+RESPONSE.getResponseHash();
+// => Object {
+//        response: "{"requestId":"Invoice12345","gatewayResponse":{"status":"Approved", "orderNumber":"Invoice12345", (...)",
+//        hash: "ABCD==",
+//    }
 ```
 
 Notes:
-
-- If the request fails with a 400 or 401, this method returns a complete [`jqXR`](https://api.jquery.com/jQuery.ajax/#jqXHR) object.
-  - In this case, the raw API response is provided in the `responseText` property.
 - Always check [the response hash](#respHash) server-side to verify the integrity of the response.
 
 #### <a name="ref.Response.getters"></a>getters
@@ -973,7 +974,20 @@ Notes:
 ---
 ## <a name="Changelog"></a>Changelog
 
+### **1.0.2.000009**
+
+ENHANCEMENTS:
+- The API now returns a single response hash in the header.
+- All callback functions now receive all of jQuery's ajax/jqXHR arguments.
+- The RESPONSE module has four new methods:
+  - `getAjaxResponse`: returns the AJAX response object
+  - `getApiResponse`: returns the API response string
+  - `getGatewayResponse`: returns the inner gateway response, deserialized
+  - `getResponseHash`: returns an object with the API response and its hash
+-Documentation and Samples have been updated accordingly.
+
 ---
+
 ### **1.0.1.000034**
 
 BUG FIXES: 

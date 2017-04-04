@@ -24,7 +24,7 @@
 <pre><code>        requirejs.config({
             paths: {
                 "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min",
-                <span style="background-color: yellow">"PayJS": 'https://www.sagepayments.net/pay/1.0.1/js/build'</span>
+                <span style="background-color: yellow">"PayJS": 'https://www.sagepayments.net/pay/1.0.2/js/build'</span>
             },
         });</code></pre>
 <div class="wrapper text-center">
@@ -53,7 +53,7 @@
         baseUrl: "require/my/other/js",
         paths: {
             "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min",
-            "PayJS": 'https://www.sagepayments.net/pay/1.0.1/js/build',
+            "PayJS": 'https://www.sagepayments.net/pay/1.0.2/js/build',
         },
     });
 </script>
@@ -76,9 +76,16 @@
             addFakeData: true
         });
         $UI.setCallback(function($RESP) {
-            console.log($RESP.getResponse());
+            console.log("Ajax Response:");
+            console.log($RESP.getAjaxResponse());
+            console.log("API Response:");
+            console.log($RESP.getApiResponse());
+            console.log("Gateway Response:");
+            console.log($RESP.getGatewayResponse());
+            console.log("API Response + Hash:");
+            console.log($RESP.getResponseHash())
             $("#paymentResponse").text(
-                $RESP.getRawResponse()
+                $RESP.getApiResponse()
             );
         });
     });

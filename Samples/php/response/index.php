@@ -18,7 +18,7 @@
 ?>
 <div class="wrapper text-center">
     <h1>Response Integrity</h1>
-    <p>The response data returned from the API includes hashes of the various elements, which should be used to verify their integrity. This page runs a transaction upon loading; when you're ready, send it to the server for hash verification:</p>
+    <p>The response headers returned from the API includes a hash of the body, which should be used to verify its integrity. This page runs a transaction upon loading; when you're ready, send it to the server for hash verification:</p>
     <br />
     <div>
         <h5>Result:</h5>
@@ -28,13 +28,8 @@
         <br /><br />
         <h5>Hash Verification:</h5>
         <div class="compare">
-            <input type="text" class="form-control disabled" id="reqIdHashClient" style="font-family: monospace; width:48%;" placeholder="">
-            <input type="text" class="form-control disabled" id="reqIdHashServer" style="font-family: monospace; width:48%;" placeholder="">
-        </div>
-        <br /><br />
-        <div class="compare">
-            <input type="text" class="form-control disabled" id="respHashClient" style="font-family: monospace; width:48%;" placeholder="">
-            <input type="text" class="form-control disabled" id="respHashServer" style="font-family: monospace; width:48%;" placeholder="">
+            <input type="text" class="form-control disabled" id="clientHash" style="font-family: monospace; width:48%;" placeholder="">
+            <input type="text" class="form-control disabled" id="serverHash" style="font-family: monospace; width:48%;" placeholder="">
         </div>
     </div>
 </div>
@@ -53,24 +48,20 @@
             orderNumber: "<?php echo $req['orderNumber']; ?>",
             amount: "<?php echo $req['amount']; ?>",
         });
-        $REQ.doPayment("5454545454545454", "1220", "123", function(resp) {
+        $REQ.doPayment("5454545454545454", "1220", "123", function(data, status, jqxhr) {
             $("#verifyButton").prop('disabled', false);
-            $RESP.tryParse(resp);
-            var rawResponse = ((typeof (r = $RESP.getRawResponse()) == "string") ? r : r.responseText);
-            $("#paymentResponse").text(rawResponse);
+            $RESP.tryParse(data, status, jqxhr);
+            $("#paymentResponse").text($RESP.getApiResponse());
             $("#verifyButton").click(function() {
                 $("#verifyButton").prop('disabled', true);
                 var editedResponse = $("#paymentResponse").val();
-                var o = JSON.parse(editedResponse);
-                $('#reqIdHashClient').val(o.RequestIdHash);
-                $('#respHashClient').val(o.ResponseHash);
+                $('#clientHash').val($RESP.getResponseHash().hash);
                 $.post(
                     "response/verify.php",
                     editedResponse,
                     function(r) {
                         $("#verifyButton").prop('disabled', false);
-                        $('#reqIdHashServer').val(r.RequestIdHash);
-                        $('#respHashServer').val(r.ResponseHash);
+                        $('#serverHash').val(r.hash);
                         $('.compare').each(function(index, element) {
                             var kids = $(element).children();
                             var client = $(kids[0]).val();

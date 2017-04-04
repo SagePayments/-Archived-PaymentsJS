@@ -1,10 +1,9 @@
 <?php
     require('../shared/shared.php');
-    $req = json_decode(file_get_contents('php://input'));
+    $req = file_get_contents('php://input');
     
     $results = [
-        RequestIdHash => getHmac($req->RequestId, $developer['KEY']),
-        ResponseHash => getHmac($req->Response, $developer['KEY'])
+        hash => getHmac($req, $developer['KEY']),
     ];
     
     echo json_encode($results);
