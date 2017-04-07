@@ -2,6 +2,7 @@
     require('../shared/shared.php');
     
     $nonces = getNonces();
+    $environment = $request['environment'];
 
     $req = [
         "merchantId" => $merchant['ID'],
@@ -179,12 +180,14 @@
         $CORE.Initialize({
             clientId: "<?php echo $developer['ID']; ?>",
             postbackUrl: "<?php echo $req['postbackUrl']; ?>",
+            environment: "<?php echo $environment; ?>",
             merchantId: "<?php echo $req['merchantId']; ?>",
             authKey: "<?php echo $authKey; ?>",
             salt: "<?php echo $req['salt']; ?>",
             requestType: "<?php echo $req['requestType']; ?>",
             orderNumber: "<?php echo $req['orderNumber']; ?>",
             amount: "<?php echo $req['amount']; ?>",
+            preAuth: "<?php echo $req['preAuth']; ?>",
         });
 
         $("#paymentButton").click(function() {
