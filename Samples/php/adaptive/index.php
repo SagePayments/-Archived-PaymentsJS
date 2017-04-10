@@ -2,6 +2,7 @@
     require('../shared/shared.php');
     
     $nonces = getNonces();
+    $environment = $request['environment']
     
     $req = [
         "merchantId" => $merchant['ID'],
@@ -54,6 +55,7 @@
             // developer:
             clientId: "<?php echo $developer['ID']; ?>",
             postbackUrl: "<?php echo $req['postbackUrl']; ?>", // you get a copy of the response here
+            environment: "<?php echo $environment; ?>",
             
             // merchant:
             merchantId: "<?php echo $req['merchantId']; ?>",
@@ -66,6 +68,7 @@
             requestType: "<?php echo $req['requestType']; ?>",
             orderNumber: "<?php echo $req['orderNumber']; ?>",
             amount: "<?php echo $req['amount']; ?>",
+            preAuth: "<?php echo $req['preAuth']; ?>",
 
             // ui:
             elementId: "paymentDiv", // the DOM that $UI should attach itself to,
