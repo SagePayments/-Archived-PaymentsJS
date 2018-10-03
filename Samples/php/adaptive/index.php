@@ -2,7 +2,7 @@
     require('../shared/shared.php');
     
     $nonces = getNonces();
-    $environment = $request['environment']
+    $environment = $request['environment'];
     
     $req = [
         "merchantId" => $merchant['ID'],
