@@ -158,7 +158,7 @@ The response body that is returned to the client library (and, optionally, to th
 
 The response headers contain a `responseHash`, which is a SHA-512 HMAC of the response body.
 
-Use your client key to verify this hash on the server before shipping any orders, updating any databases, etc.
+You are required to use your client key to verify this hash on your server before shipping any orders, updating any databases, etc.
 
 ---
 ## <a name="Modules"></a>Modules
