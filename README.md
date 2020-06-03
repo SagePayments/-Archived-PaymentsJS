@@ -158,7 +158,8 @@ The response body that is returned to the client library (and, optionally, to th
 
 The response headers contain a `responseHash`, which is a SHA-512 HMAC of the response body.
 
-You are required to use your client key to verify this hash on your server before shipping any orders, updating any databases, etc.
+#### Important Note
+You are required to use your client key to verify this hash on your server before shipping any orders, updating any databases, etc. Additional details can be [found here](https://developer.sagepayments.com/comment/72#comment-72) within our forums. This is a prerequisite for your production API credentials. Please let us know if you have any questions.
 
 ---
 ## <a name="Modules"></a>Modules
