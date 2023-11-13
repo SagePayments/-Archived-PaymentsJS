@@ -2,7 +2,7 @@
 ![SagePaymentsJSUI](https://developer.sagepayments.com/sites/default/files/payjs_v1.png)
 ---
 
-**Important Note: This project has been archived. The PaymentsJS product is still being supported, but no longer receiving any maintenance or updates. Please reach out to [sdksupport@paya.com](mailto:sdksupport@paya.com) with any questions. If you are looking for a hosted solution for use with the legacy Paya Gateway (formerly Sage Payments/Sage Exchange) we recommend [Paya Exchange Virtual Desktop (PEVD) 2.0](https://github.com/SagePayments/Sage-Exchange-Virtual-Desktop).**
+**Important Note: This project has been archived. The PaymentsJS product is still being supported, but no longer receiving any maintenance or updates. Please reach out to [sdksupport@nuvei.com](mailto:sdksupport@nuvei.com) with any questions. If you are looking for a hosted solution for use with the legacy Paya Gateway (formerly Sage Payments/Sage Exchange) we recommend [Paya Exchange Virtual Desktop (PEVD) 2.0](https://github.com/SagePayments/Sage-Exchange-Virtual-Desktop).**
 
 PaymentsJS is a JavaScript library that enables developers to quickly start processing credit cards on their website. The library includes a pre-built user interface, while also exposing the underlying methods for use in applications with more strict UI/UX requirements. And whichever route you go, the credit card data never touches your server.
 
